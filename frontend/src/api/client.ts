@@ -1,18 +1,30 @@
 import axios, { AxiosError } from 'axios'
 
 /**
+ * Sub-folder the app is served from: '' on the production domain root, '/cstar' on local XAMPP
+ * (http://localhost/cstar). Set at build time with VITE_APP_BASE.
+ */
+export const APP_BASE = (import.meta.env.VITE_APP_BASE ?? '').replace(/\/$/, '')
+
+/** Absolute URL of an API endpoint, for <img src> / download links that bypass axios. */
+export const apiUrl = (path: string) => `${APP_BASE}/api/v1${path}`
+
+/** URL of a public website page. */
+export const siteUrl = (path = '/') => `${APP_BASE}${path}`
+
+/**
  * Same-origin API client. Sanctum SPA auth uses the session cookie + XSRF-TOKEN cookie,
  * so no token is ever stored in the browser.
  */
 export const api = axios.create({
-  baseURL: '/api/v1',
+  baseURL: apiUrl(''),
   withCredentials: true,
   withXSRFToken: true,
   headers: { Accept: 'application/json' },
 })
 
 export function fetchCsrfCookie() {
-  return axios.get('/sanctum/csrf-cookie', { withCredentials: true })
+  return axios.get(`${APP_BASE}/sanctum/csrf-cookie`, { withCredentials: true })
 }
 
 type LaravelError = { message?: string; errors?: Record<string, string[]> }

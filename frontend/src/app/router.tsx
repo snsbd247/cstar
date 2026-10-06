@@ -1,3 +1,4 @@
+import { APP_BASE } from '../api/client'
 import { createBrowserRouter } from 'react-router'
 import ChangePasswordPage from '../features/auth/ChangePasswordPage'
 import LoginPage from '../features/auth/LoginPage'
@@ -112,4 +113,4 @@ export const router = createBrowserRouter([
     ],
   },
   { path: '*', element: <NotFound /> },
-])
+], { basename: APP_BASE || undefined })

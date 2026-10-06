@@ -1,6 +1,6 @@
 import { Download, FileText, Lock, Trash2, Upload } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
-import { errorMessage, validationErrors } from '../../../api/client'
+import { apiUrl, errorMessage, validationErrors } from '../../../api/client'
 import { Button } from '../../../components/ui/Button'
 import { Alert, Badge, Card } from '../../../components/ui/Card'
 import { Field, Input, Select } from '../../../components/ui/Field'
@@ -54,7 +54,7 @@ export function DocumentsTab({ patient }: { patient: PatientDetail }) {
                     <Lock className="mr-1 size-3" /> Clinical
                   </Badge>
                 )}
-                <a href={`/api/v1/documents/${d.id}/download`} className="rounded-md p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-800" aria-label={`Download ${d.title}`}>
+                <a href={apiUrl(`/documents/${d.id}/download`)} className="rounded-md p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-800" aria-label={`Download ${d.title}`}>
                   <Download className="size-4" />
                 </a>
                 {patient.can.update && (

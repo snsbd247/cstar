@@ -1,3 +1,4 @@
+import { apiUrl } from '../../../api/client'
 import { useState } from 'react'
 import { Badge } from '../../../components/ui/Card'
 import { cn } from '../../../utils/cn'
@@ -29,7 +30,7 @@ export function PatientAvatar({ id, name, hasPhoto, size = 'md' }: { id: number;
     .toUpperCase()
 
   if (hasPhoto && !failed) {
-    return <img src={`/api/v1/patients/${id}/photo`} alt={name} onError={() => setFailed(true)} className={cn('shrink-0 rounded-full object-cover', dims)} />
+    return <img src={apiUrl(`/patients/${id}/photo`)} alt={name} onError={() => setFailed(true)} className={cn('shrink-0 rounded-full object-cover', dims)} />
   }
   return <span className={cn('flex shrink-0 items-center justify-center rounded-full bg-sky-brand-100 font-semibold text-sky-brand-700', dims)}>{initials}</span>
 }

@@ -1,3 +1,4 @@
+import { siteUrl } from '../../api/client'
 import { useSearchParams } from 'react-router'
 import { PageHeader } from '../../components/ui/Card'
 import { useAuth } from '../../contexts/useAuth'
@@ -33,7 +34,7 @@ export default function CmsPage() {
         title="Website CMS"
         description="Content of the public website. Changes appear on the site immediately."
         actions={
-          <a href="/" target="_blank" rel="noopener" className="text-sm font-medium text-sky-brand-600 hover:underline">
+          <a href={siteUrl()} target="_blank" rel="noopener" className="text-sm font-medium text-sky-brand-600 hover:underline">
             View website ↗
           </a>
         }

@@ -51,6 +51,27 @@ npm run dev                      # http://localhost:5173  (/api ও /sanctum Lar
 
 এরপর browser-এ খুলুন: **http://localhost:5173/login**
 
+### XAMPP দিয়ে চালানো: http://localhost/cstar
+
+Development server ছাড়াই XAMPP-এর Apache দিয়ে পুরো site (website + staff app) দেখা যায়।
+
+| যা সাজানো আছে | বিবরণ |
+|---|---|
+| `F:\web\htdocs\cstar` | `backend\public` folder-এর **junction** (আলাদা copy নয়) |
+| `F:\web\apache\conf\extra\httpd-cstar.conf` | শুধু `/cstar` folder **PHP 8.3** (php-cgi) দিয়ে চলে; htdocs-এর বাকি project আগের মতো PHP 8.2-তে থাকে |
+| `F:\web\apache\conf\httpd.conf` | শেষ লাইনে উপরের file `Include` করা। পুরনো config-এর backup: `httpd.conf.bak-before-cstar`, `extra\httpd-xampp.conf.bak-before-cstar` |
+| `backend\.env` | `APP_URL=http://localhost/cstar`, `SANCTUM_STATEFUL_DOMAINS`-এ `localhost` |
+
+React app-এ পরিবর্তন করলে `/cstar`-এর জন্য আবার build করতে হবে:
+
+```bash
+cd frontend && npm run build:xampp     # VITE_APP_BASE=/cstar (.env.xampp)
+cd backend  && npm run build           # website-এর CSS/JS
+```
+
+> cPanel-এ domain-এর root-এ চালানোর জন্য সাধারণ `npm run build` ব্যবহার করতে হবে (sub-folder ছাড়া)।
+> Junction সরাতে: `rmdir F:\web\htdocs\cstar` (শুধু link মোছে, project-এর file নয়)। Apache config ফেরাতে httpd.conf-এর শেষ `Include` লাইনটি মুছে Apache restart করুন।
+
 ### Demo login (শুধু local-এর জন্য, সবার password `Cstar@1234`)
 
 | Role | Login | কোথায় যাবে |
