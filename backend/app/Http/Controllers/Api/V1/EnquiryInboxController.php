@@ -28,7 +28,7 @@ class EnquiryInboxController extends Controller
 
         return response()->json([
             'data' => collect($requests->items())->map(fn (AppointmentRequest $r) => [
-                ...$r->only(['id', 'reference', 'parent_name', 'child_name', 'child_age_years', 'phone', 'email', 'preferred_time', 'message', 'status', 'internal_note', 'created_at', 'handled_at']),
+                ...$r->only(['id', 'reference', 'parent_name', 'child_name', 'child_age_years', 'phone', 'email', 'preferred_time', 'message', 'status', 'internal_note', 'created_at', 'handled_at', 'appointment_id', 'service_id', 'preferred_therapist_id']),
                 'preferred_date' => $r->preferred_date?->toDateString(),
                 'preferred_time_label' => AppointmentRequest::TIMES[$r->preferred_time] ?? null,
                 'branch' => $r->branch?->name,

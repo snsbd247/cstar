@@ -14,6 +14,10 @@ import HolidaysPage from '../features/training/HolidaysPage'
 import StudentsPage from '../features/training/StudentsPage'
 import TrainersPage from '../features/training/TrainersPage'
 import TrainingRecordsPage from '../features/training/TrainingRecordsPage'
+import AppointmentsPage from '../features/therapy/AppointmentsPage'
+import TherapistsPage from '../features/therapy/TherapistsPage'
+import TherapySessionsPage from '../features/therapy/TherapySessionsPage'
+import { TherapistPatientPage, TherapistPatientsPage, TherapistSchedulePage, TherapistSessionPage, TherapistSessionsPage } from '../features/therapist/TherapistPages'
 import { TrainerAttendancePage, TrainerRecordsPage, TrainerStudentPage, TrainerStudentsPage } from '../features/trainer/TrainerPages'
 import OnlineRequestsPage from '../features/requests/OnlineRequestsPage'
 import { portalNav } from '../features/portal/nav'
@@ -64,6 +68,9 @@ export const router = createBrowserRouter([
           { path: 'classes/:id', element: <RequirePermission permission="classes.view"><ClassDetailPage /></RequirePermission> },
           { path: 'trainers', element: <RequirePermission permission="trainers.view"><TrainersPage /></RequirePermission> },
           { path: 'training-sessions', element: <RequirePermission permission="training_records.view"><TrainingRecordsPage /></RequirePermission> },
+          { path: 'therapists', element: <RequirePermission permission="therapists.view"><TherapistsPage /></RequirePermission> },
+          { path: 'appointments', element: <RequirePermission permission="appointments.view"><AppointmentsPage /></RequirePermission> },
+          { path: 'therapy-sessions', element: <RequirePermission permission="therapy_sessions.view"><TherapySessionsPage /></RequirePermission> },
           { path: 'holidays', element: <RequirePermission permission="branches.view"><HolidaysPage /></RequirePermission> },
           { path: 'online-requests', element: <RequirePermission permission="appointment_requests.manage"><OnlineRequestsPage /></RequirePermission> },
           { path: 'cms', element: <RequirePermission permission={['cms.manage', 'appointment_requests.manage']}><CmsPage /></RequirePermission> },
@@ -98,7 +105,15 @@ export const router = createBrowserRouter([
     children: [
       {
         element: <MobileAppLayout title="Therapist" nav={therapistNav} />,
-        children: [{ index: true, element: <TherapistToday /> }, ...plannedMobilePages(therapistNav, '/therapist')],
+        children: [
+          { index: true, element: <TherapistToday /> },
+          { path: 'schedule', element: <TherapistSchedulePage /> },
+          { path: 'patients', element: <TherapistPatientsPage /> },
+          { path: 'patients/:enrollmentId', element: <TherapistPatientPage /> },
+          { path: 'sessions', element: <TherapistSessionsPage /> },
+          { path: 'session/:appointmentId', element: <TherapistSessionPage /> },
+          { path: 'assessments', element: <ComingSoon title="Assessments" sprint={9} /> },
+        ],
       },
     ],
   },

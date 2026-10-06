@@ -5,6 +5,7 @@ import { errorMessage } from '../../api/client'
 import { Button } from '../../components/ui/Button'
 import { Alert, Badge, Card } from '../../components/ui/Card'
 import { FullPageSpinner } from '../../components/ui/Spinner'
+import { useAuth } from '../../contexts/useAuth'
 import { cn } from '../../utils/cn'
 import { usePatient, useUploadPhoto } from './api'
 import { PatientAvatar, PatientTypeBadge } from './components/badges'
@@ -14,12 +15,15 @@ import { EnrollmentsTab } from './components/EnrollmentsTab'
 import { GuardiansTab } from './components/GuardiansTab'
 import { OverviewTab } from './components/OverviewTab'
 import { TimelineTab } from './components/TimelineTab'
+import { TherapyTab } from './components/TherapyTab'
 import { TrainingTab } from './components/TrainingTab'
+import { BookAppointmentModal } from '../therapy/components/BookAppointmentModal'
 
 const tabs = [
   ['overview', 'Overview'],
   ['enrollments', 'Enrollments'],
   ['training', 'Training'],
+  ['therapy', 'Therapy'],
   ['guardians', 'Guardians'],
   ['documents', 'Documents'],
   ['timeline', 'Timeline'],
@@ -30,6 +34,8 @@ export default function PatientProfilePage() {
   const { data: patient, isLoading, error } = usePatient(id)
   const [params, setParams] = useSearchParams()
   const [enrolling, setEnrolling] = useState(false)
+  const [booking, setBooking] = useState(false)
+  const { can } = useAuth()
   const photoInput = useRef<HTMLInputElement>(null)
   const uploadPhoto = useUploadPhoto(Number(id))
   const tab = params.get('tab') ?? 'overview'
@@ -101,7 +107,7 @@ export default function PatientProfilePage() {
                 <GraduationCap className="size-4" /> New enrollment
               </Button>
             )}
-            <Button variant="secondary" disabled title="Appointments arrive in Sprint 8">
+            <Button variant="secondary" disabled={!can('appointments.manage')} onClick={() => setBooking(true)}>
               <CalendarPlus className="size-4" /> Appointment
             </Button>
             <Button variant="secondary" disabled title="Billing arrives in Sprint 10">
@@ -140,10 +146,13 @@ export default function PatientProfilePage() {
         {tab === 'overview' && <OverviewTab patient={patient} />}
         {tab === 'enrollments' && <EnrollmentsTab patient={patient} onNew={() => setEnrolling(true)} />}
         {tab === 'training' && <TrainingTab patient={patient} />}
+        {tab === 'therapy' && <TherapyTab patient={patient} />}
         {tab === 'guardians' && <GuardiansTab patient={patient} />}
         {tab === 'documents' && <DocumentsTab patient={patient} />}
         {tab === 'timeline' && <TimelineTab patientId={patient.id} />}
       </div>
+
+      {booking && <BookAppointmentModal patient={{ id: patient.id, name: patient.name }} onClose={() => setBooking(false)} onBooked={() => setParams({ tab: 'therapy' }, { replace: true })} />}
 
       {enrolling && (
         <EnrollmentFormModal

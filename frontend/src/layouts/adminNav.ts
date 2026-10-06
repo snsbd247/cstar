@@ -62,10 +62,10 @@ export const adminNav: NavGroup[] = [
   {
     title: 'Therapy',
     items: [
-      { label: 'Therapists', to: '/app/therapists', icon: Stethoscope, permissions: ['therapists.view'], sprint: 8 },
+      { label: 'Therapists', to: '/app/therapists', icon: Stethoscope, permissions: ['therapists.view'] },
       { label: 'Online Requests', to: '/app/online-requests', icon: Inbox, permissions: ['appointment_requests.manage'] },
-      { label: 'Appointments', to: '/app/appointments', icon: CalendarCheck, permissions: ['appointments.view'], sprint: 8 },
-      { label: 'Therapy Sessions', to: '/app/therapy-sessions', icon: HeartPulse, permissions: ['therapy_sessions.view'], sprint: 8 },
+      { label: 'Appointments', to: '/app/appointments', icon: CalendarCheck, permissions: ['appointments.view'] },
+      { label: 'Therapy Sessions', to: '/app/therapy-sessions', icon: HeartPulse, permissions: ['therapy_sessions.view'] },
     ],
   },
   {

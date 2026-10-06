@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { CalendarClock, Phone, UserPlus } from 'lucide-react'
+import { CalendarClock, CalendarPlus, Phone, UserPlus } from 'lucide-react'
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { api, errorMessage } from '../../api/client'
@@ -7,6 +7,7 @@ import { Button } from '../../components/ui/Button'
 import { Alert, Badge, Card, PageHeader } from '../../components/ui/Card'
 import { Spinner } from '../../components/ui/Spinner'
 import { cn } from '../../utils/cn'
+import { BookAppointmentModal } from '../therapy/components/BookAppointmentModal'
 
 interface AppointmentRequest {
   id: number
@@ -27,6 +28,9 @@ interface AppointmentRequest {
   preferred_therapist: string | null
   handled_by: string | null
   patient: { id: number; patient_code: string; name: string } | null
+  appointment_id: number | null
+  service_id: number | null
+  preferred_therapist_id: number | null
 }
 
 const statuses = ['new', 'contacted', 'converted', 'rejected', 'spam'] as const
@@ -38,6 +42,7 @@ export default function OnlineRequestsPage() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const [error, setError] = useState<string | null>(null)
+  const [booking, setBooking] = useState<AppointmentRequest | null>(null)
   const { data, isLoading } = useQuery({
     queryKey: ['appointment-requests', status],
     queryFn: async () =>
@@ -133,6 +138,12 @@ export default function OnlineRequestsPage() {
               )}
               {r.handled_by && <p className="mt-1 text-xs text-slate-400">Handled by {r.handled_by}</p>}
 
+              {r.status === 'converted' && r.patient && !r.appointment_id && (
+                <Button className="mt-3 min-h-8 px-2.5 py-1 text-xs" onClick={() => setBooking(r)}>
+                  <CalendarPlus className="size-3.5" /> Book appointment
+                </Button>
+              )}
+              {r.appointment_id && <p className="mt-1 text-xs font-medium text-brand-700">Appointment booked</p>}
               {r.status !== 'converted' && (
                 <div className="mt-3 flex flex-wrap gap-1 border-t border-slate-100 pt-3">
                   <Button className="min-h-8 px-2.5 py-1 text-xs" onClick={() => register(r)}>
@@ -158,6 +169,16 @@ export default function OnlineRequestsPage() {
             </Card>
           ))}
         </div>
+      )}
+      {booking?.patient && (
+        <BookAppointmentModal
+          patient={{ id: booking.patient.id, name: booking.patient.name }}
+          serviceId={booking.service_id ?? undefined}
+          therapistId={booking.preferred_therapist_id ?? undefined}
+          appointmentRequestId={booking.id}
+          onClose={() => setBooking(null)}
+          onBooked={() => queryClient.invalidateQueries({ queryKey: ['appointment-requests'] })}
+        />
       )}
     </>
   )

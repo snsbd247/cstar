@@ -9,7 +9,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 
 /** Clinical therapy staff. Not a trainer (TRAINER ≠ THERAPIST). */
@@ -47,6 +49,21 @@ class Therapist extends Model
     public function photoUrl(): ?string
     {
         return $this->photo_path ? Storage::disk('public')->url($this->photo_path) : null;
+    }
+
+    public function schedules(): HasMany
+    {
+        return $this->hasMany(TherapistSchedule::class)->orderBy('weekday')->orderBy('start_time');
+    }
+
+    public function leaves(): HasMany
+    {
+        return $this->hasMany(TherapistLeave::class)->orderByDesc('start_date');
+    }
+
+    public function isOnLeave(Carbon $date): bool
+    {
+        return $this->leaves()->whereDate('start_date', '<=', $date)->whereDate('end_date', '>=', $date)->exists();
     }
 
     public function isActive(): bool

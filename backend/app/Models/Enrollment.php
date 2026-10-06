@@ -67,6 +67,17 @@ class Enrollment extends Model
         return $this->hasMany(IndividualPlan::class)->latest('start_date')->latest('id');
     }
 
+    /** Weekly recurring appointment times (therapy enrollments). */
+    public function slots(): HasMany
+    {
+        return $this->hasMany(TherapyEnrollmentSlot::class)->orderBy('weekday');
+    }
+
+    public function appointments(): HasMany
+    {
+        return $this->hasMany(Appointment::class);
+    }
+
     public function attendance(): HasMany
     {
         return $this->hasMany(TrainingAttendance::class);

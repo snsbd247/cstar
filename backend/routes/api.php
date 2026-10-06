@@ -12,6 +12,9 @@ use App\Http\Controllers\Api\V1\LookupController;
 use App\Http\Controllers\Api\V1\PatientController;
 use App\Http\Controllers\Api\V1\PatientDocumentController;
 use App\Http\Controllers\Api\V1\RoleController;
+use App\Http\Controllers\Api\V1\Therapy\AppointmentController;
+use App\Http\Controllers\Api\V1\Therapy\TherapistController;
+use App\Http\Controllers\Api\V1\Therapy\TherapySessionController;
 use App\Http\Controllers\Api\V1\Training\IndividualPlanController;
 use App\Http\Controllers\Api\V1\Training\TrainerController;
 use App\Http\Controllers\Api\V1\Training\TrainingAttendanceController;
@@ -64,6 +67,7 @@ Route::prefix('v1')->group(function () {
 
         Route::get('lookups/enrollment-options', [LookupController::class, 'enrollmentOptions']);
         Route::get('lookups/diagnoses', [LookupController::class, 'diagnoses']);
+        Route::get('lookups/bookable-services', [LookupController::class, 'bookableServices']);
 
         // Regular training (TRAINER ≠ THERAPIST, TRAINING SESSION ≠ THERAPY SESSION)
         Route::get('trainers', [TrainerController::class, 'index']);
@@ -94,6 +98,30 @@ Route::prefix('v1')->group(function () {
         Route::get('holidays', [TrainingOverviewController::class, 'holidays']);
         Route::post('holidays', [TrainingOverviewController::class, 'storeHoliday']);
         Route::delete('holidays/{holiday}', [TrainingOverviewController::class, 'destroyHoliday']);
+
+        // Therapy (THERAPY APPOINTMENT ≠ STUDENT ATTENDANCE, THERAPY SESSION ≠ TRAINING SESSION)
+        Route::get('therapists', [TherapistController::class, 'index']);
+        Route::post('therapists', [TherapistController::class, 'store']);
+        Route::put('therapists/{therapist}', [TherapistController::class, 'update']);
+        Route::put('therapists/{therapist}/schedule', [TherapistController::class, 'updateSchedule']);
+        Route::post('therapists/{therapist}/leaves', [TherapistController::class, 'storeLeave']);
+        Route::delete('therapist-leaves/{leave}', [TherapistController::class, 'destroyLeave']);
+
+        Route::get('availability', [AppointmentController::class, 'availability']);
+        Route::get('appointments', [AppointmentController::class, 'index']);
+        Route::post('appointments', [AppointmentController::class, 'store']);
+        Route::get('appointments/{appointment}', [AppointmentController::class, 'show']);
+        Route::post('appointments/{appointment}/reschedule', [AppointmentController::class, 'reschedule']);
+        Route::post('appointments/{appointment}/{action}', [AppointmentController::class, 'changeStatus'])
+            ->whereIn('action', ['confirm', 'check-in', 'cancel', 'no-show']);
+        Route::get('appointments/{appointment}/session', [TherapySessionController::class, 'show']);
+        Route::post('appointments/{appointment}/session', [TherapySessionController::class, 'store']);
+        Route::get('therapy-sessions', [TherapySessionController::class, 'index']);
+        Route::get('therapist/today', [TherapySessionController::class, 'today']);
+        Route::get('therapist/patients', [TherapySessionController::class, 'myPatients']);
+        Route::get('enrollments/{enrollment}/slots', [TherapySessionController::class, 'slots']);
+        Route::put('enrollments/{enrollment}/slots', [TherapySessionController::class, 'updateSlots']);
+        Route::post('enrollments/{enrollment}/generate-appointments', [TherapySessionController::class, 'generate']);
 
         // Website front-desk inbox
         Route::get('appointment-requests', [EnquiryInboxController::class, 'appointmentRequests']);

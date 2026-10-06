@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\AppointmentStatus;
 use App\Enums\EnrollmentStatus;
 use App\Enums\EnrollmentType;
 use App\Enums\PatientStatus;
@@ -67,6 +68,11 @@ class Patient extends Model
     public function enrollments(): HasMany
     {
         return $this->hasMany(Enrollment::class);
+    }
+
+    public function appointments(): HasMany
+    {
+        return $this->hasMany(Appointment::class);
     }
 
     public function documents(): HasMany
@@ -181,7 +187,12 @@ class Patient extends Model
                 $q->orWhereHas('enrollments', fn ($e) => $e
                     ->where('type', EnrollmentType::Therapy)
                     ->whereIn('status', $open)
-                    ->whereHas('therapyEnrollment', fn ($t) => $t->where('therapist_id', $therapistId)));
+                    ->whereHas('therapyEnrollment', fn ($t) => $t->where('therapist_id', $therapistId)))
+                    // A first assessment has no enrollment yet: an upcoming or recent appointment also grants access.
+                    ->orWhereHas('appointments', fn ($a) => $a
+                        ->where('therapist_id', $therapistId)
+                        ->whereIn('status', AppointmentStatus::live())
+                        ->whereDate('date', '>=', today()->subDays(14)));
             }
 
             if ($roles->contains(Role::Parent->value) && ($guardianId = $user->guardian?->id)) {
