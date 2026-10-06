@@ -18,7 +18,7 @@ use Illuminate\Validation\ValidationException;
  */
 class TherapySessionService
 {
-    public function __construct(private TimelineService $timeline) {}
+    public function __construct(private TimelineService $timeline, private ChargeService $charges) {}
 
     public function save(Appointment $appointment, array $data, User $user): TherapySession
     {
@@ -65,6 +65,8 @@ class TherapySessionService
                 $appointment->update(['status' => AppointmentStatus::Completed]);
                 $this->timeline->record($appointment->patient, 'therapy.session', "Therapy session — {$appointment->service->name}", $session,
                     description: $session->parent_summary, branchId: $appointment->branch_id, visibility: 'parent');
+                // Billing: use a package session, or charge the session.
+                $this->charges->sessionCompleted($appointment, $session, $user);
             }
 
             return $session->load(['activities', 'goalScores']);

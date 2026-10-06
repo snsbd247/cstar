@@ -79,6 +79,9 @@ class AssessmentService
                 if ($appointment && in_array($appointment->status, [AppointmentStatus::Pending, AppointmentStatus::Confirmed, AppointmentStatus::CheckedIn], true)) {
                     $appointment->update(['status' => AppointmentStatus::Completed]);
                 }
+                if ($appointment) {
+                    app(ChargeService::class)->assessmentCompleted($appointment, $user);
+                }
                 $this->timeline->record($patient, 'assessment.finalized', "Assessment: {$type->name}", $assessment,
                     description: $assessment->summary, branchId: $assessment->branch_id);
             }

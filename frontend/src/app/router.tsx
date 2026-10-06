@@ -18,6 +18,11 @@ import AppointmentsPage from '../features/therapy/AppointmentsPage'
 import TherapistsPage from '../features/therapy/TherapistsPage'
 import TherapySessionsPage from '../features/therapy/TherapySessionsPage'
 import AssessmentsPage, { AssessmentDetailPage } from '../features/assessments/AssessmentsPage'
+import AccountsPage from '../features/accounts/AccountsPage'
+import InvoiceDetailPage from '../features/billing/InvoiceDetailPage'
+import InvoicesPage from '../features/billing/InvoicesPage'
+import PackagesPage from '../features/billing/PackagesPage'
+import PaymentsPage from '../features/billing/PaymentsPage'
 import { TherapistAssessmentPage, TherapistAssessmentsPage, TherapistNewAssessmentPage } from '../features/therapist/TherapistAssessments'
 import { TherapistPatientPage, TherapistPatientsPage, TherapistSchedulePage, TherapistSessionPage, TherapistSessionsPage } from '../features/therapist/TherapistPages'
 import { TrainerAttendancePage, TrainerRecordsPage, TrainerStudentPage, TrainerStudentsPage } from '../features/trainer/TrainerPages'
@@ -75,6 +80,11 @@ export const router = createBrowserRouter([
           { path: 'therapy-sessions', element: <RequirePermission permission="therapy_sessions.view"><TherapySessionsPage /></RequirePermission> },
           { path: 'assessments', element: <RequirePermission permission="assessments.view"><AssessmentsPage /></RequirePermission> },
           { path: 'assessments/:id', element: <RequirePermission permission="assessments.view"><AssessmentDetailPage /></RequirePermission> },
+          { path: 'packages', element: <RequirePermission permission="packages.view"><PackagesPage /></RequirePermission> },
+          { path: 'invoices', element: <RequirePermission permission="invoices.view"><InvoicesPage /></RequirePermission> },
+          { path: 'invoices/:id', element: <RequirePermission permission="invoices.view"><InvoiceDetailPage /></RequirePermission> },
+          { path: 'payments', element: <RequirePermission permission="payments.view"><PaymentsPage /></RequirePermission> },
+          { path: 'accounts', element: <RequirePermission permission="accounts.view"><AccountsPage /></RequirePermission> },
           { path: 'holidays', element: <RequirePermission permission="branches.view"><HolidaysPage /></RequirePermission> },
           { path: 'online-requests', element: <RequirePermission permission="appointment_requests.manage"><OnlineRequestsPage /></RequirePermission> },
           { path: 'cms', element: <RequirePermission permission={['cms.manage', 'appointment_requests.manage']}><CmsPage /></RequirePermission> },

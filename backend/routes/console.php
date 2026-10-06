@@ -8,7 +8,10 @@ use App\Models\Branch;
 use App\Models\Enrollment;
 use App\Models\User;
 use App\Services\AppointmentService;
+use App\Services\ChargeService;
+use App\Services\PackageService;
 use Illuminate\Foundation\Inspiring;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
 use Illuminate\Support\Facades\Validator;
@@ -69,3 +72,19 @@ Artisan::command('cstar:generate-appointments {--weeks=4}', function (Appointmen
 })->purpose('Create upcoming appointments from therapy enrollments\' weekly slots');
 
 Schedule::command('cstar:generate-appointments')->dailyAt('01:00');
+
+// Regular Training monthly fee invoices on the 1st (decision D4: fixed monthly fee, never twice for a month).
+Artisan::command('cstar:training-fees {--month=}', function (ChargeService $charges) {
+    $system = User::role(Role::SuperAdmin->value)->orderBy('id')->firstOrFail();
+    $month = $this->option('month') ? Carbon::createFromFormat('Y-m', $this->option('month'))->startOfMonth() : today()->startOfMonth();
+    $created = $charges->generateTrainingFees($month, $system);
+    $this->info("Created {$created} training fee invoices for {$month->format('F Y')}.");
+})->purpose('Create this month\'s Regular Training fee invoices');
+
+// Packages past their expiry: recognise the unused value as income (decision A2).
+Artisan::command('cstar:expire-packages', function (PackageService $packages) {
+    $this->info('Expired '.$packages->expireDue().' packages.');
+})->purpose('Close expired therapy packages');
+
+Schedule::command('cstar:training-fees')->monthlyOn(1, '02:00');
+Schedule::command('cstar:expire-packages')->dailyAt('00:30');

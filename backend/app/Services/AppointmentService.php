@@ -27,6 +27,7 @@ class AppointmentService
         private AvailabilityService $availability,
         private IdGenerator $ids,
         private TimelineService $timeline,
+        private ChargeService $charges,
     ) {}
 
     public function book(Patient $patient, array $data, User $user): Appointment
@@ -91,6 +92,7 @@ class AppointmentService
             $this->timeline->record($appointment->patient, "appointment.{$to->value}",
                 ucfirst(str_replace('_', ' ', $to->value)).": {$appointment->service->name} on {$appointment->date->format('d M')}", $appointment,
                 description: $data['reason'] ?? null, branchId: $appointment->branch_id, visibility: 'parent');
+            $this->charges->appointmentMissed($appointment, $user);
         }
 
         return $appointment;

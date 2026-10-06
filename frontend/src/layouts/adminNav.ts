@@ -71,10 +71,10 @@ export const adminNav: NavGroup[] = [
   {
     title: 'Billing & Accounts',
     items: [
-      { label: 'Packages', to: '/app/packages', icon: Package, permissions: ['packages.view'], sprint: 10 },
-      { label: 'Invoices', to: '/app/invoices', icon: Receipt, permissions: ['invoices.view'], sprint: 10 },
-      { label: 'Payments', to: '/app/payments', icon: CreditCard, permissions: ['payments.view'], sprint: 10 },
-      { label: 'Accounts', to: '/app/accounts', icon: Landmark, permissions: ['accounts.view', 'accounts.cash_closing', 'accounts.expense.create'], sprint: 11 },
+      { label: 'Packages', to: '/app/packages', icon: Package, permissions: ['packages.view'] },
+      { label: 'Invoices', to: '/app/invoices', icon: Receipt, permissions: ['invoices.view'] },
+      { label: 'Payments', to: '/app/payments', icon: CreditCard, permissions: ['payments.view'] },
+      { label: 'Accounts', to: '/app/accounts', icon: Landmark, permissions: ['accounts.view'] },
     ],
   },
   {

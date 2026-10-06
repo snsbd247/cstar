@@ -11,6 +11,8 @@ import { cn } from '../../utils/cn'
 import { usePatient, useUploadPhoto } from './api'
 import { PatientAvatar, PatientTypeBadge } from './components/badges'
 import { AssessmentsTab } from './components/AssessmentsTab'
+import { BillingTab } from './components/BillingTab'
+import { ReceivePaymentModal } from '../billing/components/ReceivePaymentModal'
 import { DocumentsTab } from './components/DocumentsTab'
 import { EnrollmentFormModal } from './components/EnrollmentFormModal'
 import { EnrollmentsTab } from './components/EnrollmentsTab'
@@ -27,6 +29,7 @@ const tabs = [
   ['training', 'Training'],
   ['therapy', 'Therapy'],
   ['assessments', 'Assessments'],
+  ['billing', 'Billing'],
   ['guardians', 'Guardians'],
   ['documents', 'Documents'],
   ['timeline', 'Timeline'],
@@ -38,6 +41,7 @@ export default function PatientProfilePage() {
   const [params, setParams] = useSearchParams()
   const [enrolling, setEnrolling] = useState<false | true | PatientRecommendation>(false)
   const [booking, setBooking] = useState(false)
+  const [paying, setPaying] = useState(false)
   const { can } = useAuth()
   const photoInput = useRef<HTMLInputElement>(null)
   const uploadPhoto = useUploadPhoto(Number(id))
@@ -113,7 +117,7 @@ export default function PatientProfilePage() {
             <Button variant="secondary" disabled={!can('appointments.manage')} onClick={() => setBooking(true)}>
               <CalendarPlus className="size-4" /> Appointment
             </Button>
-            <Button variant="secondary" disabled title="Billing arrives in Sprint 10">
+            <Button variant="secondary" disabled={!can('payments.create')} onClick={() => setPaying(true)}>
               <Wallet className="size-4" /> Payment
             </Button>
             {patient.can.update && (
@@ -151,11 +155,13 @@ export default function PatientProfilePage() {
         {tab === 'training' && <TrainingTab patient={patient} />}
         {tab === 'therapy' && <TherapyTab patient={patient} />}
         {tab === 'assessments' && <AssessmentsTab patient={patient} onEnroll={(r) => setEnrolling(r)} />}
+        {tab === 'billing' && <BillingTab patient={patient} onPay={() => setPaying(true)} />}
         {tab === 'guardians' && <GuardiansTab patient={patient} />}
         {tab === 'documents' && <DocumentsTab patient={patient} />}
         {tab === 'timeline' && <TimelineTab patientId={patient.id} />}
       </div>
 
+      {paying && <ReceivePaymentModal patient={{ id: patient.id, name: patient.name, home_branch_id: patient.home_branch?.id }} onClose={() => setPaying(false)} />}
       {booking && <BookAppointmentModal patient={{ id: patient.id, name: patient.name }} onClose={() => setBooking(false)} onBooked={() => setParams({ tab: 'therapy' }, { replace: true })} />}
 
       {enrolling && (

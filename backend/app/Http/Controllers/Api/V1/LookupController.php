@@ -52,7 +52,7 @@ class LookupController extends Controller
         Gate::authorize(Permission::APPOINTMENTS_VIEW);
 
         return response()->json(['data' => Service::where('is_active', true)->where('category', '!=', 'training')
-            ->orderBy('sort_order')->get(['id', 'name', 'category', 'default_duration_min'])]);
+            ->orderBy('sort_order')->get(['id', 'name', 'category', 'default_duration_min', 'default_price'])]);
     }
 
     public function diagnoses(): JsonResponse

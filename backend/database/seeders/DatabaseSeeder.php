@@ -21,12 +21,13 @@ class DatabaseSeeder extends Seeder
             WebsiteContentSeeder::class,
             ActivityTypeSeeder::class,
             AssessmentTypeSeeder::class,
+            ChartOfAccountsSeeder::class,
         ]);
 
         // Demo logins and the Ayan / Sara / Rafi example — never in production
         // (create the real admin with `php artisan cstar:create-admin`).
         if (! app()->isProduction()) {
-            $this->call([DemoUserSeeder::class, DemoClinicSeeder::class, DemoWebsiteSeeder::class, DemoTrainingSeeder::class, DemoTherapySeeder::class, DemoAssessmentSeeder::class]);
+            $this->call([DemoUserSeeder::class, DemoClinicSeeder::class, DemoWebsiteSeeder::class, DemoTrainingSeeder::class, DemoTherapySeeder::class, DemoAssessmentSeeder::class, DemoBillingSeeder::class]);
         }
     }
 }

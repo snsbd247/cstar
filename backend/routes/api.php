@@ -1,9 +1,14 @@
 <?php
 
+use App\Http\Controllers\Api\V1\Accounts\LedgerController;
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\Billing\InvoiceController;
+use App\Http\Controllers\Api\V1\Billing\PackageController;
+use App\Http\Controllers\Api\V1\Billing\PaymentController;
 use App\Http\Controllers\Api\V1\BranchController;
 use App\Http\Controllers\Api\V1\Cms\CmsContentController;
 use App\Http\Controllers\Api\V1\Cms\WebsiteSetupController;
+use App\Http\Controllers\Api\V1\DashboardController;
 use App\Http\Controllers\Api\V1\EnquiryInboxController;
 use App\Http\Controllers\Api\V1\EnrollmentController;
 use App\Http\Controllers\Api\V1\GuardianController;
@@ -66,6 +71,7 @@ Route::prefix('v1')->group(function () {
         Route::post('enrollments/{enrollment}/{action}', [EnrollmentController::class, 'changeStatus'])
             ->whereIn('action', ['activate', 'hold', 'resume', 'complete', 'discontinue']);
 
+        Route::get('dashboard', [DashboardController::class, 'summary']);
         Route::get('lookups/enrollment-options', [LookupController::class, 'enrollmentOptions']);
         Route::get('lookups/diagnoses', [LookupController::class, 'diagnoses']);
         Route::get('lookups/bookable-services', [LookupController::class, 'bookableServices']);
@@ -123,6 +129,37 @@ Route::prefix('v1')->group(function () {
         Route::get('enrollments/{enrollment}/slots', [TherapySessionController::class, 'slots']);
         Route::put('enrollments/{enrollment}/slots', [TherapySessionController::class, 'updateSlots']);
         Route::post('enrollments/{enrollment}/generate-appointments', [TherapySessionController::class, 'generate']);
+
+        // Billing: packages, invoices, payments, dues (Plan §১৯) — every money event auto-posts to the ledger
+        Route::get('packages', [PackageController::class, 'index']);
+        Route::post('packages', [PackageController::class, 'store']);
+        Route::put('packages/{package}', [PackageController::class, 'update']);
+        Route::get('patient-packages', [PackageController::class, 'patientPackages']);
+        Route::post('patients/{patient}/packages', [PackageController::class, 'sell']);
+        Route::get('billing/settings', [PackageController::class, 'settings']);
+        Route::put('billing/settings', [PackageController::class, 'updateSettings']);
+        Route::get('invoices', [InvoiceController::class, 'index']);
+        Route::post('invoices', [InvoiceController::class, 'store']);
+        Route::get('invoices/{invoice}', [InvoiceController::class, 'show']);
+        Route::put('invoices/{invoice}', [InvoiceController::class, 'update']);
+        Route::delete('invoices/{invoice}', [InvoiceController::class, 'destroy']);
+        Route::post('invoices/{invoice}/issue', [InvoiceController::class, 'issue']);
+        Route::post('invoices/{invoice}/void', [InvoiceController::class, 'void']);
+        Route::get('invoices/{invoice}/pdf', [InvoiceController::class, 'pdf']);
+        Route::post('billing/training-fees', [InvoiceController::class, 'generateTrainingFees']);
+        Route::get('payments', [PaymentController::class, 'index']);
+        Route::get('payments/{payment}', [PaymentController::class, 'show']);
+        Route::post('payments/{payment}/void', [PaymentController::class, 'void']);
+        Route::get('payments/{payment}/receipt', [PaymentController::class, 'receipt']);
+        Route::post('patients/{patient}/payments', [PaymentController::class, 'store']);
+        Route::post('patients/{patient}/refunds', [PaymentController::class, 'refund']);
+        Route::get('patients/{patient}/billing', [PaymentController::class, 'account']);
+        Route::get('billing/dues', [PaymentController::class, 'dues']);
+        Route::get('billing/collection', [PaymentController::class, 'collection']);
+
+        // Accounts (read-only until Accounts A): chart with balances, auto-posted journal
+        Route::get('accounts/chart', [LedgerController::class, 'chart']);
+        Route::get('accounts/journal', [LedgerController::class, 'journal']);
 
         // Assessments → recommendations → enrollment; PDF reports
         Route::get('lookups/assessment-types', [AssessmentController::class, 'types']);
