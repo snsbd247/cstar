@@ -315,6 +315,7 @@ export const adminNav: NavSection[] = [
       { label: 'Security', to: '/app/settings?tab=security', permissions: P.settings },
       { label: 'Backup', to: '/app/settings?tab=backup', permissions: P.settings },
       { label: 'System Settings', to: '/app/settings?tab=system', permissions: P.settings },
+      { label: 'Go-live', to: '/app/settings?tab=go-live', permissions: P.settings },
     ],
   },
 ]

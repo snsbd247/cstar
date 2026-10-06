@@ -150,5 +150,8 @@ Artisan::command('cstar:backup {--force : Run even when the daily backup is turn
 
 Schedule::command('cstar:backup')->dailyAt('02:30');
 
+// Emails wait in the database queue; shared hosting has no long-running worker, so cron empties it each minute.
+Schedule::command('queue:work --stop-when-empty --tries=3 --max-time=50')->everyMinute()->withoutOverlapping();
+
 // Settings → System shows when the scheduler (cPanel cron) last ran, so a missing cron job is noticed.
 Schedule::call(fn () => Cache::forever('scheduler.heartbeat', now()->toIso8601String()))->everyMinute()->name('scheduler-heartbeat');

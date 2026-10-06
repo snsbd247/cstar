@@ -19,6 +19,8 @@ const arg = (name, fallback) => {
   return i > -1 ? process.argv[i + 1] : fallback
 }
 const php = arg('--php', process.env.PHP_BINARY ?? 'F:/web/php83/php.exe')
+// Windows: use the built-in bsdtar (Git Bash's GNU tar reads "E:" as a remote host and cannot write zip).
+const TAR = process.platform === 'win32' ? 'C:/Windows/System32/tar.exe' : 'tar'
 const run = (cmd, cwd = root) => {
   console.log(`\n> ${cmd}`)
   execSync(cmd, { cwd, stdio: 'inherit' })
@@ -27,7 +29,7 @@ const run = (cmd, cwd = root) => {
 const dirty = execSync('git status --porcelain', { cwd: root }).toString().trim()
 if (dirty) console.warn('⚠ Uncommitted changes are NOT in the package (it is built from the last commit).')
 const commit = execSync('git rev-parse --short HEAD', { cwd: root }).toString().trim()
-const version = `${new Date().toISOString().slice(0, 10)}-${commit}`
+const version = `${new Date().toLocaleDateString('en-CA')}-${commit}`
 
 const out = join(root, 'release')
 const stage = join(out, `cstar-${version}`)
@@ -39,7 +41,7 @@ mkdirSync(app, { recursive: true })
 // 1. Backend source from the last commit.
 const tar = join(out, 'backend.tar')
 execFileSync('git', ['archive', '--format=tar', `--output=${tar}`, 'HEAD:backend'], { cwd: root })
-execFileSync('tar', ['-xf', tar, '-C', app])
+execFileSync(TAR, ['-xf', tar, '-C', app])
 rmSync(tar)
 for (const p of ['tests', 'phpunit.xml', '.env.example', 'node_modules', 'public/spa', 'public/build']) rmSync(join(app, p), { recursive: true, force: true })
 
@@ -73,7 +75,7 @@ writeFileSync(join(stage, 'VERSION.txt'), `C-STAR ${version}\nBuilt ${new Date()
 // 5. Zip.
 const zip = join(out, `cstar-${version}.zip`)
 rmSync(zip, { force: true })
-execFileSync('tar', ['-a', '-c', '-f', zip, '-C', stage, 'cstar-app', 'public_html', 'VERSION.txt'])
+execFileSync(TAR, ['-a', '-c', '-f', zip, '-C', stage, 'cstar-app', 'public_html', 'VERSION.txt'])
 rmSync(stage, { recursive: true, force: true })
 console.log(`\n✔ ${zip}\nUpload and follow docs/C-STAR-Deployment-BN.md (then run: php artisan cstar:deploy).`)
 

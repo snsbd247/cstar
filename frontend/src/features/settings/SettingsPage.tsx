@@ -12,6 +12,7 @@ import { ApprovalLimitCard } from '../accounts/AccountsPage'
 import { BillingSettingsForm } from '../billing/PackagesPage'
 import { useBranches } from '../branches/api'
 import { NotificationSettingsCard } from '../notifications/NotificationsPage'
+import { GoLiveTab } from './GoLiveTab'
 
 type Groups = Record<string, Record<string, string>>
 type FieldDef = { key: string; label: string; type?: 'text' | 'number' | 'bool' | 'color' | 'textarea' | 'select'; hint?: string; options?: [string, string][] }
@@ -30,6 +31,7 @@ const tabs = [
   ['security', 'Security'],
   ['backup', 'Backup'],
   ['system', 'System'],
+  ['go-live', 'Go-live'],
 ] as const
 
 const forms: Record<string, { group: string; title: string; intro: string; fields: FieldDef[] }> = {
@@ -144,6 +146,8 @@ export default function SettingsPage() {
         <div className="max-w-xl">
           <NotificationSettingsCard />
         </div>
+      ) : tab === 'go-live' ? (
+        <GoLiveTab />
       ) : tab === 'language' ? (
         <LanguageInfo />
       ) : (
