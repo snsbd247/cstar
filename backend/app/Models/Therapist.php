@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Storage;
 
 /** Clinical therapy staff. Not a trainer (TRAINER ≠ THERAPIST). */
 #[Fillable([
-    'user_id', 'primary_branch_id', 'employee_code', 'name', 'slug', 'designation', 'therapist_type',
+    'user_id', 'employee_id', 'primary_branch_id', 'employee_code', 'name', 'slug', 'designation', 'therapist_type',
     'phone', 'email', 'qualification', 'experience_years', 'bio', 'photo_path', 'status', 'show_on_website', 'sort_order',
 ])]
 class Therapist extends Model

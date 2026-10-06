@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\V1\Accounts\CashClosingController;
 use App\Http\Controllers\Api\V1\Accounts\ExpenseController;
 use App\Http\Controllers\Api\V1\Accounts\LedgerController;
+use App\Http\Controllers\Api\V1\Accounts\PayrollController;
 use App\Http\Controllers\Api\V1\Accounts\ReportController;
 use App\Http\Controllers\Api\V1\Accounts\SetupController;
 use App\Http\Controllers\Api\V1\Accounts\VoucherController;
@@ -199,6 +200,24 @@ Route::prefix('v1')->group(function () {
         Route::get('accounts/reports/day-book', [ReportController::class, 'dayBook']);
         Route::get('accounts/reports/income-statement', [ReportController::class, 'incomeStatement']);
         Route::get('accounts/reports/balance-sheet', [ReportController::class, 'balanceSheet']);
+
+        // Accounts B: employees, pay setup, advances, payroll, payslips
+        Route::get('hr/employees', [PayrollController::class, 'employees']);
+        Route::get('hr/employee-options', [PayrollController::class, 'employeeOptions']);
+        Route::post('hr/employees', [PayrollController::class, 'storeEmployee']);
+        Route::get('hr/employees/{employee}', [PayrollController::class, 'employee']);
+        Route::put('hr/employees/{employee}', [PayrollController::class, 'updateEmployee']);
+        Route::post('hr/employees/{employee}/salary-structures', [PayrollController::class, 'saveStructure']);
+        Route::post('hr/employees/{employee}/session-rates', [PayrollController::class, 'saveRate']);
+        Route::post('hr/employees/{employee}/advances', [PayrollController::class, 'giveAdvance']);
+        Route::get('payroll/runs', [PayrollController::class, 'runs']);
+        Route::post('payroll/runs', [PayrollController::class, 'storeRun']);
+        Route::get('payroll/runs/{run}', [PayrollController::class, 'run']);
+        Route::get('payroll/runs/{run}/sheet', [PayrollController::class, 'salarySheet']);
+        Route::post('payroll/runs/{run}/{action}', [PayrollController::class, 'action'])->whereIn('action', ['recalculate', 'approve', 'reopen', 'pay']);
+        Route::put('payroll/items/{item}', [PayrollController::class, 'updateItem']);
+        Route::get('payroll/payslips/{item}/pdf', [PayrollController::class, 'payslip']);
+        Route::get('me/payslips', [PayrollController::class, 'myPayslips']);
 
         // Assessments → recommendations → enrollment; PDF reports
         Route::get('lookups/assessment-types', [AssessmentController::class, 'types']);

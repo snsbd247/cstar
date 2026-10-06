@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Storage;
 
 /** Physical/functional training staff. Not a therapist (TRAINER ≠ THERAPIST). */
 #[Fillable([
-    'user_id', 'branch_id', 'employee_code', 'name', 'slug', 'phone', 'email',
+    'user_id', 'employee_id', 'branch_id', 'employee_code', 'name', 'slug', 'phone', 'email',
     'qualification', 'experience_years', 'bio', 'photo_path', 'status', 'show_on_website', 'sort_order',
 ])]
 class Trainer extends Model

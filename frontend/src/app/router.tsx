@@ -24,6 +24,8 @@ import CashClosingPage from '../features/accounts/CashClosingPage'
 import ExpensesPage from '../features/accounts/ExpensesPage'
 import ReportsPage from '../features/accounts/ReportsPage'
 import VouchersPage from '../features/accounts/VouchersPage'
+import EmployeesPage, { EmployeeDetailPage } from '../features/payroll/EmployeesPage'
+import PayrollPage, { MyPayslipsPage, PayrollRunPage } from '../features/payroll/PayrollPage'
 import InvoiceDetailPage from '../features/billing/InvoiceDetailPage'
 import InvoicesPage from '../features/billing/InvoicesPage'
 import PackagesPage from '../features/billing/PackagesPage'
@@ -91,6 +93,11 @@ export const router = createBrowserRouter([
           { path: 'payments', element: <RequirePermission permission="payments.view"><PaymentsPage /></RequirePermission> },
           { path: 'accounts', element: <RequirePermission permission="accounts.view"><AccountsDashboard /></RequirePermission> },
           { path: 'accounts/books', element: <RequirePermission permission="accounts.view"><AccountsPage /></RequirePermission> },
+          { path: 'employees', element: <RequirePermission permission={['accounts.payroll.manage', 'accounts.payroll.approve']}><EmployeesPage /></RequirePermission> },
+          { path: 'employees/:id', element: <RequirePermission permission={['accounts.payroll.manage', 'accounts.payroll.approve']}><EmployeeDetailPage /></RequirePermission> },
+          { path: 'payroll', element: <RequirePermission permission={['accounts.payroll.manage', 'accounts.payroll.approve']}><PayrollPage /></RequirePermission> },
+          { path: 'payroll/:id', element: <RequirePermission permission={['accounts.payroll.manage', 'accounts.payroll.approve']}><PayrollRunPage /></RequirePermission> },
+          { path: 'my-payslips', element: <MyPayslipsPage /> },
           { path: 'accounts/vouchers', element: <RequirePermission permission="accounts.view"><VouchersPage /></RequirePermission> },
           { path: 'accounts/reports', element: <RequirePermission permission="accounts.reports"><ReportsPage /></RequirePermission> },
           { path: 'expenses', element: <RequirePermission permission="accounts.expense.create"><ExpensesPage /></RequirePermission> },
@@ -111,14 +118,15 @@ export const router = createBrowserRouter([
     element: <RequireAuth roles={['trainer']} />,
     children: [
       {
-        element: <MobileAppLayout title="Trainer" nav={trainerNav} />,
+        element: <MobileAppLayout title="Trainer" nav={trainerNav} payslipsTo="/trainer/payslips" />,
         children: [
           { index: true, element: <TrainerToday /> },
           { path: 'attendance', element: <TrainerAttendancePage /> },
           { path: 'records', element: <TrainerRecordsPage /> },
           { path: 'students', element: <TrainerStudentsPage /> },
           { path: 'students/:enrollmentId', element: <TrainerStudentPage /> },
-          { path: 'profile', element: <ComingSoon title="Profile" /> },
+          { path: 'profile', element: <MyPayslipsPage /> },
+          { path: 'payslips', element: <MyPayslipsPage /> },
         ],
       },
     ],
@@ -128,7 +136,7 @@ export const router = createBrowserRouter([
     element: <RequireAuth roles={['therapist']} />,
     children: [
       {
-        element: <MobileAppLayout title="Therapist" nav={therapistNav} />,
+        element: <MobileAppLayout title="Therapist" nav={therapistNav} payslipsTo="/therapist/payslips" />,
         children: [
           { index: true, element: <TherapistToday /> },
           { path: 'schedule', element: <TherapistSchedulePage /> },
@@ -139,6 +147,7 @@ export const router = createBrowserRouter([
           { path: 'assessments', element: <TherapistAssessmentsPage /> },
           { path: 'assessments/new', element: <TherapistNewAssessmentPage /> },
           { path: 'assessments/:id', element: <TherapistAssessmentPage /> },
+          { path: 'payslips', element: <MyPayslipsPage /> },
         ],
       },
     ],

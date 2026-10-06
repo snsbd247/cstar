@@ -1,5 +1,5 @@
-import { LogOut, type LucideIcon } from 'lucide-react'
-import { NavLink, Outlet, useNavigate } from 'react-router'
+import { LogOut, ReceiptText, type LucideIcon } from 'lucide-react'
+import { Link, NavLink, Outlet, useNavigate } from 'react-router'
 import { Logo } from '../components/shared/Logo'
 import { useAuth } from '../contexts/useAuth'
 import { cn } from '../utils/cn'
@@ -14,7 +14,7 @@ export interface BottomNavItem {
  * Shared shell for the task-focused, mobile-first apps (Trainer, Therapist, Parent):
  * slim top bar + bottom navigation on phones, the same nav as a top tab row on wider screens.
  */
-export function MobileAppLayout({ title, nav, bangla }: { title: string; nav: BottomNavItem[]; bangla?: boolean }) {
+export function MobileAppLayout({ title, nav, bangla, payslipsTo }: { title: string; nav: BottomNavItem[]; bangla?: boolean; payslipsTo?: string }) {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
 
@@ -29,16 +29,23 @@ export function MobileAppLayout({ title, nav, bangla }: { title: string; nav: Bo
               <p className="text-xs text-slate-500">{user?.name}</p>
             </div>
           </div>
-          <button
-            onClick={async () => {
-              await logout()
-              navigate('/login', { replace: true })
-            }}
-            className="rounded-md p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
-            aria-label="Sign out"
-          >
-            <LogOut className="size-5" />
-          </button>
+          <div className="flex items-center gap-1">
+            {payslipsTo && (
+              <Link to={payslipsTo} className="rounded-md p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700" aria-label="My payslips" title="My payslips">
+                <ReceiptText className="size-5" />
+              </Link>
+            )}
+            <button
+              onClick={async () => {
+                await logout()
+                navigate('/login', { replace: true })
+              }}
+              className="rounded-md p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+              aria-label="Sign out"
+            >
+              <LogOut className="size-5" />
+            </button>
+          </div>
         </div>
         <nav className="mx-auto hidden max-w-5xl gap-1 px-4 sm:flex">
           {nav.map((item) => (
