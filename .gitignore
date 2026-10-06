@@ -2,3 +2,6 @@
 .DS_Store
 Thumbs.db
 .idea/
+
+# cPanel release packages (scripts/build-release.mjs)
+/release/

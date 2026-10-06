@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\SpaController;
 use App\Http\Controllers\Website\EnquiryController;
 use App\Http\Controllers\Website\WebsiteController;
 use Illuminate\Support\Facades\Route;
@@ -32,9 +33,4 @@ Route::controller(EnquiryController::class)->group(function () {
 
 // React staff & parent apps. The production build lives in public/spa (see frontend/vite.config.ts);
 // every client-side route of those apps returns the same index.html.
-Route::get('/{area}/{path?}', function () {
-    $index = public_path('spa/index.html');
-    abort_unless(is_file($index), 404, 'Frontend not built. Run "npm run build" in the frontend folder.');
-
-    return response()->file($index, ['Cache-Control' => 'no-cache, no-store, must-revalidate']);
-})->where(['area' => 'app|trainer|therapist|portal|login|change-password', 'path' => '.*']);
+Route::get('/{area}/{path?}', SpaController::class)->where(['area' => 'app|trainer|therapist|portal|login|change-password', 'path' => '.*']);

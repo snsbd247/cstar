@@ -15,6 +15,11 @@ class ApplySecuritySettings
 {
     public function handle(Request $request, Closure $next): Response
     {
+        // Live site on https:// — any plain-http request is sent to the secure address first.
+        if (app()->isProduction() && str_starts_with((string) config('app.url'), 'https://') && ! $request->isSecure()) {
+            return redirect()->secure($request->getRequestUri(), 301);
+        }
+
         config(['session.lifetime' => (int) SystemSettings::safe('security', 'session_timeout_minutes')]);
 
         $response = $next($request);

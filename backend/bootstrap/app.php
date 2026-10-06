@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Spatie\Permission\Middleware\PermissionMiddleware;
 use Spatie\Permission\Middleware\RoleMiddleware;
 
-return Application::configure(basePath: dirname(__DIR__))
+$app = Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
         api: __DIR__.'/../routes/api.php',
@@ -33,3 +33,11 @@ return Application::configure(basePath: dirname(__DIR__))
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );
     })->create();
+
+// cPanel layout (docs/C-STAR-Deployment-BN.md): the web root is public_html, outside the app folder.
+// The release package writes its relative path into .public-path so asset, upload and SPA paths point there.
+if (is_file($marker = dirname(__DIR__).'/.public-path') && ($web = realpath(dirname(__DIR__).'/'.trim((string) file_get_contents($marker)))) && is_dir($web)) {
+    $app->usePublicPath($web);
+}
+
+return $app;

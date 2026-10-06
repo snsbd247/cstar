@@ -8,6 +8,7 @@ use App\Models\Branch;
 use App\Models\User;
 use App\Services\AuditLogger;
 use App\Services\BackupService;
+use App\Services\GoLiveChecks;
 use App\Services\PatientService;
 use App\Services\SystemSettings;
 use Illuminate\Http\JsonResponse;
@@ -60,19 +61,7 @@ class SettingsController extends Controller
         Gate::authorize(Permission::SETTINGS_MANAGE);
         $heartbeat = Cache::get('scheduler.heartbeat');
         $lastBackup = $backups->list()[0] ?? null;
-        $demoUsers = User::where('email', 'like', '%@cstar.test')->count();
-        $production = app()->isProduction();
-
-        $checks = [
-            ['label' => 'Debug mode is off (APP_DEBUG=false)', 'ok' => ! config('app.debug'), 'hint' => 'Error details must never be shown to visitors.'],
-            ['label' => 'Running in production mode (APP_ENV=production)', 'ok' => $production, 'hint' => 'Set on the live server; local and test copies show "local".'],
-            ['label' => 'Site address uses HTTPS', 'ok' => str_starts_with((string) config('app.url'), 'https://'), 'hint' => 'Turn on cPanel AutoSSL and set APP_URL to https://…'],
-            ['label' => 'Sign-in cookie is HTTPS-only', 'ok' => (bool) config('session.secure'), 'hint' => 'SESSION_SECURE_COOKIE=true on the live server.'],
-            ['label' => 'Scheduler (cron) is running', 'ok' => $heartbeat && Carbon::parse($heartbeat)->gt(now()->subMinutes(5)), 'hint' => 'cPanel cron: * * * * * php artisan schedule:run'],
-            ['label' => 'A database backup exists from the last 2 days', 'ok' => $lastBackup && Carbon::parse($lastBackup['created_at'])->gt(now()->subDays(2)), 'hint' => 'Turn on the daily backup or press "Back up now".'],
-            ['label' => 'No demo accounts (…@cstar.test)', 'ok' => $demoUsers === 0, 'hint' => "{$demoUsers} demo account(s) — deactivate before go-live."],
-            ['label' => 'Email sending is configured', 'ok' => ! in_array(config('mail.default'), ['log', 'array'], true), 'hint' => 'Set MAIL_* in .env (cPanel email account).'],
-        ];
+        $checks = app(GoLiveChecks::class)->all();
 
         return response()->json(['data' => [
             'app' => [

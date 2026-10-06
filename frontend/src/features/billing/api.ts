@@ -4,7 +4,7 @@ import type { Paginated } from '../../types'
 
 export type InvoiceStatus = 'draft' | 'issued' | 'partially_paid' | 'paid' | 'void'
 export type PaymentMethod = 'cash' | 'bkash' | 'nagad' | 'bank' | 'card'
-export type ItemType = 'admission' | 'assessment' | 'training_fee' | 'therapy_session' | 'package' | 'consultation' | 'other'
+export type ItemType = 'admission' | 'assessment' | 'training_fee' | 'therapy_session' | 'package' | 'consultation' | 'other' | 'opening_balance'
 
 export interface InvoiceItem {
   id?: number
@@ -109,6 +109,7 @@ export const itemTypeLabel: Record<ItemType, string> = {
   package: 'Package',
   consultation: 'Consultation',
   other: 'Other',
+  opening_balance: 'Previous dues',
 }
 export const invoiceStatusStyle: Record<InvoiceStatus, { label: string; tone: 'gray' | 'blue' | 'amber' | 'green' | 'red' }> = {
   draft: { label: 'Draft', tone: 'gray' },

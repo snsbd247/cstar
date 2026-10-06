@@ -15,6 +15,9 @@ class InvoiceItem extends Model
 {
     public const TYPES = ['admission', 'assessment', 'training_fee', 'therapy_session', 'package', 'consultation', 'other'];
 
+    /** Dues brought in at go-live (GoLiveService) — not income of this system; never offered on the invoice form. */
+    public const OPENING_BALANCE = 'opening_balance';
+
     protected function casts(): array
     {
         return ['unit_price' => 'decimal:2', 'discount' => 'decimal:2', 'line_total' => 'decimal:2'];

@@ -23,6 +23,7 @@ use App\Http\Controllers\Api\V1\Cms\WebsiteSetupController;
 use App\Http\Controllers\Api\V1\DashboardController;
 use App\Http\Controllers\Api\V1\EnquiryInboxController;
 use App\Http\Controllers\Api\V1\EnrollmentController;
+use App\Http\Controllers\Api\V1\GoLiveController;
 use App\Http\Controllers\Api\V1\GuardianController;
 use App\Http\Controllers\Api\V1\LookupController;
 use App\Http\Controllers\Api\V1\NotificationAdminController;
@@ -97,6 +98,10 @@ Route::prefix('v1')->group(function () {
             ->whereIn('action', ['activate', 'hold', 'resume', 'complete', 'discontinue']);
 
         Route::get('dashboard', [DashboardController::class, 'summary']);
+        Route::get('go-live/opening-balances', [GoLiveController::class, 'openingBalances']);
+        Route::post('go-live/opening-balances', [GoLiveController::class, 'saveOpeningBalances']);
+        Route::get('go-live/children-template', [GoLiveController::class, 'template']);
+        Route::post('go-live/import-children', [GoLiveController::class, 'importPatients'])->middleware('throttle:20,60');
         Route::get('settings', [SettingsController::class, 'index']);
         Route::get('settings/system', [SettingsController::class, 'system']);
         Route::post('settings/system/clear-cache', [SettingsController::class, 'clearCache']);

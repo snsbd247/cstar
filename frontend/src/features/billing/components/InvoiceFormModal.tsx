@@ -114,7 +114,7 @@ export function InvoiceFormModal({
             {rows.map((r) => (
               <div key={r.key} className="grid grid-cols-2 gap-2 rounded-lg border border-slate-100 p-2 sm:grid-cols-[130px_1fr_60px_100px_90px_32px] sm:border-0 sm:p-0">
                 <Select aria-label="Type" value={r.item_type} onChange={(e) => set(r.key, { item_type: e.target.value as ItemType })}>
-                  {(Object.keys(itemTypeLabel) as ItemType[])
+                  {(Object.keys(itemTypeLabel) as ItemType[]).filter((t) => t !== 'opening_balance')
                     .filter((t) => t !== 'package')
                     .map((t) => (
                       <option key={t} value={t}>

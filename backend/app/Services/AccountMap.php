@@ -67,6 +67,8 @@ class AccountMap
             'training_fee' => $this->system('income_training'),
             'consultation' => $this->system('income_consultation'),
             'package' => $this->system('unearned_package'),
+            // Dues from before go-live were income of the old books; here they only open the receivable.
+            'opening_balance' => $this->system('retained_earnings'),
             'therapy_session' => $this->therapyIncome($service),
             default => $service?->category === ServiceCategory::Therapy ? $this->therapyIncome($service) : $this->system('income_other'),
         };
