@@ -22,6 +22,7 @@ use App\Http\Controllers\Api\V1\LookupController;
 use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\PatientController;
 use App\Http\Controllers\Api\V1\PatientDocumentController;
+use App\Http\Controllers\Api\V1\Portal\PortalController;
 use App\Http\Controllers\Api\V1\RoleController;
 use App\Http\Controllers\Api\V1\Therapy\AppointmentController;
 use App\Http\Controllers\Api\V1\Therapy\AssessmentController;
@@ -218,6 +219,22 @@ Route::prefix('v1')->group(function () {
         Route::put('payroll/items/{item}', [PayrollController::class, 'updateItem']);
         Route::get('payroll/payslips/{item}/pdf', [PayrollController::class, 'payslip']);
         Route::get('me/payslips', [PayrollController::class, 'myPayslips']);
+
+        // Parent portal (Plan §১৫) — only the parent's own children, only family-facing fields
+        Route::prefix('portal')->group(function () {
+            Route::get('children', [PortalController::class, 'children']);
+            Route::get('children/{patient}/home', [PortalController::class, 'home']);
+            Route::get('children/{patient}/schedule', [PortalController::class, 'schedule']);
+            Route::get('children/{patient}/attendance', [PortalController::class, 'attendance']);
+            Route::get('children/{patient}/progress', [PortalController::class, 'progress']);
+            Route::get('children/{patient}/billing', [PortalController::class, 'billing']);
+            Route::get('children/{patient}/progress-report', [PortalController::class, 'progressReport']);
+            Route::post('children/{patient}/appointment-requests', [PortalController::class, 'requestAppointment'])->middleware('throttle:10,60');
+            Route::get('invoices/{invoice}/pdf', [PortalController::class, 'invoicePdf']);
+            Route::get('payments/{payment}/receipt', [PortalController::class, 'receiptPdf']);
+            Route::get('assessments/{assessment}/pdf', [PortalController::class, 'assessmentPdf']);
+            Route::get('profile', [PortalController::class, 'profile']);
+        });
 
         // Assessments → recommendations → enrollment; PDF reports
         Route::get('lookups/assessment-types', [AssessmentController::class, 'types']);

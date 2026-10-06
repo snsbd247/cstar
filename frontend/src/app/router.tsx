@@ -35,7 +35,7 @@ import { TherapistPatientPage, TherapistPatientsPage, TherapistSchedulePage, The
 import { TrainerAttendancePage, TrainerRecordsPage, TrainerStudentPage, TrainerStudentsPage } from '../features/trainer/TrainerPages'
 import OnlineRequestsPage from '../features/requests/OnlineRequestsPage'
 import { portalNav } from '../features/portal/nav'
-import { PortalHome } from '../features/portal/PortalApp'
+import { PortalBilling, PortalHome, PortalProfile, PortalProgress, PortalSchedule } from '../features/portal/PortalApp'
 import { therapistNav } from '../features/therapist/nav'
 import { TherapistToday } from '../features/therapist/TherapistApp'
 import { trainerNav } from '../features/trainer/nav'
@@ -44,7 +44,7 @@ import RolesPage from '../features/users/RolesPage'
 import UsersPage from '../features/users/UsersPage'
 import AdminLayout from '../layouts/AdminLayout'
 import { adminNav } from '../layouts/adminNav'
-import { MobileAppLayout, type BottomNavItem } from '../layouts/MobileAppLayout'
+import { MobileAppLayout } from '../layouts/MobileAppLayout'
 import ComingSoon, { NotFound } from '../pages/ComingSoon'
 import { HomeRedirect } from '../routes/HomeRedirect'
 import { RequireAuth, RequirePermission } from '../routes/RequireAuth'
@@ -54,9 +54,6 @@ const plannedAdminPages = adminNav
   .flatMap((g) => g.items)
   .filter((item) => item.sprint)
   .map((item) => ({ path: item.to.replace('/app/', ''), element: <ComingSoon title={item.label} sprint={item.sprint} /> }))
-
-const plannedMobilePages = (nav: BottomNavItem[], base: string, bangla = false) =>
-  nav.filter((item) => item.to !== base).map((item) => ({ path: item.to.replace(`${base}/`, ''), element: <ComingSoon title={item.label} bangla={bangla} /> }))
 
 export const router = createBrowserRouter([
   { path: '/', element: <HomeRedirect /> },
@@ -158,7 +155,13 @@ export const router = createBrowserRouter([
     children: [
       {
         element: <MobileAppLayout title="অভিভাবক পোর্টাল" nav={portalNav} bangla />,
-        children: [{ index: true, element: <PortalHome /> }, ...plannedMobilePages(portalNav, '/portal', true)],
+        children: [
+          { index: true, element: <PortalHome /> },
+          { path: 'schedule', element: <PortalSchedule /> },
+          { path: 'progress', element: <PortalProgress /> },
+          { path: 'billing', element: <PortalBilling /> },
+          { path: 'profile', element: <PortalProfile /> },
+        ],
       },
     ],
   },
