@@ -39,8 +39,15 @@ export default function PackagesPage() {
 
 function PackageList() {
   const { can } = useAuth()
+  const [params, setParams] = useSearchParams()
   const { data, isLoading } = usePackages(true)
-  const [editing, setEditing] = useState<PackageRow | 'new' | null>(null)
+  const [picked, setPicked] = useState<PackageRow | 'new' | null>(null)
+  // The menu's "Create Package" opens the form through ?new=1.
+  const editing = picked ?? (params.get('new') && can('packages.manage') ? 'new' : null)
+  const setEditing = (row: PackageRow | 'new' | null) => {
+    setPicked(row)
+    if (!row && params.has('new')) setParams({}, { replace: true })
+  }
 
   return (
     <>
@@ -166,7 +173,8 @@ function PackageModal({ pkg, onClose }: { pkg?: PackageRow; onClose: () => void 
 }
 
 function SoldPackages() {
-  const [status, setStatus] = useState('active')
+  const [params] = useSearchParams()
+  const [status, setStatus] = useState(params.get('status') ?? 'active')
   const { data, isLoading } = usePatientPackages(status || undefined)
 
   return (
@@ -174,6 +182,7 @@ function SoldPackages() {
       <Card className="mb-4 p-3">
         <Select value={status} onChange={(e) => setStatus(e.target.value)} className="sm:w-56" aria-label="Status">
           <option value="active">Active</option>
+          <option value="expiring">Expiring / renewal due</option>
           <option value="exhausted">Used up</option>
           <option value="expired">Expired</option>
           <option value="">All</option>

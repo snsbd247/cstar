@@ -75,7 +75,7 @@ class TherapySessionController extends Controller
         return (new TherapySessionResource($session))->response()->setStatusCode($session->wasRecentlyCreated ? 201 : 200);
     }
 
-    /** GET /therapy-sessions?patient_id=&therapist_id= — history for children the user may see. */
+    /** GET /therapy-sessions?patient_id=&therapist_id=&status= — history for children the user may see. */
     public function index(Request $request): AnonymousResourceCollection
     {
         Gate::authorize(Permission::THERAPY_SESSIONS_VIEW);
@@ -84,6 +84,7 @@ class TherapySessionController extends Controller
             ->whereHas('patient', fn ($p) => $p->visibleTo($request->user()))
             ->when($request->filled('patient_id'), fn ($q) => $q->where('patient_id', $request->integer('patient_id')))
             ->when($request->filled('therapist_id'), fn ($q) => $q->where('therapist_id', $request->integer('therapist_id')))
+            ->when($request->filled('status'), fn ($q) => $q->where('status', $request->string('status')))
             ->latest('date')->latest('id')
             ->paginate($request->integer('per_page', 20));
 

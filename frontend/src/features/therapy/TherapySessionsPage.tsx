@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router'
+import { Link, useSearchParams } from 'react-router'
 import { Badge, Card, PageHeader } from '../../components/ui/Card'
 import { Select } from '../../components/ui/Field'
 import { Spinner } from '../../components/ui/Spinner'
@@ -7,14 +7,21 @@ import { useTherapists, useTherapySessions } from './api'
 
 /** History of therapy session notes (training records are a separate module). */
 export default function TherapySessionsPage() {
+  const [params] = useSearchParams()
   const [therapistId, setTherapistId] = useState<number | undefined>()
+  const [status, setStatus] = useState(params.get('status') ?? '')
   const { data: therapists } = useTherapists()
-  const { data, isLoading } = useTherapySessions({ therapist_id: therapistId })
+  const { data, isLoading } = useTherapySessions({ therapist_id: therapistId, status: status || undefined })
 
   return (
     <>
       <PageHeader title="Therapy sessions" description="Clinical notes written by therapists after each appointment." />
-      <Card className="mb-4 p-3">
+      <Card className="mb-4 flex flex-col gap-3 p-3 sm:flex-row">
+        <Select value={status} onChange={(e) => setStatus(e.target.value)} className="sm:w-56" aria-label="Note status">
+          <option value="">All notes</option>
+          <option value="draft">Draft — not finalized</option>
+          <option value="final">Finalized</option>
+        </Select>
         <Select value={therapistId ?? ''} onChange={(e) => setTherapistId(Number(e.target.value) || undefined)} className="sm:w-72" aria-label="Therapist">
           <option value="">All therapists</option>
           {therapists?.map((t) => (

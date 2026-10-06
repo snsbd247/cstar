@@ -1,5 +1,6 @@
 import { ChevronLeft, ChevronRight, Pencil, Plus, Search } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router'
 import { useForm } from 'react-hook-form'
 import { errorMessage, validationErrors } from '../../api/client'
 import { Button } from '../../components/ui/Button'
@@ -18,7 +19,14 @@ export default function UsersPage() {
   const { can } = useAuth()
   const [filters, setFilters] = useState<UserFilters>({ page: 1 })
   const [search, setSearch] = useState('')
-  const [editing, setEditing] = useState<User | 'new' | null>(null)
+  const [params, setParams] = useSearchParams()
+  const [picked, setPicked] = useState<User | 'new' | null>(null)
+  // The menu's "Add" link opens the form through ?new=1.
+  const editing = picked ?? (params.get('new') && can('users.manage') ? 'new' : null)
+  const setEditing = (row: User | 'new' | null) => {
+    setPicked(row)
+    if (!row && params.has('new')) setParams({}, { replace: true })
+  }
   const { data, isLoading, isFetching } = useUsers(filters)
   const { data: roles } = useRoles()
   const { data: branches } = useBranches()

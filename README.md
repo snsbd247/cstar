@@ -135,7 +135,7 @@ cd frontend && npx tsc -b && npm run lint
 | ✅ | ১৩ | Parent Portal — ০৬ অক্টো ২০২৬: অভিভাবকদের জন্য **বাংলায়** (D7), ফোনে ব্যবহারের উপযোগী, নিচে ৫টি ঘর: **হোম** (সন্তানের প্রোগ্রাম, পরবর্তী appointment, এ মাসের উপস্থিতি %, বকেয়া, নতুন রিপোর্ট, সর্বশেষ নোট ও বাসায় অনুশীলন, সাম্প্রতিক খবর), **সময়সূচি** (ট্রেনিং class-এর সাপ্তাহিক সময়, আসন্ন ও আগের appointment, appointment-এর **অনুরোধ** পাঠানো → রিসেপশনে notification, Online Requests-এ আসে), **অগ্রগতি** (মাসিক উপস্থিতির calendar ও হার, plan-এর লক্ষ্য ও অগ্রগতি bar, therapy session ও training class-এর অভিভাবকের জন্য লেখা নোট, শেয়ার করা assessment রিপোর্ট ও অগ্রগতি রিপোর্ট PDF), **বিল** (বকেয়া, অগ্রিম, package-এর বাকি session, invoice ও রসিদ PDF), **প্রোফাইল** (অভিভাবকের তথ্য, সন্তানের তালিকা, অনুরোধের অবস্থা, পাসওয়ার্ড পরিবর্তন); একাধিক সন্তান থাকলে উপরে সন্তান বাছাই; সন্তানের enrollment অনুযায়ী অংশ দেখায় (ট্রেনিং না থাকলে উপস্থিতি দেখায় না); সংখ্যা ও তারিখ বাংলায়; **নিরাপত্তা:** শুধু নিজের সেই সন্তান যার জন্য "portal access" চালু, শুধু অভিভাবকের জন্য লেখা তথ্য — clinical note, therapist/trainer-এর internal note, draft session, শেয়ার না করা assessment ও draft invoice কখনো portal-এ যায় না (test দিয়ে যাচাই); ১৪৫টি test পাস। |
 | ✅ | ১৪ | Reports + Dashboard charts + Notifications — ০৬ অক্টো ২০২৬: **১২টি report** (§২০): Operational (দিনভিত্তিক appointment, finalize না হওয়া session note), Training (class অনুযায়ী উপস্থিতি %, trainer অনুযায়ী record), Therapy (therapist অনুযায়ী session ও no-show %, service-এর ব্যবহার ও আয়), Clinical (programme অনুযায়ী লক্ষ্য অর্জন), Management (নতুন registration ও enrollment-এর ধারা, branch তুলনা), Financial (training বনাম therapy আয়, payment method অনুযায়ী collection, বকেয়ার বয়স ০–৩০/৩১–৬০/৬১–৯০/৯০+); তারিখ ও branch filter, table + chart, **PDF ও Excel (CSV, বাংলা ঠিক থাকে)** export, export audit log-এ; টাকার report শুধু financial permission-এ, সব report নিজের branch-এ সীমিত; **Dashboard:** ৬ মাসের chart (আয়, training বনাম therapy enrollment, নতুন registration, therapy session, training উপস্থিতি %) ও **"Needs attention"** তালিকা (নতুন অনুরোধ, নিশ্চিত না হওয়া appointment, বাকি session note, নবায়নের package, সবচেয়ে বেশি বকেয়া) — role অনুযায়ী; **Notifications:** অভিভাবকের কাছে বাংলায় স্বয়ংক্রিয় বার্তা (নতুন/বাতিল appointment, আগের দিন সন্ধ্যা ৬টায় reminder, নতুন বিল, পেমেন্ট গ্রহণ, রিপোর্ট শেয়ার, package প্রায় শেষ), staff-এর কাছে (voucher ও payroll অনুমোদনের অপেক্ষা — প্রস্তুতকারী নিজে নয়, cash গ্রহণের অপেক্ষা, package নবায়ন, therapist-কে সকাল ৮টায় বাকি note-এর reminder); in-app bell (admin, trainer, therapist ও বাংলায় parent portal) + email (ঠিকানা থাকলে, setting দিয়ে বন্ধ করা যায়); **ঘোষণা পাঠানো** (অভিভাবক / staff / সবাই, branch অনুযায়ী, পাঠানোর আগে কতজন পাবে দেখা যায়, পাঠানোর ইতিহাস); SMS/WhatsApp gateway পরে যুক্ত হবে; ১৫৩টি test পাস। |
 | ✅ | ১৫ | **Accounts C** — Vendor/Payables, Bank Reconciliation, Fixed Assets, Budget, Year-end — ০৭ অক্টো ২০২৬: **Vendor ও Payables** (সরবরাহকারীর তালিকা, go-live-এর আগের পাওনা opening balance হিসেবে; vendor bill `VB-2026-00001` — একাধিক খরচ/সম্পদের খাত, due date; পরিশোধ `VP-2026-00001` cash/ব্যাংক/bKash থেকে — পুরনো bill আগে শোধ হয়; শুধু অপরিশোধিত bill কারণসহ void; কত দিন ধরে বকেয়া (০–৩০/৩১–৬০/৬০+)); **Bank Reconciliation** (ব্যাংক statement CSV import, একই অঙ্ক ও ±৫ দিনের মধ্যে স্বয়ংক্রিয় মিল, হাতে মিলানো, ব্যাংক charge বা সুদ এক click-এ হিসাবে post; বইয়ের balance, outstanding ও পার্থক্য দেখায় — পার্থক্য ০ হলে তবেই complete); **Fixed Assets** (`FA-2026-001`, কেনার তারিখ, দাম, আয়ুষ্কাল ও residual value; ব্যাংক/cash থেকে কেনা বা go-live-এর আগের সম্পদ; মাসিক straight-line **depreciation** — বাদ পড়া মাসগুলোসহ এক entry-তে; বিক্রি/বাতিল করলে লাভ বা ক্ষতি নিজে থেকে post); **Budget** (বছরের, খাত অনুযায়ী মাসিক ভাগ, **Budget বনাম আসল** — কত % খরচ হয়েছে); **Cash Flow statement** (operating / investing / financing, PDF); **Year-end closing** (১২ মাস বন্ধ হলে তবেই; আয়-ব্যয়ের balance branch অনুযায়ী Retained Earnings-এ যায়; closing-এর পরও সেই বছরের P&L দেখা যায়); Periods page-এ বছর বাছাই; ১৫৮টি test পাস। *Vendor, সম্পদ, budget ও ব্যাংক statement সব demo।* |
-| ⬜ | ১৬ | Security hardening, Testing, UAT |
+| ⬜ | ১৬ | Security hardening, Testing, UAT — **সাথে পূর্ণ Admin menu (§২)**: ✅ নতুন sidebar (১৭টি অংশ, খোঁজা, permission অনুযায়ী, menu থেকে সরাসরি filter); ⬜ "soon" চিহ্নিত page-গুলো (Activity Logs, Settings, Enrollments, Calendar/Queue, Guardians/Documents/Consents, Rooms, Leave ইত্যাদি) |
 | ⬜ | ১৭ | cPanel deployment, staff training, go-live |
 
 ---
@@ -260,28 +260,38 @@ PATIENT (একজন শিশু — একটি profile)
 ```
 
 ### Admin / Staff Panel (`/app`)
+
+০৭ অক্টোবর ২০২৬-এ আপনার দেওয়া পূর্ণ menu অনুযায়ী sidebar নতুন করে সাজানো হয়েছে। প্রতিটি অংশ খোলা/বন্ধ করা যায়, উপরে "Find a page…" দিয়ে খোঁজা যায়, আর প্রত্যেকে শুধু নিজের permission-এর অংশগুলো দেখেন। কোনো menu-তে click করলে page-টি সঠিক tab বা filter বাছাই করা অবস্থায় খোলে (যেমন Payment Vouchers → শুধু PV)। যেগুলোর page এখনো তৈরি হয়নি সেগুলোর পাশে "soon" লেখা — সেগুলো Sprint ১৬-এ তৈরি হবে।
+
 ```
 Dashboard
-Patients ─ List · Register · Profile (Overview, Enrollments, Timeline, Training, Therapy,
-           Assessments, Plans & Goals, Home Programs, Documents, Billing, Guardians)
-Students / Training ─ Active Students · Attendance · Training Records · Individual Training Plans
-Classes ─ List · Create · Class Detail (Roster, Schedule, Attendance)
-Trainers ─ List · Profile
-Therapists ─ List · Profile · Schedule & Leave
-Appointments ─ Calendar · List · Online Requests
-Therapy Sessions
-Training Sessions
-Assessments
-Packages ─ Package setup · Patient Packages
-Invoices · Payments · Due List
-Accounts ─ Dashboard · Expenses · Vouchers · Vendors & Bills · Payroll · Cash Closing ·
-           Bank Reconciliation · Fixed Assets · Budget · Financial Reports · Chart of Accounts
-Branches · Rooms · Holidays
-Reports
-Website CMS ─ Pages · Services · Therapists/Trainers (public profile) · Gallery · Testimonials · FAQ · Notices · Contact Messages
-Users & Roles
-Notifications
-Settings
+Appointments ─ All Appointments · Today's Appointments · Calendar · Appointment Requests · Check-in / Queue
+Patients ─ All Patients · New Patient · Patient Search · Guardians · Documents · Consents · Patient Timeline
+           (Profile: Overview, Enrollments, Training, Therapy, Assessments, Billing, Guardians, Documents, Timeline)
+Training ─ Training Dashboard · Training Students · Training Groups / Classes · Trainers · Training Schedules ·
+           Attendance · Training Sessions · Training Records · Activities · ITP / Training Plans
+Therapy ─ Therapy Dashboard · Therapy Patients · Therapists · Therapy Services · Therapist Schedule · Appointments ·
+          Therapy Sessions · Session Notes · Assessments · Plans & Goals · Home Programs · Progress Reports
+Assessments ─ All Assessments · New Assessment · Assessment Types · Assessment Reports · Recommendations · Assessment Templates
+Enrollments ─ All · Training · Therapy · Active · On Hold · Completed · Discontinued · Transfer History
+Packages ─ All Packages · Create Package · Patient Packages · Package Usage · Expiring Packages · Package Reports
+Billing & Payments ─ Billing Dashboard · Invoices · Payments · Due / Outstanding · Payment Allocations · Receipts ·
+                     Discounts / Concessions · Refunds · Billing Reports
+Accounts ─ Accounts Dashboard · Chart of Accounts · Journal Entries · Payment / Receipt / Expense Vouchers · Expenses ·
+           Vendors · Bills / Payables · Payroll · Employee Advances · Cash Closing · Bank Accounts · Bank Reconciliation ·
+           Fixed Assets · Budgets · Fiscal Years · Accounting Periods
+Staff ─ All Staff · Trainers · Therapists · Admin Staff · Employee Profiles · Salary Structures · Leave / Absence ·
+        Staff Assignments · My Payslips
+Branches ─ All Branches · Add Branch · Rooms · Services by Branch · Staff by Branch · Holidays · Branch Settings
+Reports & Analytics ─ Dashboard · Patient · Enrollment · Attendance · Therapy · Training · Appointment · Assessment ·
+                      Progress · Billing · Payment / Due · Accounts · Staff · Branch Reports · Export PDF / Excel
+Website / CMS ─ Website Dashboard · Pages · Page Sections · Services · Team Members · Branches · Gallery · Testimonials ·
+                FAQ · Notices & Updates · Appointment Requests · Contact Messages · SEO Settings
+Notifications ─ Notification Center · Announcements · Templates · Notification Logs · Notification Settings
+Users ─ All Users · Add User · Roles · Permissions · Branch Access
+Activity Logs ─ System Activity · Login History · Patient Activity · Clinical Access Logs · Audit Logs
+Settings ─ General · Center Information · Branch · Patient ID · Appointment · Billing · Accounts · Notification ·
+           Language · PDF · Security · Backup · System
 ```
 
 ### Trainer (`/trainer`) — mobile-first

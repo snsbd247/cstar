@@ -1,6 +1,6 @@
 import { ArrowLeft } from 'lucide-react'
 import { useState } from 'react'
-import { Link, useParams } from 'react-router'
+import { Link, useParams, useSearchParams } from 'react-router'
 import { errorMessage } from '../../api/client'
 import { Alert, Badge, Card, PageHeader } from '../../components/ui/Card'
 import { Select } from '../../components/ui/Field'
@@ -10,7 +10,8 @@ import { AssessmentView } from './components/AssessmentView'
 
 /** Admin list of assessments for children the user can see. Therapists write them in their own app. */
 export default function AssessmentsPage() {
-  const [status, setStatus] = useState('')
+  const [params] = useSearchParams()
+  const [status, setStatus] = useState(params.get('status') ?? '')
   const { data, isLoading } = useAssessments({ status: status || undefined })
 
   return (

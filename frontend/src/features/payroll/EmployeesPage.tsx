@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { ArrowLeft, Pencil, Plus } from 'lucide-react'
 import { useState } from 'react'
-import { Link, useParams } from 'react-router'
+import { Link, useParams, useSearchParams } from 'react-router'
 import { api, errorMessage, validationErrors } from '../../api/client'
 import { Button } from '../../components/ui/Button'
 import { Alert, Badge, Card, PageHeader } from '../../components/ui/Card'
@@ -17,10 +17,12 @@ import { departmentLabel, payTypeLabel, payslipUrl, useEmployee, useEmployees, u
 /** Accounts §৭.১: everyone who is paid — trainers and therapists link to their profile. */
 export default function EmployeesPage() {
   const { can } = useAuth()
+  const [params] = useSearchParams()
   const [status, setStatus] = useState('')
+  const [department, setDepartment] = useState(params.get('department') ?? '')
   const { data, isLoading } = useEmployees(status || undefined)
   const [editing, setEditing] = useState<Employee | 'new' | null>(null)
-  const groups = (['therapist', 'trainer', 'admin', 'support'] as Department[]).map((d) => [d, data?.filter((e) => e.department === d) ?? []] as const)
+  const groups = (['therapist', 'trainer', 'admin', 'support'] as Department[]).filter((d) => !department || d === department).map((d) => [d, data?.filter((e) => e.department === d) ?? []] as const)
 
   return (
     <>
@@ -35,10 +37,18 @@ export default function EmployeesPage() {
           )
         }
       />
-      <Card className="mb-4 p-3">
+      <Card className="mb-4 flex flex-col gap-2 p-3 sm:flex-row">
         <Select value={status} onChange={(e) => setStatus(e.target.value)} className="sm:w-48" aria-label="Status">
           <option value="">Current staff</option>
           <option value="left">Left</option>
+        </Select>
+        <Select value={department} onChange={(e) => setDepartment(e.target.value)} className="sm:w-48" aria-label="Department">
+          <option value="">All departments</option>
+          {Object.entries(departmentLabel).map(([k, l]) => (
+            <option key={k} value={k}>
+              {l}
+            </option>
+          ))}
         </Select>
       </Card>
       {isLoading ? (

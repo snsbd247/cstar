@@ -71,7 +71,7 @@ class PackageController extends Controller
         return (new InvoiceResource($invoice->load(['patient', 'branch', 'items', 'allocations.payment'])))->response()->setStatusCode(201);
     }
 
-    /** GET /patient-packages?status=active — sold packages, with sessions left. */
+    /** GET /patient-packages?status=active|exhausted|expired|expiring — sold packages, with sessions left (expiring = renewal due: ≤2 sessions or ≤7 days left). */
     public function patientPackages(Request $request): JsonResponse
     {
         Gate::authorize(Permission::PACKAGES_VIEW);
@@ -79,7 +79,9 @@ class PackageController extends Controller
 
         $rows = PatientPackage::with(['patient', 'package', 'service'])
             ->when($branches !== null, fn ($q) => $q->whereIn('branch_id', $branches))
-            ->when($request->filled('status'), fn ($q) => $q->where('status', $request->string('status')))
+            ->when($request->input('status') === 'expiring', fn ($q) => $q->where('status', 'active')
+                ->where(fn ($w) => $w->whereRaw('total_sessions - used_sessions <= 2')->orWhereDate('expiry_date', '<=', today()->addDays(7))))
+            ->when($request->filled('status') && $request->input('status') !== 'expiring', fn ($q) => $q->where('status', $request->string('status')))
             ->orderByRaw("status = 'active' desc")->orderBy('expiry_date')->limit(300)->get();
 
         return response()->json(['data' => $rows->map(fn (PatientPackage $p) => [

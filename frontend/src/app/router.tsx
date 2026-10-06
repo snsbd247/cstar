@@ -1,5 +1,5 @@
 import { APP_BASE } from '../api/client'
-import { createBrowserRouter } from 'react-router'
+import { createBrowserRouter, type RouteObject } from 'react-router'
 import ChangePasswordPage from '../features/auth/ChangePasswordPage'
 import LoginPage from '../features/auth/LoginPage'
 import BranchesPage from '../features/branches/BranchesPage'
@@ -46,17 +46,68 @@ import { TrainerToday } from '../features/trainer/TrainerApp'
 import RolesPage from '../features/users/RolesPage'
 import UsersPage from '../features/users/UsersPage'
 import AdminLayout from '../layouts/AdminLayout'
-import { adminNav } from '../layouts/adminNav'
+import { navLinks, navPath } from '../layouts/adminNav'
 import { MobileAppLayout } from '../layouts/MobileAppLayout'
 import ComingSoon, { NotFound } from '../pages/ComingSoon'
 import { HomeRedirect } from '../routes/HomeRedirect'
 import { RequireAuth, RequirePermission } from '../routes/RequireAuth'
 
-// Sidebar entries whose module is not built yet get a placeholder page.
-const plannedAdminPages = adminNav
-  .flatMap((g) => g.items)
-  .filter((item) => item.sprint)
-  .map((item) => ({ path: item.to.replace('/app/', ''), element: <ComingSoon title={item.label} sprint={item.sprint} /> }))
+const adminPages: RouteObject[] = [
+  { index: true, element: <AdminDashboard /> },
+  { path: 'patients', element: <RequirePermission permission="patients.view"><PatientsPage /></RequirePermission> },
+  { path: 'patients/new', element: <RequirePermission permission="patients.create"><PatientFormPage /></RequirePermission> },
+  { path: 'patients/:id', element: <RequirePermission permission="patients.view"><PatientProfilePage /></RequirePermission> },
+  { path: 'patients/:id/edit', element: <RequirePermission permission="patients.update"><PatientFormPage /></RequirePermission> },
+  { path: 'students', element: <RequirePermission permission="enrollments.view"><StudentsPage /></RequirePermission> },
+  { path: 'classes', element: <RequirePermission permission="classes.view"><ClassesPage /></RequirePermission> },
+  { path: 'classes/:id', element: <RequirePermission permission="classes.view"><ClassDetailPage /></RequirePermission> },
+  { path: 'trainers', element: <RequirePermission permission="trainers.view"><TrainersPage /></RequirePermission> },
+  { path: 'training-sessions', element: <RequirePermission permission="training_records.view"><TrainingRecordsPage /></RequirePermission> },
+  { path: 'therapists', element: <RequirePermission permission="therapists.view"><TherapistsPage /></RequirePermission> },
+  { path: 'appointments', element: <RequirePermission permission="appointments.view"><AppointmentsPage /></RequirePermission> },
+  { path: 'therapy-sessions', element: <RequirePermission permission="therapy_sessions.view"><TherapySessionsPage /></RequirePermission> },
+  { path: 'assessments', element: <RequirePermission permission="assessments.view"><AssessmentsPage /></RequirePermission> },
+  { path: 'assessments/:id', element: <RequirePermission permission="assessments.view"><AssessmentDetailPage /></RequirePermission> },
+  { path: 'packages', element: <RequirePermission permission="packages.view"><PackagesPage /></RequirePermission> },
+  { path: 'invoices', element: <RequirePermission permission="invoices.view"><InvoicesPage /></RequirePermission> },
+  { path: 'invoices/:id', element: <RequirePermission permission="invoices.view"><InvoiceDetailPage /></RequirePermission> },
+  { path: 'payments', element: <RequirePermission permission="payments.view"><PaymentsPage /></RequirePermission> },
+  { path: 'accounts', element: <RequirePermission permission="accounts.view"><AccountsDashboard /></RequirePermission> },
+  { path: 'accounts/books', element: <RequirePermission permission="accounts.view"><AccountsPage /></RequirePermission> },
+  { path: 'accounts/vendors', element: <RequirePermission permission="accounts.view"><VendorsPage /></RequirePermission> },
+  { path: 'accounts/vendors/:id', element: <RequirePermission permission="accounts.view"><VendorDetailPage /></RequirePermission> },
+  { path: 'accounts/reconciliation', element: <RequirePermission permission="accounts.view"><ReconciliationsPage /></RequirePermission> },
+  { path: 'accounts/reconciliation/:id', element: <RequirePermission permission="accounts.view"><ReconciliationDetailPage /></RequirePermission> },
+  { path: 'accounts/assets', element: <RequirePermission permission="accounts.view"><FixedAssetsPage /></RequirePermission> },
+  { path: 'accounts/budgets', element: <RequirePermission permission="accounts.reports"><BudgetsPage /></RequirePermission> },
+  { path: 'employees', element: <RequirePermission permission={['accounts.payroll.manage', 'accounts.payroll.approve']}><EmployeesPage /></RequirePermission> },
+  { path: 'employees/:id', element: <RequirePermission permission={['accounts.payroll.manage', 'accounts.payroll.approve']}><EmployeeDetailPage /></RequirePermission> },
+  { path: 'payroll', element: <RequirePermission permission={['accounts.payroll.manage', 'accounts.payroll.approve']}><PayrollPage /></RequirePermission> },
+  { path: 'payroll/:id', element: <RequirePermission permission={['accounts.payroll.manage', 'accounts.payroll.approve']}><PayrollRunPage /></RequirePermission> },
+  { path: 'my-payslips', element: <MyPayslipsPage /> },
+  { path: 'reports', element: <RequirePermission permission="reports.view"><OperationalReportsPage /></RequirePermission> },
+  { path: 'notifications', element: <RequirePermission permission="notifications.send"><NotificationsPage /></RequirePermission> },
+  { path: 'accounts/vouchers', element: <RequirePermission permission="accounts.view"><VouchersPage /></RequirePermission> },
+  { path: 'accounts/reports', element: <RequirePermission permission="accounts.reports"><ReportsPage /></RequirePermission> },
+  { path: 'expenses', element: <RequirePermission permission="accounts.expense.create"><ExpensesPage /></RequirePermission> },
+  { path: 'cash-closing', element: <RequirePermission permission="accounts.cash_closing"><CashClosingPage /></RequirePermission> },
+  { path: 'holidays', element: <RequirePermission permission="branches.view"><HolidaysPage /></RequirePermission> },
+  { path: 'online-requests', element: <RequirePermission permission="appointment_requests.manage"><OnlineRequestsPage /></RequirePermission> },
+  { path: 'cms', element: <RequirePermission permission={['cms.manage', 'appointment_requests.manage']}><CmsPage /></RequirePermission> },
+  { path: 'branches', element: <RequirePermission permission={['branches.view', 'branches.manage']}><BranchesPage /></RequirePermission> },
+  { path: 'users', element: <RequirePermission permission={['users.view', 'users.manage']}><UsersPage /></RequirePermission> },
+  { path: 'roles', element: <RequirePermission permission={['users.view', 'roles.manage']}><RolesPage /></RequirePermission> },
+]
+
+// Menu entries whose page is not built yet get a placeholder page (one per path).
+const builtPaths = new Set(adminPages.map((r) => r.path))
+const plannedAdminPages: RouteObject[] = [
+  ...new Map(
+    navLinks
+      .filter((item) => item.sprint && !builtPaths.has(navPath(item.to).replace('/app/', '')))
+      .map((item) => [navPath(item.to), { path: navPath(item.to).replace('/app/', ''), element: <ComingSoon title={item.label} sprint={item.sprint} /> }] as const),
+  ).values(),
+]
 
 export const router = createBrowserRouter([
   { path: '/', element: <HomeRedirect /> },
@@ -72,50 +123,7 @@ export const router = createBrowserRouter([
       {
         element: <AdminLayout />,
         children: [
-          { index: true, element: <AdminDashboard /> },
-          { path: 'patients', element: <RequirePermission permission="patients.view"><PatientsPage /></RequirePermission> },
-          { path: 'patients/new', element: <RequirePermission permission="patients.create"><PatientFormPage /></RequirePermission> },
-          { path: 'patients/:id', element: <RequirePermission permission="patients.view"><PatientProfilePage /></RequirePermission> },
-          { path: 'patients/:id/edit', element: <RequirePermission permission="patients.update"><PatientFormPage /></RequirePermission> },
-          { path: 'students', element: <RequirePermission permission="enrollments.view"><StudentsPage /></RequirePermission> },
-          { path: 'classes', element: <RequirePermission permission="classes.view"><ClassesPage /></RequirePermission> },
-          { path: 'classes/:id', element: <RequirePermission permission="classes.view"><ClassDetailPage /></RequirePermission> },
-          { path: 'trainers', element: <RequirePermission permission="trainers.view"><TrainersPage /></RequirePermission> },
-          { path: 'training-sessions', element: <RequirePermission permission="training_records.view"><TrainingRecordsPage /></RequirePermission> },
-          { path: 'therapists', element: <RequirePermission permission="therapists.view"><TherapistsPage /></RequirePermission> },
-          { path: 'appointments', element: <RequirePermission permission="appointments.view"><AppointmentsPage /></RequirePermission> },
-          { path: 'therapy-sessions', element: <RequirePermission permission="therapy_sessions.view"><TherapySessionsPage /></RequirePermission> },
-          { path: 'assessments', element: <RequirePermission permission="assessments.view"><AssessmentsPage /></RequirePermission> },
-          { path: 'assessments/:id', element: <RequirePermission permission="assessments.view"><AssessmentDetailPage /></RequirePermission> },
-          { path: 'packages', element: <RequirePermission permission="packages.view"><PackagesPage /></RequirePermission> },
-          { path: 'invoices', element: <RequirePermission permission="invoices.view"><InvoicesPage /></RequirePermission> },
-          { path: 'invoices/:id', element: <RequirePermission permission="invoices.view"><InvoiceDetailPage /></RequirePermission> },
-          { path: 'payments', element: <RequirePermission permission="payments.view"><PaymentsPage /></RequirePermission> },
-          { path: 'accounts', element: <RequirePermission permission="accounts.view"><AccountsDashboard /></RequirePermission> },
-          { path: 'accounts/books', element: <RequirePermission permission="accounts.view"><AccountsPage /></RequirePermission> },
-          { path: 'accounts/vendors', element: <RequirePermission permission="accounts.view"><VendorsPage /></RequirePermission> },
-          { path: 'accounts/vendors/:id', element: <RequirePermission permission="accounts.view"><VendorDetailPage /></RequirePermission> },
-          { path: 'accounts/reconciliation', element: <RequirePermission permission="accounts.view"><ReconciliationsPage /></RequirePermission> },
-          { path: 'accounts/reconciliation/:id', element: <RequirePermission permission="accounts.view"><ReconciliationDetailPage /></RequirePermission> },
-          { path: 'accounts/assets', element: <RequirePermission permission="accounts.view"><FixedAssetsPage /></RequirePermission> },
-          { path: 'accounts/budgets', element: <RequirePermission permission="accounts.reports"><BudgetsPage /></RequirePermission> },
-          { path: 'employees', element: <RequirePermission permission={['accounts.payroll.manage', 'accounts.payroll.approve']}><EmployeesPage /></RequirePermission> },
-          { path: 'employees/:id', element: <RequirePermission permission={['accounts.payroll.manage', 'accounts.payroll.approve']}><EmployeeDetailPage /></RequirePermission> },
-          { path: 'payroll', element: <RequirePermission permission={['accounts.payroll.manage', 'accounts.payroll.approve']}><PayrollPage /></RequirePermission> },
-          { path: 'payroll/:id', element: <RequirePermission permission={['accounts.payroll.manage', 'accounts.payroll.approve']}><PayrollRunPage /></RequirePermission> },
-          { path: 'my-payslips', element: <MyPayslipsPage /> },
-          { path: 'reports', element: <RequirePermission permission="reports.view"><OperationalReportsPage /></RequirePermission> },
-          { path: 'notifications', element: <RequirePermission permission="notifications.send"><NotificationsPage /></RequirePermission> },
-          { path: 'accounts/vouchers', element: <RequirePermission permission="accounts.view"><VouchersPage /></RequirePermission> },
-          { path: 'accounts/reports', element: <RequirePermission permission="accounts.reports"><ReportsPage /></RequirePermission> },
-          { path: 'expenses', element: <RequirePermission permission="accounts.expense.create"><ExpensesPage /></RequirePermission> },
-          { path: 'cash-closing', element: <RequirePermission permission="accounts.cash_closing"><CashClosingPage /></RequirePermission> },
-          { path: 'holidays', element: <RequirePermission permission="branches.view"><HolidaysPage /></RequirePermission> },
-          { path: 'online-requests', element: <RequirePermission permission="appointment_requests.manage"><OnlineRequestsPage /></RequirePermission> },
-          { path: 'cms', element: <RequirePermission permission={['cms.manage', 'appointment_requests.manage']}><CmsPage /></RequirePermission> },
-          { path: 'branches', element: <RequirePermission permission={['branches.view', 'branches.manage']}><BranchesPage /></RequirePermission> },
-          { path: 'users', element: <RequirePermission permission={['users.view', 'users.manage']}><UsersPage /></RequirePermission> },
-          { path: 'roles', element: <RequirePermission permission={['users.view', 'roles.manage']}><RolesPage /></RequirePermission> },
+          ...adminPages,
           ...plannedAdminPages,
         ],
       },

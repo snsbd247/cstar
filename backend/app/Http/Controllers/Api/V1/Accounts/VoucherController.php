@@ -26,6 +26,8 @@ class VoucherController extends Controller
             ->when($branches !== null, fn ($q) => $q->whereIn('branch_id', $branches))
             ->when($request->filled('status'), fn ($q) => $q->where('status', $request->string('status')))
             ->when($request->filled('type'), fn ($q) => $q->where('type', $request->string('type')))
+            ->when($request->input('source') === 'expense', fn ($q) => $q->whereIn('id', \App\Models\Expense::whereNotNull('voucher_id')->select('voucher_id')))
+            ->when($request->input('source') === 'manual', fn ($q) => $q->whereNotIn('id', \App\Models\Expense::whereNotNull('voucher_id')->select('voucher_id')))
             ->when($request->filled('q'), fn ($q) => $q->where(fn ($w) => $w->where('voucher_no', 'like', '%'.$request->string('q').'%')->orWhere('narration', 'like', '%'.$request->string('q').'%')))
             ->orderByRaw("status = 'submitted' desc")->latest('date')->latest('id')
             ->paginate($request->integer('per_page', 25));

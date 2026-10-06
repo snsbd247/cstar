@@ -1,5 +1,6 @@
 import { Check, Plus, Trash2, Undo2, X } from 'lucide-react'
 import { useState } from 'react'
+import { useSearchParams } from 'react-router'
 import { errorMessage, validationErrors } from '../../api/client'
 import { Button } from '../../components/ui/Button'
 import { Alert, Badge, Card, PageHeader } from '../../components/ui/Card'
@@ -15,10 +16,12 @@ import { useAccountsMutations, useChart, useVouchers, voucherStatusTone, voucher
 /** Accounts §৪: PV / RV / JV / CV with maker-checker. Posted vouchers are reversed, never deleted. */
 export default function VouchersPage() {
   const { can } = useAuth()
-  const [status, setStatus] = useState('')
-  const [type, setType] = useState('')
+  const [params] = useSearchParams()
+  const [status, setStatus] = useState(params.get('status') ?? '')
+  const [type, setType] = useState(params.get('type') ?? '')
+  const [source, setSource] = useState(params.get('source') ?? '')
   const [page, setPage] = useState(1)
-  const { data, isLoading } = useVouchers({ status: status || undefined, type: type || undefined, page })
+  const { data, isLoading } = useVouchers({ status: status || undefined, type: type || undefined, source: source || undefined, page })
   const [open, setOpen] = useState<Voucher | 'new' | null>(null)
 
   return (
@@ -50,6 +53,11 @@ export default function VouchersPage() {
               {l}
             </option>
           ))}
+        </Select>
+        <Select value={source} onChange={(e) => (setSource(e.target.value), setPage(1))} className="sm:w-48" aria-label="Source">
+          <option value="">All sources</option>
+          <option value="expense">From expenses</option>
+          <option value="manual">Written by hand</option>
         </Select>
       </Card>
       {isLoading ? (

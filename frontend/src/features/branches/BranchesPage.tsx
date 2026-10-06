@@ -1,5 +1,6 @@
 import { MapPin, Pencil, Phone, Plus } from 'lucide-react'
 import { useState } from 'react'
+import { useSearchParams } from 'react-router'
 import { useForm } from 'react-hook-form'
 import { errorMessage, validationErrors } from '../../api/client'
 import { Button } from '../../components/ui/Button'
@@ -14,7 +15,14 @@ import { useBranches, useSaveBranch, type BranchInput } from './api'
 export default function BranchesPage() {
   const { user, can } = useAuth()
   const { data: branches, isLoading } = useBranches()
-  const [editing, setEditing] = useState<Branch | 'new' | null>(null)
+  const [params, setParams] = useSearchParams()
+  const [picked, setPicked] = useState<Branch | 'new' | null>(null)
+  // The menu's "Add" link opens the form through ?new=1.
+  const editing = picked ?? (params.get('new') && can('branches.manage') ? 'new' : null)
+  const setEditing = (row: Branch | 'new' | null) => {
+    setPicked(row)
+    if (!row && params.has('new')) setParams({}, { replace: true })
+  }
 
   return (
     <>

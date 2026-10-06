@@ -146,7 +146,7 @@ export function useSaveSession(appointmentId: number) {
   })
 }
 
-export function useTherapySessions(params: { patient_id?: number; therapist_id?: number; page?: number }) {
+export function useTherapySessions(params: { patient_id?: number; therapist_id?: number; status?: string; page?: number }) {
   return useQuery({
     queryKey: ['therapy-sessions', params],
     queryFn: async () => (await api.get<Paginated<TherapySession>>('/therapy-sessions', { params })).data,
