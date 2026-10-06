@@ -1,5 +1,10 @@
 import {
   BarChart3,
+  BookOpen,
+  Coins,
+  FileCheck2,
+  HandCoins,
+  Wallet,
   Bell,
   Building2,
   CalendarCheck,
@@ -69,12 +74,22 @@ export const adminNav: NavGroup[] = [
     ],
   },
   {
-    title: 'Billing & Accounts',
+    title: 'Billing',
     items: [
       { label: 'Packages', to: '/app/packages', icon: Package, permissions: ['packages.view'] },
       { label: 'Invoices', to: '/app/invoices', icon: Receipt, permissions: ['invoices.view'] },
       { label: 'Payments', to: '/app/payments', icon: CreditCard, permissions: ['payments.view'] },
-      { label: 'Accounts', to: '/app/accounts', icon: Landmark, permissions: ['accounts.view'] },
+    ],
+  },
+  {
+    title: 'Accounts',
+    items: [
+      { label: 'Accounts Dashboard', to: '/app/accounts', icon: Landmark, permissions: ['accounts.view'] },
+      { label: 'Expenses', to: '/app/expenses', icon: HandCoins, permissions: ['accounts.expense.create'] },
+      { label: 'Vouchers', to: '/app/accounts/vouchers', icon: FileCheck2, permissions: ['accounts.view'] },
+      { label: 'Cash Closing', to: '/app/cash-closing', icon: Wallet, permissions: ['accounts.cash_closing'] },
+      { label: 'Financial Reports', to: '/app/accounts/reports', icon: Coins, permissions: ['accounts.reports'] },
+      { label: 'Books & Months', to: '/app/accounts/books', icon: BookOpen, permissions: ['accounts.view'] },
     ],
   },
   {

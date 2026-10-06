@@ -68,7 +68,7 @@ function SidebarNav({ onNavigate }: { onNavigate: () => void }) {
                 <li key={item.to}>
                   <NavLink
                     to={item.to}
-                    end={item.to === '/app'}
+                    end={item.to === '/app' || item.to === '/app/accounts'}
                     onClick={onNavigate}
                     className={({ isActive }) =>
                       cn(

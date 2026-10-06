@@ -1,13 +1,18 @@
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
-import { useSearchParams } from 'react-router'
-import { api } from '../../api/client'
+import { Plus } from 'lucide-react'
+import { useNavigate, useSearchParams } from 'react-router'
+import { api, errorMessage, validationErrors } from '../../api/client'
 import { Button } from '../../components/ui/Button'
-import { Badge, Card, PageHeader } from '../../components/ui/Card'
-import { Select } from '../../components/ui/Field'
+import { Alert, Badge, Card, PageHeader } from '../../components/ui/Card'
+import { Field, Input, Select } from '../../components/ui/Field'
+import { Modal } from '../../components/ui/Modal'
 import { Spinner } from '../../components/ui/Spinner'
 import { cn } from '../../utils/cn'
+import { useAuth } from '../../contexts/useAuth'
+import { todayISO } from '../../utils/format'
 import { taka } from '../billing/api'
+import { useAccountSettings, useAccountsMutations, useChart, usePeriods } from './api'
 
 interface AccountRow {
   id: number
@@ -47,15 +52,29 @@ const eventLabel: Record<string, string> = {
 /** Read-only books until Accounts A (vouchers, expenses, reports) — Plan Accounts §৩: billing posts here automatically. */
 export default function AccountsPage() {
   const [params, setParams] = useSearchParams()
+  const navigate = useNavigate()
+  const { can } = useAuth()
   const tab = params.get('tab') ?? 'chart'
 
   return (
     <>
-      <PageHeader title="Accounts" description="Every invoice, payment and package session is posted here automatically (double-entry)." />
+      <PageHeader
+        title="Books"
+        description="Chart of accounts, the journal (billing posts here automatically) and month locking."
+        actions={
+          can('accounts.coa.manage') &&
+          tab === 'chart' && (
+            <Button variant="secondary" onClick={() => setParams({ tab: 'chart', add: '1' })}>
+              <Plus className="size-4" /> Account
+            </Button>
+          )
+        }
+      />
       <div className="mb-4 flex gap-1 border-b border-slate-200">
         {[
           ['chart', 'Chart of accounts'],
           ['journal', 'Journal'],
+          ['periods', 'Months & settings'],
         ].map(([key, label]) => (
           <button
             key={key}
@@ -66,8 +85,126 @@ export default function AccountsPage() {
           </button>
         ))}
       </div>
-      {tab === 'journal' ? <Journal /> : <Chart onOpen={(id) => setParams({ tab: 'journal', account: String(id) })} />}
+      {tab === 'journal' ? <Journal /> : tab === 'periods' ? <Periods /> : <Chart onOpen={(id) => navigate(`/app/accounts/reports?r=ledger&account=${id}`)} />}
+      {params.get('add') && <AddAccountModal onClose={() => setParams({ tab: 'chart' })} />}
     </>
+  )
+}
+
+/** Accounts §১১: close a month once it ends (in order); reopening needs a reason. Plus the A5 approval limit. */
+function Periods() {
+  const { can } = useAuth()
+  const { data: periods } = usePeriods()
+  const { data: settings } = useAccountSettings()
+  const { periodAction, saveSettings } = useAccountsMutations()
+  const [limit, setLimit] = useState<string | null>(null)
+
+  return (
+    <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
+      <Card className="p-5">
+        <h3 className="font-semibold text-slate-900">Months (fiscal year July–June)</h3>
+        <p className="text-sm text-slate-500">A closed month takes no new vouchers or expenses. Billing corrections after closing post in the current month.</p>
+        {periodAction.isError && <div className="mt-2"><Alert>{errorMessage(periodAction.error)}</Alert></div>}
+        <ul className="mt-3 divide-y divide-slate-100">
+          {periods?.map((p) => (
+            <li key={p.id} className="flex items-center justify-between py-2 text-sm">
+              <span className="font-medium text-slate-800">{p.label}</span>
+              <span className="flex items-center gap-2">
+                <Badge tone={p.status === 'open' ? 'green' : 'gray'}>{p.status}</Badge>
+                {can('accounts.period.close') &&
+                  (p.status === 'open' ? (
+                    p.end_date < todayISO() && (
+                      <Button variant="secondary" disabled={periodAction.isPending} onClick={() => confirm(`Close ${p.label}?`) && periodAction.mutate({ id: p.id, action: 'close' })}>
+                        Close month
+                      </Button>
+                    )
+                  ) : (
+                    <Button
+                      variant="ghost"
+                      disabled={periodAction.isPending}
+                      onClick={() => {
+                        const reason = prompt(`Why reopen ${p.label}?`)
+                        if (reason && reason.trim().length >= 5) periodAction.mutate({ id: p.id, action: 'reopen', reason })
+                      }}
+                    >
+                      Reopen
+                    </Button>
+                  ))}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </Card>
+      <Card className="h-fit space-y-3 p-5">
+        <h3 className="font-semibold text-slate-900">Approval limit</h3>
+        <p className="text-sm text-slate-500">Vouchers and expenses up to this amount post without a second person.</p>
+        <Input type="number" min={0} disabled={!can('settings.manage')} value={limit ?? settings?.approval_limit ?? ''} onChange={(e) => setLimit(e.target.value)} aria-label="Approval limit" />
+        {saveSettings.isSuccess && <Alert tone="green">Saved.</Alert>}
+        {can('settings.manage') && (
+          <Button loading={saveSettings.isPending} disabled={limit === null} onClick={() => saveSettings.mutate({ approval_limit: Number(limit) })}>
+            Save
+          </Button>
+        )}
+      </Card>
+    </div>
+  )
+}
+
+function AddAccountModal({ onClose }: { onClose: () => void }) {
+  const { data: chart } = useChart()
+  const { saveAccount } = useAccountsMutations()
+  const [v, setV] = useState({ code: '', name: '', name_bn: '', parent_id: '' })
+  const [error, setError] = useState<string | null>(null)
+
+  const save = async () => {
+    setError(null)
+    try {
+      await saveAccount.mutateAsync({ ...v, parent_id: Number(v.parent_id), name_bn: v.name_bn || null })
+      onClose()
+    } catch (e) {
+      setError(Object.values(validationErrors(e))[0] ?? errorMessage(e))
+    }
+  }
+
+  return (
+    <Modal open title="New account" onClose={onClose}>
+      <div className="space-y-4">
+        {error && <Alert>{error}</Alert>}
+        <Field label="Under (group)" htmlFor="ac_parent">
+          <Select id="ac_parent" value={v.parent_id} onChange={(e) => setV({ ...v, parent_id: e.target.value })}>
+            <option value="">Choose…</option>
+            {chart?.data
+              .filter((a) => a.is_group)
+              .map((a) => (
+                <option key={a.id} value={a.id}>
+                  {a.code} {a.name}
+                </option>
+              ))}
+          </Select>
+        </Field>
+        <div className="grid grid-cols-3 gap-3">
+          <Field label="Code" htmlFor="ac_code">
+            <Input id="ac_code" inputMode="numeric" value={v.code} onChange={(e) => setV({ ...v, code: e.target.value })} placeholder="5435" />
+          </Field>
+          <div className="col-span-2">
+            <Field label="Name" htmlFor="ac_name">
+              <Input id="ac_name" value={v.name} onChange={(e) => setV({ ...v, name: e.target.value })} />
+            </Field>
+          </div>
+        </div>
+        <Field label="Name (Bangla)" htmlFor="ac_name_bn">
+          <Input id="ac_name_bn" value={v.name_bn} onChange={(e) => setV({ ...v, name_bn: e.target.value })} />
+        </Field>
+        <div className="flex justify-end gap-2">
+          <Button variant="secondary" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button loading={saveAccount.isPending} disabled={!v.code || !v.name || !v.parent_id} onClick={save}>
+            Add account
+          </Button>
+        </div>
+      </div>
+    </Modal>
   )
 }
 

@@ -9,6 +9,7 @@ use App\Models\Enrollment;
 use App\Models\User;
 use App\Services\AppointmentService;
 use App\Services\ChargeService;
+use App\Services\ExpenseService;
 use App\Services\PackageService;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Carbon;
@@ -88,3 +89,11 @@ Artisan::command('cstar:expire-packages', function (PackageService $packages) {
 
 Schedule::command('cstar:training-fees')->monthlyOn(1, '02:00');
 Schedule::command('cstar:expire-packages')->dailyAt('00:30');
+
+// Rent, internet… raised as draft expenses on their day each month for the accountant to check (Accounts §৫).
+Artisan::command('cstar:recurring-expenses', function (ExpenseService $expenses) {
+    $system = User::role(Role::SuperAdmin->value)->orderBy('id')->firstOrFail();
+    $this->info('Raised '.$expenses->generateRecurring($system).' recurring expenses.');
+})->purpose('Raise this month\'s recurring expenses as drafts');
+
+Schedule::command('cstar:recurring-expenses')->dailyAt('06:00');

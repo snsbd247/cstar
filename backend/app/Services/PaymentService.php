@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\Permission;
 use App\Models\Invoice;
 use App\Models\Patient;
 use App\Models\Payment;
@@ -138,6 +139,10 @@ class PaymentService
     {
         if ($payment->status === 'void') {
             throw ValidationException::withMessages(['payment' => 'This payment is already void.']);
+        }
+        // Accounts §৮: once the cash for that day is closed, only accounts staff may change it.
+        if ($payment->received_by && CashClosingService::isClosed($payment->received_by, $payment->paid_at) && ! $user->can(Permission::ACCOUNTS_COA_MANAGE)) {
+            throw ValidationException::withMessages(['payment' => 'The cash for this day is already closed. Ask the accountant.']);
         }
         if ($payment->type === 'payment') {
             $heldAsAdvance = round((float) $payment->amount - (float) $payment->allocations()->sum('amount'), 2);

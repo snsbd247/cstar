@@ -1,6 +1,11 @@
 <?php
 
+use App\Http\Controllers\Api\V1\Accounts\CashClosingController;
+use App\Http\Controllers\Api\V1\Accounts\ExpenseController;
 use App\Http\Controllers\Api\V1\Accounts\LedgerController;
+use App\Http\Controllers\Api\V1\Accounts\ReportController;
+use App\Http\Controllers\Api\V1\Accounts\SetupController;
+use App\Http\Controllers\Api\V1\Accounts\VoucherController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\Billing\InvoiceController;
 use App\Http\Controllers\Api\V1\Billing\PackageController;
@@ -160,6 +165,40 @@ Route::prefix('v1')->group(function () {
         // Accounts (read-only until Accounts A): chart with balances, auto-posted journal
         Route::get('accounts/chart', [LedgerController::class, 'chart']);
         Route::get('accounts/journal', [LedgerController::class, 'journal']);
+
+        // Accounts A: vouchers (maker-checker), expenses, cash closing, period lock, financial reports
+        Route::get('accounts/dashboard', [ReportController::class, 'dashboard']);
+        Route::get('accounts/vouchers', [VoucherController::class, 'index']);
+        Route::post('accounts/vouchers', [VoucherController::class, 'store']);
+        Route::get('accounts/vouchers/{voucher}', [VoucherController::class, 'show']);
+        Route::put('accounts/vouchers/{voucher}', [VoucherController::class, 'update']);
+        Route::delete('accounts/vouchers/{voucher}', [VoucherController::class, 'destroy']);
+        Route::post('accounts/vouchers/{voucher}/{action}', [VoucherController::class, 'action'])->whereIn('action', ['submit', 'approve', 'reject', 'reverse']);
+        Route::get('accounts/expenses', [ExpenseController::class, 'index']);
+        Route::post('accounts/expenses', [ExpenseController::class, 'store']);
+        Route::post('accounts/expenses/{expense}/submit', [ExpenseController::class, 'submit']);
+        Route::get('accounts/expenses/{expense}/attachment', [ExpenseController::class, 'attachment']);
+        Route::get('accounts/expense-options', [ExpenseController::class, 'options']);
+        Route::post('accounts/expense-categories', [ExpenseController::class, 'storeCategory']);
+        Route::get('accounts/recurring-expenses', [ExpenseController::class, 'recurring']);
+        Route::post('accounts/recurring-expenses', [ExpenseController::class, 'saveRecurring']);
+        Route::put('accounts/recurring-expenses/{recurring}', [ExpenseController::class, 'saveRecurring']);
+        Route::get('accounts/cash-closings', [CashClosingController::class, 'index']);
+        Route::get('accounts/cash-closings/expected', [CashClosingController::class, 'expected']);
+        Route::post('accounts/cash-closings', [CashClosingController::class, 'store']);
+        Route::post('accounts/cash-closings/{closing}/receive', [CashClosingController::class, 'receive']);
+        Route::post('accounts/chart', [SetupController::class, 'storeAccount']);
+        Route::put('accounts/chart/{account}', [SetupController::class, 'updateAccount']);
+        Route::get('accounts/periods', [SetupController::class, 'periods']);
+        Route::post('accounts/periods/{period}/close', [SetupController::class, 'closePeriod']);
+        Route::post('accounts/periods/{period}/reopen', [SetupController::class, 'reopenPeriod']);
+        Route::get('accounts/settings', [SetupController::class, 'settings']);
+        Route::put('accounts/settings', [SetupController::class, 'updateSettings']);
+        Route::get('accounts/reports/trial-balance', [ReportController::class, 'trialBalance']);
+        Route::get('accounts/reports/ledger', [ReportController::class, 'ledger']);
+        Route::get('accounts/reports/day-book', [ReportController::class, 'dayBook']);
+        Route::get('accounts/reports/income-statement', [ReportController::class, 'incomeStatement']);
+        Route::get('accounts/reports/balance-sheet', [ReportController::class, 'balanceSheet']);
 
         // Assessments → recommendations → enrollment; PDF reports
         Route::get('lookups/assessment-types', [AssessmentController::class, 'types']);

@@ -19,6 +19,11 @@ import TherapistsPage from '../features/therapy/TherapistsPage'
 import TherapySessionsPage from '../features/therapy/TherapySessionsPage'
 import AssessmentsPage, { AssessmentDetailPage } from '../features/assessments/AssessmentsPage'
 import AccountsPage from '../features/accounts/AccountsPage'
+import AccountsDashboard from '../features/accounts/AccountsDashboard'
+import CashClosingPage from '../features/accounts/CashClosingPage'
+import ExpensesPage from '../features/accounts/ExpensesPage'
+import ReportsPage from '../features/accounts/ReportsPage'
+import VouchersPage from '../features/accounts/VouchersPage'
 import InvoiceDetailPage from '../features/billing/InvoiceDetailPage'
 import InvoicesPage from '../features/billing/InvoicesPage'
 import PackagesPage from '../features/billing/PackagesPage'
@@ -84,7 +89,12 @@ export const router = createBrowserRouter([
           { path: 'invoices', element: <RequirePermission permission="invoices.view"><InvoicesPage /></RequirePermission> },
           { path: 'invoices/:id', element: <RequirePermission permission="invoices.view"><InvoiceDetailPage /></RequirePermission> },
           { path: 'payments', element: <RequirePermission permission="payments.view"><PaymentsPage /></RequirePermission> },
-          { path: 'accounts', element: <RequirePermission permission="accounts.view"><AccountsPage /></RequirePermission> },
+          { path: 'accounts', element: <RequirePermission permission="accounts.view"><AccountsDashboard /></RequirePermission> },
+          { path: 'accounts/books', element: <RequirePermission permission="accounts.view"><AccountsPage /></RequirePermission> },
+          { path: 'accounts/vouchers', element: <RequirePermission permission="accounts.view"><VouchersPage /></RequirePermission> },
+          { path: 'accounts/reports', element: <RequirePermission permission="accounts.reports"><ReportsPage /></RequirePermission> },
+          { path: 'expenses', element: <RequirePermission permission="accounts.expense.create"><ExpensesPage /></RequirePermission> },
+          { path: 'cash-closing', element: <RequirePermission permission="accounts.cash_closing"><CashClosingPage /></RequirePermission> },
           { path: 'holidays', element: <RequirePermission permission="branches.view"><HolidaysPage /></RequirePermission> },
           { path: 'online-requests', element: <RequirePermission permission="appointment_requests.manage"><OnlineRequestsPage /></RequirePermission> },
           { path: 'cms', element: <RequirePermission permission={['cms.manage', 'appointment_requests.manage']}><CmsPage /></RequirePermission> },
