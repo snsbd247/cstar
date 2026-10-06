@@ -21,6 +21,8 @@ class StoreEnrollmentRequest extends FormRequest
             'status' => ['sometimes', Rule::in(['pending', 'active'])],
             'start_date' => ['required', 'date'],
             'notes' => ['nullable', 'string', 'max:5000'],
+            'source_assessment_id' => ['nullable', 'integer', Rule::exists('assessments', 'id')->where('patient_id', $this->input('patient_id'))],
+            'recommendation_id' => ['nullable', 'integer', 'exists:assessment_recommendations,id'],
 
             // Regular Training
             'training_group_id' => ['required_if:type,training', 'prohibited_if:type,therapy', 'nullable', 'integer'],

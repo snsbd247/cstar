@@ -1,5 +1,6 @@
 import { ArrowLeft, CalendarPlus, Camera, GraduationCap, Pencil, Phone, Wallet } from 'lucide-react'
 import { useRef, useState } from 'react'
+import type { PatientRecommendation } from '../assessments/api'
 import { Link, useParams, useSearchParams } from 'react-router'
 import { errorMessage } from '../../api/client'
 import { Button } from '../../components/ui/Button'
@@ -9,6 +10,7 @@ import { useAuth } from '../../contexts/useAuth'
 import { cn } from '../../utils/cn'
 import { usePatient, useUploadPhoto } from './api'
 import { PatientAvatar, PatientTypeBadge } from './components/badges'
+import { AssessmentsTab } from './components/AssessmentsTab'
 import { DocumentsTab } from './components/DocumentsTab'
 import { EnrollmentFormModal } from './components/EnrollmentFormModal'
 import { EnrollmentsTab } from './components/EnrollmentsTab'
@@ -24,6 +26,7 @@ const tabs = [
   ['enrollments', 'Enrollments'],
   ['training', 'Training'],
   ['therapy', 'Therapy'],
+  ['assessments', 'Assessments'],
   ['guardians', 'Guardians'],
   ['documents', 'Documents'],
   ['timeline', 'Timeline'],
@@ -33,7 +36,7 @@ export default function PatientProfilePage() {
   const { id } = useParams()
   const { data: patient, isLoading, error } = usePatient(id)
   const [params, setParams] = useSearchParams()
-  const [enrolling, setEnrolling] = useState(false)
+  const [enrolling, setEnrolling] = useState<false | true | PatientRecommendation>(false)
   const [booking, setBooking] = useState(false)
   const { can } = useAuth()
   const photoInput = useRef<HTMLInputElement>(null)
@@ -147,6 +150,7 @@ export default function PatientProfilePage() {
         {tab === 'enrollments' && <EnrollmentsTab patient={patient} onNew={() => setEnrolling(true)} />}
         {tab === 'training' && <TrainingTab patient={patient} />}
         {tab === 'therapy' && <TherapyTab patient={patient} />}
+        {tab === 'assessments' && <AssessmentsTab patient={patient} onEnroll={(r) => setEnrolling(r)} />}
         {tab === 'guardians' && <GuardiansTab patient={patient} />}
         {tab === 'documents' && <DocumentsTab patient={patient} />}
         {tab === 'timeline' && <TimelineTab patientId={patient.id} />}
@@ -157,6 +161,7 @@ export default function PatientProfilePage() {
       {enrolling && (
         <EnrollmentFormModal
           patient={patient}
+          recommendation={typeof enrolling === 'object' ? enrolling : undefined}
           onClose={() => setEnrolling(false)}
           onCreated={() => {
             setEnrolling(false)

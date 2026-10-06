@@ -17,6 +17,8 @@ import TrainingRecordsPage from '../features/training/TrainingRecordsPage'
 import AppointmentsPage from '../features/therapy/AppointmentsPage'
 import TherapistsPage from '../features/therapy/TherapistsPage'
 import TherapySessionsPage from '../features/therapy/TherapySessionsPage'
+import AssessmentsPage, { AssessmentDetailPage } from '../features/assessments/AssessmentsPage'
+import { TherapistAssessmentPage, TherapistAssessmentsPage, TherapistNewAssessmentPage } from '../features/therapist/TherapistAssessments'
 import { TherapistPatientPage, TherapistPatientsPage, TherapistSchedulePage, TherapistSessionPage, TherapistSessionsPage } from '../features/therapist/TherapistPages'
 import { TrainerAttendancePage, TrainerRecordsPage, TrainerStudentPage, TrainerStudentsPage } from '../features/trainer/TrainerPages'
 import OnlineRequestsPage from '../features/requests/OnlineRequestsPage'
@@ -71,6 +73,8 @@ export const router = createBrowserRouter([
           { path: 'therapists', element: <RequirePermission permission="therapists.view"><TherapistsPage /></RequirePermission> },
           { path: 'appointments', element: <RequirePermission permission="appointments.view"><AppointmentsPage /></RequirePermission> },
           { path: 'therapy-sessions', element: <RequirePermission permission="therapy_sessions.view"><TherapySessionsPage /></RequirePermission> },
+          { path: 'assessments', element: <RequirePermission permission="assessments.view"><AssessmentsPage /></RequirePermission> },
+          { path: 'assessments/:id', element: <RequirePermission permission="assessments.view"><AssessmentDetailPage /></RequirePermission> },
           { path: 'holidays', element: <RequirePermission permission="branches.view"><HolidaysPage /></RequirePermission> },
           { path: 'online-requests', element: <RequirePermission permission="appointment_requests.manage"><OnlineRequestsPage /></RequirePermission> },
           { path: 'cms', element: <RequirePermission permission={['cms.manage', 'appointment_requests.manage']}><CmsPage /></RequirePermission> },
@@ -112,7 +116,9 @@ export const router = createBrowserRouter([
           { path: 'patients/:enrollmentId', element: <TherapistPatientPage /> },
           { path: 'sessions', element: <TherapistSessionsPage /> },
           { path: 'session/:appointmentId', element: <TherapistSessionPage /> },
-          { path: 'assessments', element: <ComingSoon title="Assessments" sprint={9} /> },
+          { path: 'assessments', element: <TherapistAssessmentsPage /> },
+          { path: 'assessments/new', element: <TherapistNewAssessmentPage /> },
+          { path: 'assessments/:id', element: <TherapistAssessmentPage /> },
         ],
       },
     ],

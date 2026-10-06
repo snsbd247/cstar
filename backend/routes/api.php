@@ -5,14 +5,15 @@ use App\Http\Controllers\Api\V1\BranchController;
 use App\Http\Controllers\Api\V1\Cms\CmsContentController;
 use App\Http\Controllers\Api\V1\Cms\WebsiteSetupController;
 use App\Http\Controllers\Api\V1\EnquiryInboxController;
-use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\EnrollmentController;
 use App\Http\Controllers\Api\V1\GuardianController;
 use App\Http\Controllers\Api\V1\LookupController;
+use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\PatientController;
 use App\Http\Controllers\Api\V1\PatientDocumentController;
 use App\Http\Controllers\Api\V1\RoleController;
 use App\Http\Controllers\Api\V1\Therapy\AppointmentController;
+use App\Http\Controllers\Api\V1\Therapy\AssessmentController;
 use App\Http\Controllers\Api\V1\Therapy\TherapistController;
 use App\Http\Controllers\Api\V1\Therapy\TherapySessionController;
 use App\Http\Controllers\Api\V1\Training\IndividualPlanController;
@@ -122,6 +123,17 @@ Route::prefix('v1')->group(function () {
         Route::get('enrollments/{enrollment}/slots', [TherapySessionController::class, 'slots']);
         Route::put('enrollments/{enrollment}/slots', [TherapySessionController::class, 'updateSlots']);
         Route::post('enrollments/{enrollment}/generate-appointments', [TherapySessionController::class, 'generate']);
+
+        // Assessments → recommendations → enrollment; PDF reports
+        Route::get('lookups/assessment-types', [AssessmentController::class, 'types']);
+        Route::get('assessments', [AssessmentController::class, 'index']);
+        Route::post('patients/{patient}/assessments', [AssessmentController::class, 'store']);
+        Route::get('assessments/{assessment}', [AssessmentController::class, 'show']);
+        Route::put('assessments/{assessment}', [AssessmentController::class, 'update']);
+        Route::post('assessments/{assessment}/share', [AssessmentController::class, 'share']);
+        Route::get('assessments/{assessment}/pdf', [AssessmentController::class, 'pdf']);
+        Route::get('patients/{patient}/recommendations', [AssessmentController::class, 'recommendations']);
+        Route::get('patients/{patient}/progress-report', [AssessmentController::class, 'progressReport']);
 
         // Website front-desk inbox
         Route::get('appointment-requests', [EnquiryInboxController::class, 'appointmentRequests']);

@@ -1,4 +1,4 @@
-import { CalendarOff, NotebookPen } from 'lucide-react'
+import { CalendarOff, ClipboardList, NotebookPen } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router'
 import { Alert, Card } from '../../components/ui/Card'
@@ -90,12 +90,21 @@ export function AppointmentRow({ appointment: a, showDate }: { appointment: Appo
       </div>
       {!inactive && (
         <div className="mt-3 grid grid-cols-2 gap-2">
-          <Link
-            to={`/therapist/session/${a.id}`}
-            className={`flex min-h-11 items-center justify-center gap-2 rounded-lg text-sm font-semibold ${done ? 'border border-slate-300 text-slate-700' : 'bg-brand-600 text-white'}`}
-          >
-            <NotebookPen className="size-4" /> {done ? 'View note' : a.session ? 'Continue note' : 'Start session'}
-          </Link>
+          {a.type === 'assessment' ? (
+            <Link
+              to={`/therapist/assessments/new?patient=${a.patient?.id}&appointment=${a.id}`}
+              className={`flex min-h-11 items-center justify-center gap-2 rounded-lg text-sm font-semibold ${a.status === 'completed' ? 'border border-slate-300 text-slate-700' : 'bg-sky-brand-600 text-white'}`}
+            >
+              <ClipboardList className="size-4" /> {a.status === 'completed' ? 'View assessment' : 'Write assessment'}
+            </Link>
+          ) : (
+            <Link
+              to={`/therapist/session/${a.id}`}
+              className={`flex min-h-11 items-center justify-center gap-2 rounded-lg text-sm font-semibold ${done ? 'border border-slate-300 text-slate-700' : 'bg-brand-600 text-white'}`}
+            >
+              <NotebookPen className="size-4" /> {done ? 'View note' : a.session ? 'Continue note' : 'Start session'}
+            </Link>
+          )}
           {['pending', 'confirmed'].includes(a.status) && (
             <button
               onClick={() => confirm(`Mark ${a.patient?.name} as no-show?`) && action.mutate({ id: a.id, action: 'no-show' })}

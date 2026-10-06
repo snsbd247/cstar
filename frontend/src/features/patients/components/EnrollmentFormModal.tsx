@@ -1,5 +1,5 @@
 import { Dumbbell, HeartPulse } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { errorMessage, validationErrors } from '../../../api/client'
 import { Button } from '../../../components/ui/Button'
@@ -10,6 +10,7 @@ import { useAuth } from '../../../contexts/useAuth'
 import { cn } from '../../../utils/cn'
 import { todayISO } from '../../../utils/format'
 import { useEnrollmentMutations, useEnrollmentOptions } from '../api'
+import type { PatientRecommendation } from '../../assessments/api'
 import type { EnrollmentType, PatientDetail } from '../types'
 
 interface FormValues {
@@ -32,9 +33,20 @@ interface FormValues {
  *  Regular Training → class + trainer (no therapist)
  *  Therapy          → service + therapist (no class, no trainer)
  */
-export function EnrollmentFormModal({ patient, onClose, onCreated }: { patient: PatientDetail; onClose: () => void; onCreated: () => void }) {
+export function EnrollmentFormModal({
+  patient,
+  recommendation,
+  onClose,
+  onCreated,
+}: {
+  patient: PatientDetail
+  /** Enrolling from an assessment recommendation pre-fills the form and links the two. */
+  recommendation?: PatientRecommendation
+  onClose: () => void
+  onCreated: () => void
+}) {
   const { user } = useAuth()
-  const [type, setType] = useState<EnrollmentType>('training')
+  const [type, setType] = useState<EnrollmentType>(recommendation?.enrollment_type ?? 'training')
   const [error, setError] = useState<string | null>(null)
   const { create } = useEnrollmentMutations(patient.id)
   const { register, handleSubmit, control, setValue, setError: setFieldError, formState } = useForm<FormValues>({
@@ -43,6 +55,8 @@ export function EnrollmentFormModal({ patient, onClose, onCreated }: { patient: 
       start_date: todayISO(),
       status: 'active',
       billing_mode: 'per_session',
+      service_id: recommendation?.service ? String(recommendation.service.id) : '',
+      notes: recommendation ? `Recommended by ${recommendation.assessment.therapist.name} (${recommendation.assessment.code})${recommendation.frequency ? ` — ${recommendation.frequency}` : ''}` : '',
     } as FormValues,
   })
   const errors = formState.errors
@@ -53,9 +67,25 @@ export function EnrollmentFormModal({ patient, onClose, onCreated }: { patient: 
   const selectedClass = options?.classes.find((c) => c.id === classId)
   const therapists = options?.therapists.filter((t) => t.service_ids.includes(serviceId)) ?? []
 
+  // The service list loads after mount, so apply the recommended service once its option exists.
+  const recommendedServiceId = recommendation?.service?.id
+  useEffect(() => {
+    if (recommendedServiceId && options?.services.some((s) => s.id === recommendedServiceId)) {
+      setValue('service_id', String(recommendedServiceId))
+    }
+  }, [options, recommendedServiceId, setValue])
+
   const onSubmit = async (v: FormValues) => {
     setError(null)
-    const common = { patient_id: patient.id, branch_id: Number(v.branch_id), type, start_date: v.start_date, status: v.status, notes: v.notes || null }
+    const common = {
+      patient_id: patient.id,
+      branch_id: Number(v.branch_id),
+      type,
+      start_date: v.start_date,
+      status: v.status,
+      notes: v.notes || null,
+      ...(recommendation && type === recommendation.enrollment_type && { source_assessment_id: recommendation.assessment.id, recommendation_id: recommendation.id }),
+    }
     const specific =
       type === 'training'
         ? { training_group_id: Number(v.training_group_id) || null, trainer_id: Number(v.trainer_id) || null, monthly_fee: v.monthly_fee || null }

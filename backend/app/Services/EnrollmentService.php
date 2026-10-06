@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Enums\EnrollmentStatus;
 use App\Enums\EnrollmentType;
 use App\Enums\ServiceCategory;
+use App\Models\AssessmentRecommendation;
 use App\Models\Enrollment;
 use App\Models\Patient;
 use App\Models\Service;
@@ -53,8 +54,16 @@ class EnrollmentService
                 'status' => $status,
                 'start_date' => $startDate,
                 'notes' => $data['notes'] ?? null,
+                'source_assessment_id' => $data['source_assessment_id'] ?? null,
                 'created_by' => $actor->id,
             ]);
+
+            // Acting on an assessment recommendation links it to the new enrollment.
+            if (! empty($data['recommendation_id'])) {
+                AssessmentRecommendation::whereKey($data['recommendation_id'])
+                    ->whereHas('assessment', fn ($q) => $q->where('patient_id', $patient->id))
+                    ->update(['enrollment_id' => $enrollment->id]);
+            }
 
             if ($type === EnrollmentType::Training) {
                 $enrollment->trainingEnrollment()->create($details);

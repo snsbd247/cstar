@@ -75,6 +75,11 @@ class Patient extends Model
         return $this->hasMany(Appointment::class);
     }
 
+    public function assessments(): HasMany
+    {
+        return $this->hasMany(Assessment::class);
+    }
+
     public function documents(): HasMany
     {
         return $this->hasMany(PatientDocument::class);
@@ -192,7 +197,9 @@ class Patient extends Model
                     ->orWhereHas('appointments', fn ($a) => $a
                         ->where('therapist_id', $therapistId)
                         ->whereIn('status', AppointmentStatus::live())
-                        ->whereDate('date', '>=', today()->subDays(14)));
+                        ->whereDate('date', '>=', today()->subDays(14)))
+                    // The assessing therapist keeps access to the child they assessed.
+                    ->orWhereHas('assessments', fn ($a) => $a->where('therapist_id', $therapistId));
             }
 
             if ($roles->contains(Role::Parent->value) && ($guardianId = $user->guardian?->id)) {

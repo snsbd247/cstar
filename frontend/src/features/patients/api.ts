@@ -140,6 +140,7 @@ export function useEnrollmentMutations(patientId: number) {
   const onSuccess = () => {
     refresh(patientId)
     queryClient.invalidateQueries({ queryKey: ['enrollment-options'] })
+    queryClient.invalidateQueries({ queryKey: ['recommendations', patientId] })
   }
   return {
     create: useMutation({ mutationFn: (input: Record<string, unknown>) => api.post<{ data: Enrollment }>('/enrollments', input), onSuccess }),

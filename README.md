@@ -4,7 +4,7 @@
 Public Website + Center Management System + Parent Portal
 
 > এই README-ই প্রকল্পের **মূল পরিকল্পনা ও অগ্রগতির document** (বাংলা)। প্রতিটি কাজ শেষ হলে নিচের অগ্রগতি তালিকা হালনাগাদ করা হয়।
-> সংস্করণ: Plan v1.5 · শেষ হালনাগাদ: ০৬ অক্টোবর ২০২৬ (Sprint ৮ শেষ) · সহযোগী document: [docs/C-STAR-Accounts-BN.md](docs/C-STAR-Accounts-BN.md) (সম্পূর্ণ Accounts Module)
+> সংস্করণ: Plan v1.6 · শেষ হালনাগাদ: ০৬ অক্টোবর ২০২৬ (Sprint ৯ শেষ) · সহযোগী document: [docs/C-STAR-Accounts-BN.md](docs/C-STAR-Accounts-BN.md) (সম্পূর্ণ Accounts Module)
 
 ## সূচিপত্র
 
@@ -60,7 +60,7 @@ Development server ছাড়াই XAMPP-এর Apache দিয়ে পু
 | `F:\web\htdocs\cstar` | `backend\public` folder-এর **junction** (আলাদা copy নয়) |
 | `F:\web\apache\conf\extra\httpd-cstar.conf` | শুধু `/cstar` folder **PHP 8.3** (php-cgi) দিয়ে চলে; htdocs-এর বাকি project আগের মতো PHP 8.2-তে থাকে |
 | `F:\web\apache\conf\httpd.conf` | শেষ লাইনে উপরের file `Include` করা। পুরনো config-এর backup: `httpd.conf.bak-before-cstar`, `extra\httpd-xampp.conf.bak-before-cstar` |
-| `backend\.env` | `APP_URL=http://localhost/cstar`, `SANCTUM_STATEFUL_DOMAINS`-এ `localhost` |
+| `backend\.env` | `APP_URL=http://localhost/cstar`, `SANCTUM_STATEFUL_DOMAINS`-এ `localhost` ও server-এর IP `103.222.22.107`। **অন্য IP বা domain দিয়ে খুললে সেটাও এই তালিকায় যোগ করতে হবে**, নইলে login-এ "Session store not set on request" দেখায় |
 
 React app-এ পরিবর্তন করলে `/cstar`-এর জন্য আবার build করতে হবে:
 
@@ -84,7 +84,7 @@ cd backend  && npm run build           # website-এর CSS/JS
 | Therapist (Imran Hossain) | therapist@cstar.test | /therapist |
 | Parent (Ayan-এর মা) | 01700000007 | /portal |
 
-Demo data-য় plan-এর উদাহরণটাই আছে: **Ayan** (Training + Speech + OT), **Sara** (শুধু Speech Therapy), **Rafi** (শুধু Training)। এছাড়া "Functional Development A" class-এর সময়সূচি (শনি–বৃহস্পতি, সকাল ১০টা–দুপুর ১টা), গত ৩ সপ্তাহের হাজিরা, Ayan-এর ITP (৫টি লক্ষ্য) ও training record, therapist-দের কাজের সময় (Imran: রবি–বৃহঃ বিকাল ৩–৭টা, Farhana: শনি–বুধ সকাল ১০–২টা), Ayan ও Sara-র সাপ্তাহিক therapy slot, গত দুই সপ্তাহের session note, Sara-র therapy plan, আজকের ও সামনের ৪ সপ্তাহের appointment, এবং website-এর নমুনা contact তথ্য (+880 1700-000000, demo ঠিকানা) আছে। **সবই নমুনা — আসল তথ্য পেলে CMS ও admin panel থেকে বদলাতে হবে।**
+Demo data-য় plan-এর উদাহরণটাই আছে: **Ayan** (Training + Speech + OT), **Sara** (শুধু Speech Therapy), **Rafi** (শুধু Training)। এছাড়া "Functional Development A" class-এর সময়সূচি (শনি–বৃহস্পতি, সকাল ১০টা–দুপুর ১টা), গত ৩ সপ্তাহের হাজিরা, Ayan-এর ITP (৫টি লক্ষ্য) ও training record, therapist-দের কাজের সময় (Imran: রবি–বৃহঃ বিকাল ৩–৭টা, Farhana: শনি–বুধ সকাল ১০–২টা), Ayan ও Sara-র সাপ্তাহিক therapy slot, গত দুই সপ্তাহের session note, Sara-র therapy plan, আজকের ও সামনের ৪ সপ্তাহের appointment, Ayan-এর Speech & Language assessment (final, অভিভাবকের সাথে share করা, দুটো সুপারিশই enroll হয়ে গেছে), Sara-র assessment (একটি বাকি সুপারিশ: সপ্তাহে ১ বার Occupational Therapy — front desk-এর "Enroll" দেখার জন্য), এবং website-এর নমুনা contact তথ্য (+880 1700-000000, demo ঠিকানা) আছে। **সবই নমুনা — আসল তথ্য পেলে CMS ও admin panel থেকে বদলাতে হবে।**
 
 ### Test
 
@@ -101,7 +101,7 @@ cd frontend && npx tsc -b && npm run lint
 
 ## ✅ কাজের অগ্রগতি (Progress Tracker)
 
-> চিহ্ন: ✅ শেষ · 🔄 চলছে · ⬜ বাকি — **শেষ হালনাগাদ: ০৬ অক্টোবর ২০২৬ (Sprint ৮ শেষ)**
+> চিহ্ন: ✅ শেষ · 🔄 চলছে · ⬜ বাকি — **শেষ হালনাগাদ: ০৬ অক্টোবর ২০২৬ (Sprint ৯ শেষ)**
 > প্রতিটি কাজ শেষ হলে এখানে চিহ্ন বদলানো হবে।
 
 ### Phase 1 — পরিকল্পনা ও Requirement
@@ -128,7 +128,7 @@ cd frontend && npx tsc -b && npm run lint
 | ✅ | ৬ | Patient + Guardian + Documents + **Enrollment System** — ০৬ অক্টো ২০২৬: patient registration (স্বয়ংক্রিয় ID `CSTAR-2026-00001`, duplicate সতর্কবার্তা, ভাই-বোনের জন্য একই guardian, consent), clinical তথ্য আলাদা ও সুরক্ষিত, private document ও ছবি, parent portal login তৈরি, enrollment (Training: class + trainer, Therapy: service + therapist), hold/resume/complete/discontinue/transfer ও ইতিহাস, patient timeline, global search; trainer/therapist শুধু নিজের শিশুদের দেখেন; ৬৯টি test পাস। *Trainer, therapist, class ও service-এর মূল table এখানেই তৈরি; এদের management page Sprint ৭–৮-এ।* |
 | ✅ | ৭ | Class + Trainer + Training Attendance + Training Session/Record + ITP — ০৬ অক্টো ২০২৬: Trainer ও Class management (সাপ্তাহিক সময়সূচি, শনি–বৃহস্পতি), ছুটির calendar; এক tap-এ class-এর হাজিরা (Present/Late/Absent/Leave/Holiday; ছুটির দিনে স্বয়ংক্রিয় Holiday; trainer শেষ ৩ দিন পর্যন্ত বদলাতে পারেন, পুরনো দিন branch admin); মাসিক হাজিরা ও হার = (উপস্থিত + দেরি) ÷ (উপস্থিত + দেরি + অনুপস্থিত); Training Record (activity, ১–৫ তারা, পর্যবেক্ষণ, অভিভাবকের জন্য নোট) — শুধু উপস্থিত শিশুর জন্য, Finalize করলে locked ও timeline-এ যায়; ITP (লক্ষ্য, target, অগ্রগতি %, দৈনিক ১–৫ score); Trainer app: Today, Attendance, Records, My Students; Admin: Classes, Students, Trainers, Training Sessions, Holidays, patient profile-এ Training tab; therapist training record বা ITP লিখতে পারেন না; ৯০টি test পাস। |
 | ✅ | ৮ | Therapist + Schedule + Appointment + Therapy Session — ০৬ অক্টো ২০২৬: Therapist management (কোন service দেন, সাপ্তাহিক কাজের সময়, ছুটি); খালি slot হিসাব (সময়সূচি − ছুটি − holiday − বুক করা appointment); appointment বুক (একই therapist বা একই শিশুর একই সময়ে দুটো appointment অসম্ভব — database-ও আটকায়), confirm / check-in / cancel (কারণ বাধ্যতামূলক, ২৪ ঘণ্টার কম আগে হলে late cancellation) / no-show / reschedule; therapy enrollment-এর সাপ্তাহিক slot থেকে পরের ৪ সপ্তাহের appointment স্বয়ংক্রিয় (প্রতিদিন রাত ১টায় + হাতে button); Therapy session note (activity, লক্ষ্যের score, home practice, অভিভাবকের জন্য summary বাধ্যতামূলক) — শুধু চিকিৎসা দেওয়া therapist লিখতে পারেন, finalize করলে locked ও appointment completed; therapy plan; Therapist app (Today, Schedule, Patients, Sessions, Session note); Admin: Therapists, Appointments board, Therapy Sessions, patient profile-এ Therapy tab, online request থেকে সরাসরি appointment; ১০৫টি test পাস। |
-| ⬜ | ৯ | Assessment + Plans/Goals + Timeline + PDF |
+| ✅ | ৯ | Assessment + Plans/Goals + Timeline + PDF — ০৬ অক্টো ২০২৬: ৭ ধরনের assessment (Speech & Language, Developmental, Autism-related, OT, Communication, Feeding, Other), প্রতিটির নিজস্ব অংশ (যেমন receptive/expressive language, articulation); therapist assessment লেখেন (স্বয়ংক্রিয় নম্বর `ASM-2026-00001`), draft রাখা যায়, summary ছাড়া finalize হয় না, finalize করলে locked, timeline-এ যায় ও assessment appointment completed হয়; শুধু assessment-কারী therapist বদলাতে পারেন; assessment-এ **সুপারিশকৃত programme** (therapy service বা Regular Training, কতবার, অগ্রাধিকার) → front desk patient profile-এর Assessments tab-এ দেখে এক click-এ **Enroll** (form আগে থেকে ভরা, enrollment-এ কোন assessment থেকে এসেছে তা সংরক্ষিত) — receptionist শুধু সুপারিশ দেখেন, clinical findings দেখেন না; final assessment অভিভাবকের সাথে share (parent timeline-এ যায়); **PDF**: assessment report ও progress report (programme, plan-এর লক্ষ্য ও অগ্রগতি bar, session সংখ্যা, assessment) — mPDF দিয়ে, বাংলা যুক্তাক্ষর ঠিকভাবে আসে; Plans/Goals (training ও therapy দুটোতেই) Sprint ৭–৮-এ তৈরি হয়েছিল, এখানে report-এ যুক্ত; Therapist app-এ Assessments (list, নতুন, assessment appointment থেকে "Write assessment"), Admin-এ Assessments page; ১১২টি test পাস। |
 | ⬜ | ১০ | Package + Invoice + Payment + Due + **Chart of Accounts ও Billing auto-posting** |
 | ⬜ | ১১ | **Accounts A** — Expense, Voucher, Cash Closing, Ledger, Trial Balance, P&L, Balance Sheet |
 | ⬜ | ১২ | **Accounts B** — Employee, Payroll, Therapist Payout, Advance, Payslip |
@@ -998,4 +998,4 @@ SMS (BD gateway) · WhatsApp · Online Payment (bKash/SSLCommerz) · Email autom
 
 ---
 
-**পরবর্তী ধাপ:** Sprint ৩–৮ শেষ। পরের কাজ Sprint ৯ (Assessment + Plans/Goals + Timeline + PDF)।
+**পরবর্তী ধাপ:** Sprint ৩–৯ শেষ। পরের কাজ Sprint ১০ (Package + Invoice + Payment + Due + Chart of Accounts ও Billing auto-posting)।

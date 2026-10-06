@@ -19,7 +19,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 #[Fillable([
     'enrollment_code', 'patient_id', 'branch_id', 'type', 'status', 'start_date', 'end_date',
-    'end_reason', 'end_note', 'notes', 'created_by',
+    'end_reason', 'end_note', 'source_assessment_id', 'notes', 'created_by',
 ])]
 class Enrollment extends Model
 {

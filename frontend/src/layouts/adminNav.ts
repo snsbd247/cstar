@@ -48,7 +48,7 @@ export const adminNav: NavGroup[] = [
     items: [
       { label: 'Patients', to: '/app/patients', icon: UserRound, permissions: ['patients.view'] },
       { label: 'Students / Training', to: '/app/students', icon: GraduationCap, permissions: ['enrollments.view'] },
-      { label: 'Assessments', to: '/app/assessments', icon: ClipboardList, permissions: ['assessments.view'], sprint: 9 },
+      { label: 'Assessments', to: '/app/assessments', icon: ClipboardList, permissions: ['assessments.view'] },
     ],
   },
   {

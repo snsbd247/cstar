@@ -1,4 +1,4 @@
-import { ArrowLeft, ChevronRight } from 'lucide-react'
+import { ArrowLeft, ChevronRight, ClipboardPlus } from 'lucide-react'
 import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router'
 import { Badge, Card } from '../../components/ui/Card'
@@ -9,6 +9,7 @@ import { PatientAvatar } from '../patients/components/badges'
 import { useAppointments, useMyTherapyPatients, useTherapistToday, useTherapySessions } from '../therapy/api'
 import { SessionNote } from '../therapy/components/SessionNoteForm'
 import { PlanPanel } from '../training/components/PlanPanel'
+import { useAssessments } from '../assessments/api'
 import { AppointmentRow } from './TherapistApp'
 
 export function TherapistSchedulePage() {
@@ -76,6 +77,7 @@ export function TherapistPatientPage() {
   const { data: patients } = useMyTherapyPatients()
   const entry = patients?.find((p) => p.enrollment_id === id)
   const { data: sessions } = useTherapySessions({ patient_id: entry?.patient.id })
+  const { data: assessments } = useAssessments({ patient_id: entry?.patient.id }, !!entry)
 
   if (!entry) return <Spinner className="text-brand-600" />
 
@@ -94,6 +96,27 @@ export function TherapistPatientPage() {
         </div>
       </div>
       <PlanPanel enrollmentId={id} canEdit title="Therapy plan" />
+      <Card className="p-5">
+        <div className="flex items-center justify-between gap-2">
+          <h3 className="font-semibold text-slate-900">Assessments</h3>
+          <Link to={`/therapist/assessments/new?patient=${entry.patient.id}`} className="inline-flex items-center gap-1 text-sm font-medium text-brand-700">
+            <ClipboardPlus className="size-4" /> New
+          </Link>
+        </div>
+        <ul className="mt-3 divide-y divide-slate-100">
+          {assessments?.data.length === 0 && <li className="text-sm text-slate-500">No assessments yet.</li>}
+          {assessments?.data.map((a) => (
+            <li key={a.id}>
+              <Link to={`/therapist/assessments/${a.id}`} className="flex items-center justify-between gap-2 py-2.5">
+                <span className="text-sm text-slate-800">
+                  {a.type?.name} <span className="text-xs text-slate-500">· {a.date}</span>
+                </span>
+                <Badge tone={a.status === 'final' ? 'green' : 'amber'}>{a.status}</Badge>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </Card>
       <Card className="p-5">
         <h3 className="font-semibold text-slate-900">Session history</h3>
         <ul className="mt-3 space-y-4">
