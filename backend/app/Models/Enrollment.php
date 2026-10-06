@@ -62,6 +62,16 @@ class Enrollment extends Model
         return $this->hasMany(EnrollmentAssignment::class)->latest('from_date')->latest('id');
     }
 
+    public function plans(): HasMany
+    {
+        return $this->hasMany(IndividualPlan::class)->latest('start_date')->latest('id');
+    }
+
+    public function attendance(): HasMany
+    {
+        return $this->hasMany(TrainingAttendance::class);
+    }
+
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');

@@ -3,6 +3,7 @@ import {
   Bell,
   Building2,
   CalendarCheck,
+  CalendarOff,
   ClipboardList,
   CreditCard,
   Dumbbell,
@@ -46,16 +47,16 @@ export const adminNav: NavGroup[] = [
     title: 'Children',
     items: [
       { label: 'Patients', to: '/app/patients', icon: UserRound, permissions: ['patients.view'] },
-      { label: 'Students / Training', to: '/app/students', icon: GraduationCap, permissions: ['enrollments.view'], sprint: 7 },
+      { label: 'Students / Training', to: '/app/students', icon: GraduationCap, permissions: ['enrollments.view'] },
       { label: 'Assessments', to: '/app/assessments', icon: ClipboardList, permissions: ['assessments.view'], sprint: 9 },
     ],
   },
   {
     title: 'Training',
     items: [
-      { label: 'Classes', to: '/app/classes', icon: School, permissions: ['classes.view'], sprint: 7 },
-      { label: 'Trainers', to: '/app/trainers', icon: Dumbbell, permissions: ['trainers.view'], sprint: 7 },
-      { label: 'Training Sessions', to: '/app/training-sessions', icon: FileText, permissions: ['training_records.view'], sprint: 7 },
+      { label: 'Classes', to: '/app/classes', icon: School, permissions: ['classes.view'] },
+      { label: 'Trainers', to: '/app/trainers', icon: Dumbbell, permissions: ['trainers.view'] },
+      { label: 'Training Sessions', to: '/app/training-sessions', icon: FileText, permissions: ['training_records.view'] },
     ],
   },
   {
@@ -86,6 +87,7 @@ export const adminNav: NavGroup[] = [
       { label: 'Branches', to: '/app/branches', icon: Building2, permissions: ['branches.view', 'branches.manage'] },
       { label: 'Users', to: '/app/users', icon: Users, permissions: ['users.view', 'users.manage'] },
       { label: 'Roles & Permissions', to: '/app/roles', icon: ShieldCheck, permissions: ['users.view', 'roles.manage'] },
+      { label: 'Holidays', to: '/app/holidays', icon: CalendarOff, permissions: ['branches.view'] },
       { label: 'Website CMS', to: '/app/cms', icon: Globe, permissions: ['cms.manage', 'appointment_requests.manage'] },
       { label: 'Notifications', to: '/app/notifications', icon: Bell, permissions: ['notifications.send'], sprint: 14 },
       { label: 'Settings', to: '/app/settings', icon: Settings, permissions: ['settings.manage'], sprint: 16 },

@@ -7,6 +7,13 @@ import PatientFormPage from '../features/patients/PatientFormPage'
 import PatientProfilePage from '../features/patients/PatientProfilePage'
 import PatientsPage from '../features/patients/PatientsPage'
 import CmsPage from '../features/cms/CmsPage'
+import ClassDetailPage from '../features/training/ClassDetailPage'
+import ClassesPage from '../features/training/ClassesPage'
+import HolidaysPage from '../features/training/HolidaysPage'
+import StudentsPage from '../features/training/StudentsPage'
+import TrainersPage from '../features/training/TrainersPage'
+import TrainingRecordsPage from '../features/training/TrainingRecordsPage'
+import { TrainerAttendancePage, TrainerRecordsPage, TrainerStudentPage, TrainerStudentsPage } from '../features/trainer/TrainerPages'
 import OnlineRequestsPage from '../features/requests/OnlineRequestsPage'
 import { portalNav } from '../features/portal/nav'
 import { PortalHome } from '../features/portal/PortalApp'
@@ -51,6 +58,12 @@ export const router = createBrowserRouter([
           { path: 'patients/new', element: <RequirePermission permission="patients.create"><PatientFormPage /></RequirePermission> },
           { path: 'patients/:id', element: <RequirePermission permission="patients.view"><PatientProfilePage /></RequirePermission> },
           { path: 'patients/:id/edit', element: <RequirePermission permission="patients.update"><PatientFormPage /></RequirePermission> },
+          { path: 'students', element: <RequirePermission permission="enrollments.view"><StudentsPage /></RequirePermission> },
+          { path: 'classes', element: <RequirePermission permission="classes.view"><ClassesPage /></RequirePermission> },
+          { path: 'classes/:id', element: <RequirePermission permission="classes.view"><ClassDetailPage /></RequirePermission> },
+          { path: 'trainers', element: <RequirePermission permission="trainers.view"><TrainersPage /></RequirePermission> },
+          { path: 'training-sessions', element: <RequirePermission permission="training_records.view"><TrainingRecordsPage /></RequirePermission> },
+          { path: 'holidays', element: <RequirePermission permission="branches.view"><HolidaysPage /></RequirePermission> },
           { path: 'online-requests', element: <RequirePermission permission="appointment_requests.manage"><OnlineRequestsPage /></RequirePermission> },
           { path: 'cms', element: <RequirePermission permission={['cms.manage', 'appointment_requests.manage']}><CmsPage /></RequirePermission> },
           { path: 'branches', element: <RequirePermission permission={['branches.view', 'branches.manage']}><BranchesPage /></RequirePermission> },
@@ -67,7 +80,14 @@ export const router = createBrowserRouter([
     children: [
       {
         element: <MobileAppLayout title="Trainer" nav={trainerNav} />,
-        children: [{ index: true, element: <TrainerToday /> }, ...plannedMobilePages(trainerNav, '/trainer')],
+        children: [
+          { index: true, element: <TrainerToday /> },
+          { path: 'attendance', element: <TrainerAttendancePage /> },
+          { path: 'records', element: <TrainerRecordsPage /> },
+          { path: 'students', element: <TrainerStudentsPage /> },
+          { path: 'students/:enrollmentId', element: <TrainerStudentPage /> },
+          { path: 'profile', element: <ComingSoon title="Profile" /> },
+        ],
       },
     ],
   },

@@ -14,10 +14,12 @@ import { EnrollmentsTab } from './components/EnrollmentsTab'
 import { GuardiansTab } from './components/GuardiansTab'
 import { OverviewTab } from './components/OverviewTab'
 import { TimelineTab } from './components/TimelineTab'
+import { TrainingTab } from './components/TrainingTab'
 
 const tabs = [
   ['overview', 'Overview'],
   ['enrollments', 'Enrollments'],
+  ['training', 'Training'],
   ['guardians', 'Guardians'],
   ['documents', 'Documents'],
   ['timeline', 'Timeline'],
@@ -137,6 +139,7 @@ export default function PatientProfilePage() {
       <div className="mt-5">
         {tab === 'overview' && <OverviewTab patient={patient} />}
         {tab === 'enrollments' && <EnrollmentsTab patient={patient} onNew={() => setEnrolling(true)} />}
+        {tab === 'training' && <TrainingTab patient={patient} />}
         {tab === 'guardians' && <GuardiansTab patient={patient} />}
         {tab === 'documents' && <DocumentsTab patient={patient} />}
         {tab === 'timeline' && <TimelineTab patientId={patient.id} />}

@@ -4,7 +4,7 @@
 Public Website + Center Management System + Parent Portal
 
 > এই README-ই প্রকল্পের **মূল পরিকল্পনা ও অগ্রগতির document** (বাংলা)। প্রতিটি কাজ শেষ হলে নিচের অগ্রগতি তালিকা হালনাগাদ করা হয়।
-> সংস্করণ: Plan v1.3 · শেষ হালনাগাদ: ০৬ অক্টোবর ২০২৬ (Sprint ৫ শেষ) · সহযোগী document: [docs/C-STAR-Accounts-BN.md](docs/C-STAR-Accounts-BN.md) (সম্পূর্ণ Accounts Module)
+> সংস্করণ: Plan v1.4 · শেষ হালনাগাদ: ০৬ অক্টোবর ২০২৬ (Sprint ৭ শেষ) · সহযোগী document: [docs/C-STAR-Accounts-BN.md](docs/C-STAR-Accounts-BN.md) (সম্পূর্ণ Accounts Module)
 
 ## সূচিপত্র
 
@@ -63,7 +63,7 @@ npm run dev                      # http://localhost:5173  (/api ও /sanctum Lar
 | Therapist (Imran Hossain) | therapist@cstar.test | /therapist |
 | Parent (Ayan-এর মা) | 01700000007 | /portal |
 
-Demo data-য় plan-এর উদাহরণটাই আছে: **Ayan** (Training + Speech + OT), **Sara** (শুধু Speech Therapy), **Rafi** (শুধু Training)।
+Demo data-য় plan-এর উদাহরণটাই আছে: **Ayan** (Training + Speech + OT), **Sara** (শুধু Speech Therapy), **Rafi** (শুধু Training)। এছাড়া "Functional Development A" class-এর সময়সূচি (শনি–বৃহস্পতি, সকাল ১০টা–দুপুর ১টা), গত ৩ সপ্তাহের হাজিরা, Ayan-এর ITP (৫টি লক্ষ্য) ও training record, এবং website-এর নমুনা contact তথ্য (+880 1700-000000, demo ঠিকানা) আছে। **সবই নমুনা — আসল তথ্য পেলে CMS ও admin panel থেকে বদলাতে হবে।**
 
 ### Test
 
@@ -80,7 +80,7 @@ cd frontend && npx tsc -b && npm run lint
 
 ## ✅ কাজের অগ্রগতি (Progress Tracker)
 
-> চিহ্ন: ✅ শেষ · 🔄 চলছে · ⬜ বাকি — **শেষ হালনাগাদ: ০৬ অক্টোবর ২০২৬ (Sprint ৫ শেষ)**
+> চিহ্ন: ✅ শেষ · 🔄 চলছে · ⬜ বাকি — **শেষ হালনাগাদ: ০৬ অক্টোবর ২০২৬ (Sprint ৭ শেষ)**
 > প্রতিটি কাজ শেষ হলে এখানে চিহ্ন বদলানো হবে।
 
 ### Phase 1 — পরিকল্পনা ও Requirement
@@ -105,7 +105,7 @@ cd frontend && npx tsc -b && npm run lint
 | ✅ | ৪ | Laravel 13 + React 19 setup; Sanctum login (email/মোবাইল); ৭টি role ও ৫৯টি permission; branch অনুযায়ী access; Branch, User, Role management (API + UI); audit log; role অনুযায়ী ৪টি app (Admin/Trainer/Therapist/Parent); ৩৫টি backend test পাস — ০৬ অক্টো ২০২৬ |
 | ✅ | ৫ | Public Website (Blade) + CMS (basic) + Online Appointment Request — ০৬ অক্টো ২০২৬: SEO-বান্ধব public website (Home, About, Services ও প্রতিটি service-এর page, Therapists, Training, Branches, Gallery, FAQ, Notices, Contact, Appointment), sitemap.xml ও robots.txt; Therapy ও Training আলাদা ভাগে; online appointment form (spam রোধ: লুকানো honeypot field + rate limit) → front desk-এ notification → "Register child" (তথ্য আগে থেকে বসানো) → request স্বয়ংক্রিয়ভাবে converted; contact form; CMS: website settings, service page, team profile, testimonial, FAQ, gallery (অভিভাবকের consent ছাড়া শিশুর ছবি publish হয় না), notice; notification bell; ৭৯টি test পাস। *Contact তথ্য, পরিসংখ্যান, আসল testimonial ও FAQ C-STAR থেকে পেলে CMS-এ বসাতে হবে — demo-তে শুধু নমুনা।* |
 | ✅ | ৬ | Patient + Guardian + Documents + **Enrollment System** — ০৬ অক্টো ২০২৬: patient registration (স্বয়ংক্রিয় ID `CSTAR-2026-00001`, duplicate সতর্কবার্তা, ভাই-বোনের জন্য একই guardian, consent), clinical তথ্য আলাদা ও সুরক্ষিত, private document ও ছবি, parent portal login তৈরি, enrollment (Training: class + trainer, Therapy: service + therapist), hold/resume/complete/discontinue/transfer ও ইতিহাস, patient timeline, global search; trainer/therapist শুধু নিজের শিশুদের দেখেন; ৬৯টি test পাস। *Trainer, therapist, class ও service-এর মূল table এখানেই তৈরি; এদের management page Sprint ৭–৮-এ।* |
-| ⬜ | ৭ | Class + Trainer + Training Attendance + Training Session/Record + ITP |
+| ✅ | ৭ | Class + Trainer + Training Attendance + Training Session/Record + ITP — ০৬ অক্টো ২০২৬: Trainer ও Class management (সাপ্তাহিক সময়সূচি, শনি–বৃহস্পতি), ছুটির calendar; এক tap-এ class-এর হাজিরা (Present/Late/Absent/Leave/Holiday; ছুটির দিনে স্বয়ংক্রিয় Holiday; trainer শেষ ৩ দিন পর্যন্ত বদলাতে পারেন, পুরনো দিন branch admin); মাসিক হাজিরা ও হার = (উপস্থিত + দেরি) ÷ (উপস্থিত + দেরি + অনুপস্থিত); Training Record (activity, ১–৫ তারা, পর্যবেক্ষণ, অভিভাবকের জন্য নোট) — শুধু উপস্থিত শিশুর জন্য, Finalize করলে locked ও timeline-এ যায়; ITP (লক্ষ্য, target, অগ্রগতি %, দৈনিক ১–৫ score); Trainer app: Today, Attendance, Records, My Students; Admin: Classes, Students, Trainers, Training Sessions, Holidays, patient profile-এ Training tab; therapist training record বা ITP লিখতে পারেন না; ৯০টি test পাস। |
 | ⬜ | ৮ | Therapist + Schedule + Appointment + Therapy Session |
 | ⬜ | ৯ | Assessment + Plans/Goals + Timeline + PDF |
 | ⬜ | ১০ | Package + Invoice + Payment + Due + **Chart of Accounts ও Billing auto-posting** |
@@ -977,4 +977,4 @@ SMS (BD gateway) · WhatsApp · Online Payment (bKash/SSLCommerz) · Email autom
 
 ---
 
-**পরবর্তী ধাপ:** Sprint ৩, ৪, ৫ ও ৬ শেষ। পরের কাজ Sprint ৭ (Class + Trainer + Training Attendance + Training Session/Record + ITP)।
+**পরবর্তী ধাপ:** Sprint ৩–৭ শেষ। পরের কাজ Sprint ৮ (Therapist + Schedule + Appointment + Therapy Session)।

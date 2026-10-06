@@ -2,11 +2,13 @@
 
 namespace Database\Seeders;
 
+use App\Models\Branch;
 use App\Models\Faq;
 use App\Models\Notice;
 use App\Models\Testimonial;
 use App\Models\Therapist;
 use App\Models\Trainer;
+use App\Services\SiteSettings;
 use Illuminate\Database\Seeder;
 
 /**
@@ -15,8 +17,27 @@ use Illuminate\Database\Seeder;
  */
 class DemoWebsiteSeeder extends Seeder
 {
-    public function run(): void
+    public function run(SiteSettings $settings): void
     {
+        // Obviously-fake contact details and figures so the full layout can be reviewed locally.
+        $settings->update([
+            'phone' => '+880 1700-000000',
+            'whatsapp' => '8801700000000',
+            'email' => 'info@cstar.test',
+            'address' => 'House 00, Road 00, Dhanmondi, Dhaka (demo address)',
+            'facebook_url' => 'https://facebook.com/',
+            'stat_children' => '500+',
+            'stat_years' => '10+',
+            'mission' => 'Demo mission: help every child communicate, learn and live as independently as possible.',
+            'vision' => 'Demo vision: an inclusive Bangladesh where every child with developmental needs gets timely support.',
+        ]);
+        Branch::where('code', 'HQ')->update([
+            'address' => 'House 00, Road 00, Dhanmondi, Dhaka (demo address)',
+            'phone' => '+880 1700-000000',
+            'email' => 'info@cstar.test',
+            'map_url' => 'https://maps.google.com/?q=Dhanmondi+Dhaka',
+        ]);
+
         Therapist::query()->update(['show_on_website' => true]);
         Therapist::where('slug', 'imran-hossain')->update([
             'qualification' => 'BSc & MSc in Speech and Language Therapy',

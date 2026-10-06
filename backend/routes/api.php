@@ -12,6 +12,12 @@ use App\Http\Controllers\Api\V1\LookupController;
 use App\Http\Controllers\Api\V1\PatientController;
 use App\Http\Controllers\Api\V1\PatientDocumentController;
 use App\Http\Controllers\Api\V1\RoleController;
+use App\Http\Controllers\Api\V1\Training\IndividualPlanController;
+use App\Http\Controllers\Api\V1\Training\TrainerController;
+use App\Http\Controllers\Api\V1\Training\TrainingAttendanceController;
+use App\Http\Controllers\Api\V1\Training\TrainingGroupController;
+use App\Http\Controllers\Api\V1\Training\TrainingOverviewController;
+use App\Http\Controllers\Api\V1\Training\TrainingRecordController;
 use App\Http\Controllers\Api\V1\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -58,6 +64,36 @@ Route::prefix('v1')->group(function () {
 
         Route::get('lookups/enrollment-options', [LookupController::class, 'enrollmentOptions']);
         Route::get('lookups/diagnoses', [LookupController::class, 'diagnoses']);
+
+        // Regular training (TRAINER ≠ THERAPIST, TRAINING SESSION ≠ THERAPY SESSION)
+        Route::get('trainers', [TrainerController::class, 'index']);
+        Route::post('trainers', [TrainerController::class, 'store']);
+        Route::put('trainers/{trainer}', [TrainerController::class, 'update']);
+
+        Route::get('classes', [TrainingGroupController::class, 'index']);
+        Route::post('classes', [TrainingGroupController::class, 'store']);
+        Route::get('classes/{class}', [TrainingGroupController::class, 'show']);
+        Route::put('classes/{class}', [TrainingGroupController::class, 'update']);
+        Route::get('classes/{class}/roster', [TrainingGroupController::class, 'roster']);
+        Route::get('classes/{class}/attendance', [TrainingAttendanceController::class, 'roster']);
+        Route::post('classes/{class}/attendance', [TrainingAttendanceController::class, 'mark']);
+        Route::get('classes/{class}/attendance/month', [TrainingAttendanceController::class, 'classMonth']);
+        Route::get('classes/{class}/records', [TrainingRecordController::class, 'forDay']);
+        Route::post('classes/{class}/records', [TrainingRecordController::class, 'store']);
+
+        Route::get('enrollments/{enrollment}/attendance', [TrainingAttendanceController::class, 'studentMonth']);
+        Route::get('enrollments/{enrollment}/plans', [IndividualPlanController::class, 'index']);
+        Route::post('enrollments/{enrollment}/plans', [IndividualPlanController::class, 'store']);
+        Route::put('plans/{plan}', [IndividualPlanController::class, 'update']);
+
+        Route::get('training-records', [TrainingRecordController::class, 'index']);
+        Route::get('training-records/{trainingRecord}', [TrainingRecordController::class, 'show']);
+        Route::get('students', [TrainingOverviewController::class, 'students']);
+        Route::get('trainer/today', [TrainingOverviewController::class, 'today']);
+        Route::get('lookups/activity-types', [TrainingOverviewController::class, 'activityTypes']);
+        Route::get('holidays', [TrainingOverviewController::class, 'holidays']);
+        Route::post('holidays', [TrainingOverviewController::class, 'storeHoliday']);
+        Route::delete('holidays/{holiday}', [TrainingOverviewController::class, 'destroyHoliday']);
 
         // Website front-desk inbox
         Route::get('appointment-requests', [EnquiryInboxController::class, 'appointmentRequests']);
