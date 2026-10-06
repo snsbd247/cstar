@@ -1,0 +1,36 @@
+@import 'tailwindcss';
+
+/* C-STAR brand: green (growth) + blue (trust) */
+@theme {
+  --font-sans: 'Inter', 'Hind Siliguri', ui-sans-serif, system-ui, sans-serif;
+  --font-bangla: 'Hind Siliguri', 'Inter', ui-sans-serif, system-ui, sans-serif;
+
+  --color-brand-50: #ecfdf5;
+  --color-brand-100: #d1fae5;
+  --color-brand-200: #a7f3d0;
+  --color-brand-500: #10b981;
+  --color-brand-600: #059669;
+  --color-brand-700: #047857;
+  --color-brand-800: #065f46;
+
+  --color-sky-brand-50: #eff6ff;
+  --color-sky-brand-100: #dbeafe;
+  --color-sky-brand-500: #3b82f6;
+  --color-sky-brand-600: #2563eb;
+  --color-sky-brand-700: #1d4ed8;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  @apply bg-slate-50 text-slate-800 antialiased;
+}
+
+/* Bangla-first screens (parent portal) */
+.font-bn {
+  font-family: var(--font-bangla);
+}
