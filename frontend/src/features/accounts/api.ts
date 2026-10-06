@@ -164,10 +164,17 @@ export function useReport<T>(report: string, params: Record<string, string | num
   })
 }
 
-export function usePeriods() {
+export function usePeriods(year?: number) {
   return useQuery({
-    queryKey: ['periods'],
-    queryFn: async () => (await api.get<{ data: { id: number; label: string; status: 'open' | 'closed'; start_date: string; end_date: string }[] }>('/accounts/periods')).data.data,
+    queryKey: ['periods', year],
+    queryFn: async () =>
+      (
+        await api.get<{
+          data: { id: number; label: string; status: 'open' | 'closed'; start_date: string; end_date: string }[]
+          year: { id: number; name: string; status: 'open' | 'closed'; closed_at: string | null; start_date: string; end_date: string }
+          years: { id: number; name: string; status: string; start_year: number }[]
+        }>('/accounts/periods', { params: { year } })
+      ).data,
   })
 }
 

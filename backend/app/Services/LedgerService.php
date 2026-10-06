@@ -24,7 +24,7 @@ class LedgerService
     /**
      * @param  list<array{account: Account, debit?: float|string, credit?: float|string, service_id?: ?int, party?: ?Model, memo?: ?string, branch_id?: ?int}>  $lines
      */
-    public function post(string $event, Carbon|string $date, ?int $branchId, string $narration, array $lines, ?Model $source = null, string $voucherType = 'system'): ?JournalEntry
+    public function post(string $event, Carbon|string $date, ?int $branchId, string $narration, array $lines, ?Model $source = null, string $voucherType = 'system', bool $keepDate = false): ?JournalEntry
     {
         $lines = array_values(array_filter($lines, fn ($l) => round((float) ($l['debit'] ?? 0), 2) > 0 || round((float) ($l['credit'] ?? 0), 2) > 0));
         if ($lines === []) {
@@ -37,8 +37,9 @@ class LedgerService
             throw new RuntimeException("Unbalanced journal for {$event}: debit {$debit} ≠ credit {$credit}.");
         }
 
-        return DB::transaction(function () use ($event, $date, $branchId, $narration, $lines, $source, $voucherType) {
-            $period = $this->openPeriodFor(Carbon::parse($date));
+        return DB::transaction(function () use ($event, $date, $branchId, $narration, $lines, $source, $voucherType, $keepDate) {
+            // $keepDate: only the year-end closing entry may land in a closed month.
+            $period = $keepDate ? $this->periodFor(Carbon::parse($date)) : $this->openPeriodFor(Carbon::parse($date));
             $postDate = Carbon::parse($date)->between($period->start_date, $period->end_date) ? Carbon::parse($date) : today();
 
             $entry = JournalEntry::create([

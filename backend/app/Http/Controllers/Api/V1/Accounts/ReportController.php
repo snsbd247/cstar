@@ -81,6 +81,14 @@ class ReportController extends Controller
         return $this->respond($request, 'balance-sheet', 'Balance Sheet', $this->reports->balanceSheet($request->date('as_of') ?? today(), $this->branch($request)));
     }
 
+    public function cashFlow(Request $request): JsonResponse|Response
+    {
+        Gate::authorize(Permission::ACCOUNTS_REPORTS);
+        [$from, $to] = $this->range($request);
+
+        return $this->respond($request, 'cash-flow', 'Cash Flow Statement', $this->reports->cashFlow($from, $to, $this->branch($request)));
+    }
+
     /** Default range: this month. */
     private function range(Request $request): array
     {

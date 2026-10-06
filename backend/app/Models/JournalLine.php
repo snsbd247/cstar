@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
-#[Fillable(['journal_entry_id', 'account_id', 'debit', 'credit', 'branch_id', 'service_id', 'party_type', 'party_id', 'memo'])]
+#[Fillable(['journal_entry_id', 'account_id', 'debit', 'credit', 'branch_id', 'service_id', 'party_type', 'party_id', 'memo', 'bank_reconciliation_id'])]
 class JournalLine extends Model
 {
     public $timestamps = false;

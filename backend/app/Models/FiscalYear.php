@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /** July–June fiscal year (decision A1). */
-#[Fillable(['name', 'start_date', 'end_date', 'status'])]
+#[Fillable(['name', 'start_date', 'end_date', 'status', 'closing_entry_id', 'closed_by', 'closed_at'])]
 class FiscalYear extends Model
 {
     protected function casts(): array

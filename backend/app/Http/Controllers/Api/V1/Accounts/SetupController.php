@@ -6,6 +6,7 @@ use App\Enums\Permission;
 use App\Http\Controllers\Controller;
 use App\Models\Account;
 use App\Models\AccountingPeriod;
+use App\Models\FiscalYear;
 use App\Services\AccountSettings;
 use App\Services\PeriodService;
 use Illuminate\Http\JsonResponse;
@@ -59,10 +60,17 @@ class SetupController extends Controller
         Gate::authorize(Permission::ACCOUNTS_VIEW);
         $date = $request->filled('year') ? Carbon::create($request->integer('year'), 7, 1) : today();
 
-        return response()->json(['data' => $periods->year($date)->map(fn (AccountingPeriod $p) => [
-            'id' => $p->id, 'label' => $p->start_date->format('F Y'), 'status' => $p->status,
-            'start_date' => $p->start_date->toDateString(), 'end_date' => $p->end_date->toDateString(), 'closed_at' => $p->closed_at,
-        ])]);
+        $months = $periods->year($date);
+        $year = \App\Models\FiscalYear::findOrFail($months->first()->fiscal_year_id);
+
+        return response()->json([
+            'data' => $months->map(fn (AccountingPeriod $p) => [
+                'id' => $p->id, 'label' => $p->start_date->format('F Y'), 'status' => $p->status,
+                'start_date' => $p->start_date->toDateString(), 'end_date' => $p->end_date->toDateString(), 'closed_at' => $p->closed_at,
+            ]),
+            'year' => [...$year->only(['id', 'name', 'status', 'closed_at']), 'start_date' => $year->start_date->toDateString(), 'end_date' => $year->end_date->toDateString()],
+            'years' => FiscalYear::orderByDesc('start_date')->get(['id', 'name', 'status'])->map(fn ($y) => [...$y->only(['id', 'name', 'status']), 'start_year' => (int) substr($y->name, 0, 4)]),
+        ]);
     }
 
     public function closePeriod(Request $request, AccountingPeriod $period, PeriodService $periods): JsonResponse

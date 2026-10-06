@@ -1,11 +1,13 @@
 <?php
 
+use App\Http\Controllers\Api\V1\Accounts\AssetsBankBudgetController;
 use App\Http\Controllers\Api\V1\Accounts\CashClosingController;
 use App\Http\Controllers\Api\V1\Accounts\ExpenseController;
 use App\Http\Controllers\Api\V1\Accounts\LedgerController;
 use App\Http\Controllers\Api\V1\Accounts\PayrollController;
 use App\Http\Controllers\Api\V1\Accounts\ReportController;
 use App\Http\Controllers\Api\V1\Accounts\SetupController;
+use App\Http\Controllers\Api\V1\Accounts\VendorController;
 use App\Http\Controllers\Api\V1\Accounts\VoucherController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\Billing\InvoiceController;
@@ -204,6 +206,32 @@ Route::prefix('v1')->group(function () {
         Route::get('accounts/reports/day-book', [ReportController::class, 'dayBook']);
         Route::get('accounts/reports/income-statement', [ReportController::class, 'incomeStatement']);
         Route::get('accounts/reports/balance-sheet', [ReportController::class, 'balanceSheet']);
+
+        Route::get('accounts/reports/cash-flow', [ReportController::class, 'cashFlow']);
+
+        // Accounts C: vendors & payables, bank reconciliation, fixed assets, budgets, year-end
+        Route::get('accounts/vendors', [VendorController::class, 'index']);
+        Route::post('accounts/vendors', [VendorController::class, 'store']);
+        Route::get('accounts/vendors/{vendor}', [VendorController::class, 'show']);
+        Route::put('accounts/vendors/{vendor}', [VendorController::class, 'update']);
+        Route::post('accounts/vendors/{vendor}/bills', [VendorController::class, 'storeBill']);
+        Route::post('accounts/vendors/{vendor}/payments', [VendorController::class, 'pay']);
+        Route::post('accounts/vendor-bills/{bill}/void', [VendorController::class, 'voidBill']);
+        Route::get('accounts/reconciliations', [AssetsBankBudgetController::class, 'reconciliations']);
+        Route::post('accounts/reconciliations', [AssetsBankBudgetController::class, 'storeReconciliation']);
+        Route::get('accounts/reconciliations/{rec}', [AssetsBankBudgetController::class, 'reconciliation']);
+        Route::post('accounts/reconciliations/{rec}/{action}', [AssetsBankBudgetController::class, 'reconcileAction'])->whereIn('action', ['import', 'lines', 'auto-match', 'complete']);
+        Route::post('accounts/statement-lines/{line}/{action}', [AssetsBankBudgetController::class, 'lineAction'])->whereIn('action', ['match', 'adjust', 'delete']);
+        Route::get('accounts/fixed-assets', [AssetsBankBudgetController::class, 'assets']);
+        Route::post('accounts/fixed-assets', [AssetsBankBudgetController::class, 'storeAsset']);
+        Route::post('accounts/fixed-assets/depreciate', [AssetsBankBudgetController::class, 'depreciate']);
+        Route::post('accounts/fixed-assets/{asset}/dispose', [AssetsBankBudgetController::class, 'disposeAsset']);
+        Route::get('accounts/budgets', [AssetsBankBudgetController::class, 'budgets']);
+        Route::post('accounts/budgets', [AssetsBankBudgetController::class, 'saveBudget']);
+        Route::get('accounts/budgets/{budget}', [AssetsBankBudgetController::class, 'budget']);
+        Route::put('accounts/budgets/{budget}', [AssetsBankBudgetController::class, 'saveBudget']);
+        Route::get('accounts/budgets/{budget}/vs-actual', [AssetsBankBudgetController::class, 'budgetVsActual']);
+        Route::post('accounts/fiscal-years/{year}/close', [AssetsBankBudgetController::class, 'closeYear']);
 
         // Accounts B: employees, pay setup, advances, payroll, payslips
         Route::get('hr/employees', [PayrollController::class, 'employees']);

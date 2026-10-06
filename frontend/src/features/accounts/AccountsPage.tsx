@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { Plus } from 'lucide-react'
 import { useNavigate, useSearchParams } from 'react-router'
@@ -94,17 +94,53 @@ export default function AccountsPage() {
 /** Accounts §১১: close a month once it ends (in order); reopening needs a reason. Plus the A5 approval limit. */
 function Periods() {
   const { can } = useAuth()
-  const { data: periods } = usePeriods()
+  const [yearStart, setYearStart] = useState<number | undefined>()
+  const { data: periodData } = usePeriods(yearStart)
+  const periods = periodData?.data
+  const year = periodData?.year
   const { data: settings } = useAccountSettings()
   const { periodAction, saveSettings } = useAccountsMutations()
   const [limit, setLimit] = useState<string | null>(null)
+  const qc = useQueryClient()
+  const closeYear = useMutation({
+    mutationFn: (id: number) => api.post(`/accounts/fiscal-years/${id}/close`),
+    onSuccess: () => ['periods', 'ledger', 'report'].forEach((k) => qc.invalidateQueries({ queryKey: [k] })),
+  })
 
   return (
     <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
       <Card className="p-5">
-        <h3 className="font-semibold text-slate-900">Months (fiscal year July–June)</h3>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h3 className="font-semibold text-slate-900">Months (fiscal year July–June)</h3>
+          <Select value={yearStart ?? ''} onChange={(e) => setYearStart(Number(e.target.value) || undefined)} className="w-36" aria-label="Fiscal year">
+            <option value="">This year</option>
+            {periodData?.years.map((y) => (
+              <option key={y.id} value={y.start_year}>
+                {y.name}
+              </option>
+            ))}
+          </Select>
+        </div>
         <p className="text-sm text-slate-500">A closed month takes no new vouchers or expenses. Billing corrections after closing post in the current month.</p>
         {periodAction.isError && <div className="mt-2"><Alert>{errorMessage(periodAction.error)}</Alert></div>}
+        {year && (
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-lg bg-slate-50 p-3 text-sm">
+            <span>
+              Year {year.name}: <Badge tone={year.status === 'closed' ? 'gray' : 'green'}>{year.status}</Badge>
+              {year.status === 'closed' && <span className="ml-1 text-xs text-slate-500">profit moved to Retained Earnings</span>}
+            </span>
+            {year.status === 'open' && can('accounts.period.close') && periods?.every((p) => p.status === 'closed') && (
+              <Button
+                variant="danger"
+                loading={closeYear.isPending}
+                onClick={() => confirm(`Close the year ${year.name}? Income and expenses move to Retained Earnings. This cannot be undone.`) && closeYear.mutate(year.id)}
+              >
+                Close the year
+              </Button>
+            )}
+          </div>
+        )}
+        {closeYear.isError && <div className="mt-2"><Alert>{errorMessage(closeYear.error)}</Alert></div>}
         <ul className="mt-3 divide-y divide-slate-100">
           {periods?.map((p) => (
             <li key={p.id} className="flex items-center justify-between py-2 text-sm">

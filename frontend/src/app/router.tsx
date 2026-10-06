@@ -20,6 +20,7 @@ import TherapySessionsPage from '../features/therapy/TherapySessionsPage'
 import AssessmentsPage, { AssessmentDetailPage } from '../features/assessments/AssessmentsPage'
 import AccountsPage from '../features/accounts/AccountsPage'
 import AccountsDashboard from '../features/accounts/AccountsDashboard'
+import { BudgetsPage, FixedAssetsPage, ReconciliationDetailPage, ReconciliationsPage, VendorDetailPage, VendorsPage } from '../features/accounts/AccountsCPages'
 import CashClosingPage from '../features/accounts/CashClosingPage'
 import ExpensesPage from '../features/accounts/ExpensesPage'
 import ReportsPage from '../features/accounts/ReportsPage'
@@ -92,6 +93,12 @@ export const router = createBrowserRouter([
           { path: 'payments', element: <RequirePermission permission="payments.view"><PaymentsPage /></RequirePermission> },
           { path: 'accounts', element: <RequirePermission permission="accounts.view"><AccountsDashboard /></RequirePermission> },
           { path: 'accounts/books', element: <RequirePermission permission="accounts.view"><AccountsPage /></RequirePermission> },
+          { path: 'accounts/vendors', element: <RequirePermission permission="accounts.view"><VendorsPage /></RequirePermission> },
+          { path: 'accounts/vendors/:id', element: <RequirePermission permission="accounts.view"><VendorDetailPage /></RequirePermission> },
+          { path: 'accounts/reconciliation', element: <RequirePermission permission="accounts.view"><ReconciliationsPage /></RequirePermission> },
+          { path: 'accounts/reconciliation/:id', element: <RequirePermission permission="accounts.view"><ReconciliationDetailPage /></RequirePermission> },
+          { path: 'accounts/assets', element: <RequirePermission permission="accounts.view"><FixedAssetsPage /></RequirePermission> },
+          { path: 'accounts/budgets', element: <RequirePermission permission="accounts.reports"><BudgetsPage /></RequirePermission> },
           { path: 'employees', element: <RequirePermission permission={['accounts.payroll.manage', 'accounts.payroll.approve']}><EmployeesPage /></RequirePermission> },
           { path: 'employees/:id', element: <RequirePermission permission={['accounts.payroll.manage', 'accounts.payroll.approve']}><EmployeeDetailPage /></RequirePermission> },
           { path: 'payroll', element: <RequirePermission permission={['accounts.payroll.manage', 'accounts.payroll.approve']}><PayrollPage /></RequirePermission> },

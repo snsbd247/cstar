@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Account;
+use App\Models\Budget;
 use App\Models\JournalEntry;
 use App\Models\JournalLine;
 use Illuminate\Database\Eloquent\Builder;
@@ -17,19 +18,20 @@ use Illuminate\Support\Facades\DB;
 class FinancialReportService
 {
     /** Lines filtered by date range and branch. */
-    private function lines(?Carbon $from, ?Carbon $to, ?int $branchId): Builder
+    private function lines(?Carbon $from, ?Carbon $to, ?int $branchId, bool $withoutClosing = false): Builder
     {
         return JournalLine::query()
             ->whereHas('entry', fn ($q) => $q
                 ->when($from, fn ($w) => $w->whereDate('date', '>=', $from))
-                ->when($to, fn ($w) => $w->whereDate('date', '<=', $to)))
+                ->when($to, fn ($w) => $w->whereDate('date', '<=', $to))
+                ->when($withoutClosing, fn ($w) => $w->where(fn ($x) => $x->whereNull('event')->orWhere('event', '!=', 'year.closed'))))
             ->when($branchId, fn ($q) => $q->where('branch_id', $branchId));
     }
 
     /** @return Collection<int, object{account_id: int, dr: string, cr: string}> keyed by account id */
-    private function sums(?Carbon $from, ?Carbon $to, ?int $branchId): Collection
+    private function sums(?Carbon $from, ?Carbon $to, ?int $branchId, bool $withoutClosing = false): Collection
     {
-        return $this->lines($from, $to, $branchId)
+        return $this->lines($from, $to, $branchId, $withoutClosing)
             ->select('account_id', DB::raw('SUM(debit) as dr'), DB::raw('SUM(credit) as cr'))
             ->groupBy('account_id')->get()->keyBy('account_id');
     }
@@ -112,9 +114,10 @@ class FinancialReportService
     }
 
     /** Income statement (P&L) for a period, grouped under the income/expense tree. */
-    public function incomeStatement(Carbon $from, Carbon $to, ?int $branchId = null): array
+    public function incomeStatement(Carbon $from, Carbon $to, ?int $branchId = null, bool $includeClosing = false): array
     {
-        $sums = $this->sums($from, $to, $branchId);
+        // The year-end closing entry empties income/expense into retained earnings — leave it out of a P&L.
+        $sums = $this->sums($from, $to, $branchId, withoutClosing: ! $includeClosing);
         $section = function (string $type) use ($sums) {
             $rows = Account::where('type', $type)->where('is_group', false)->orderBy('code')->with('parent')->get()
                 ->map(function (Account $a) use ($sums, $type) {
@@ -157,7 +160,8 @@ class FinancialReportService
             return ['rows' => $rows, 'total' => round($rows->sum('amount'), 2)];
         };
 
-        $pl = $this->incomeStatement(Carbon::create(2000), $asOf, $branchId);
+        // Only profit not yet closed into retained earnings (closed years net to zero here).
+        $pl = $this->incomeStatement(Carbon::create(2000), $asOf, $branchId, includeClosing: true);
         $assets = $section('asset');
         $liabilities = $section('liability');
         $equity = $section('equity');
@@ -197,6 +201,97 @@ class FinancialReportService
 
                 return ['month' => $start->format('M Y'), 'income' => $pl['income']['total'], 'expense' => $pl['expense']['total']];
             })->values(),
+        ];
+    }
+
+    /**
+     * Cash flow statement (direct method): every movement of cash, bank and bKash/Nagad money, grouped by what
+     * was on the other side of the entry — operating, investing (fixed assets) or financing (owner, loans).
+     */
+    public function cashFlow(Carbon $from, Carbon $to, ?int $branchId = null): array
+    {
+        $money = Account::whereIn('subtype', ['cash', 'bank', 'mfs'])->pluck('id')->all();
+        $opening = round((float) $this->lines(null, $from->copy()->subDay(), $branchId)->whereIn('account_id', $money)
+            ->selectRaw('COALESCE(SUM(debit) - SUM(credit), 0) as b')->value('b'), 2);
+
+        $groups = ['operating' => [], 'investing' => [], 'financing' => []];
+        $entries = JournalEntry::with('lines.account')
+            ->whereBetween('date', [$from->toDateString(), $to->toDateString()])
+            ->where(fn ($q) => $q->whereNull('event')->orWhere('event', '!=', 'year.closed'))
+            ->whereHas('lines', fn ($l) => $l->whereIn('account_id', $money)->when($branchId, fn ($b) => $b->where('branch_id', $branchId)))
+            ->get();
+
+        foreach ($entries as $entry) {
+            $cashLines = $entry->lines->filter(fn ($l) => in_array($l->account_id, $money, true) && (! $branchId || $l->branch_id === $branchId));
+            $net = round($cashLines->sum(fn ($l) => (float) $l->debit - (float) $l->credit), 2);
+            if (abs($net) < 0.005) {
+                continue; // moving money between our own accounts (contra)
+            }
+            $other = $entry->lines->first(fn ($l) => ! in_array($l->account_id, $money, true))?->account;
+            $group = match (true) {
+                $other?->subtype === 'fixed_asset' || $other?->code === '1690' => 'investing',
+                $other?->type === 'equity' || $other?->code === '2600' => 'financing',
+                default => 'operating',
+            };
+            $label = match (true) {
+                $other === null => 'Other',
+                $other->system_key === 'receivable' || $other->system_key === 'patient_advances' => 'Received from families',
+                $other->system_key === 'salary_payable' => 'Salaries paid',
+                $other->system_key === 'payable' => 'Paid to vendors',
+                $other->system_key === 'staff_advances' => 'Staff advances',
+                $other->type === 'expense' => 'Expenses: '.$other->name,
+                $other->type === 'income' => 'Other income: '.$other->name,
+                default => $other->name,
+            };
+            $groups[$group][$label] = round(($groups[$group][$label] ?? 0) + $net, 2);
+        }
+
+        $sections = collect($groups)->map(fn ($rows) => [
+            'rows' => collect($rows)->map(fn ($amount, $label) => ['label' => $label, 'amount' => $amount])->sortByDesc(fn ($r) => abs($r['amount']))->values(),
+            'total' => round(array_sum($rows), 2),
+        ]);
+        $netChange = round($sections->sum('total'), 2);
+
+        return [
+            'from' => $from->toDateString(), 'to' => $to->toDateString(),
+            'opening' => $opening,
+            'sections' => $sections,
+            'net_change' => $netChange,
+            'closing' => round($opening + $netChange, 2),
+        ];
+    }
+
+    /** Budget vs actual for the months of the range (annual budget spread evenly over twelve months). */
+    public function budgetVsActual(Budget $budget, Carbon $from, Carbon $to): array
+    {
+        $months = max(1, (int) round($from->copy()->startOfMonth()->diffInMonths($to->copy()->endOfMonth()->addDay())));
+        $sums = $this->sums($from, $to, $budget->branch_id, withoutClosing: true);
+        $rows = $budget->lines()->with('account')->get()->map(function ($line) use ($sums, $months) {
+            $a = $line->account;
+            $s = $sums[$a->id] ?? null;
+            $actual = $s ? round($a->type === 'income' ? (float) $s->cr - (float) $s->dr : (float) $s->dr - (float) $s->cr, 2) : 0;
+            $planned = round((float) $line->annual_amount / 12 * $months, 2);
+
+            return [
+                'account' => $a->only(['id', 'code', 'name', 'type']),
+                'annual' => (float) $line->annual_amount,
+                'budget' => $planned,
+                'actual' => $actual,
+                'variance' => round($actual - $planned, 2),
+                'used_percent' => $planned > 0 ? (int) round($actual / $planned * 100) : null,
+            ];
+        })->sortBy('account.code')->values();
+
+        return [
+            'from' => $from->toDateString(), 'to' => $to->toDateString(), 'months' => $months,
+            'income' => $rows->where('account.type', 'income')->values(),
+            'expense' => $rows->where('account.type', 'expense')->values(),
+            'totals' => [
+                'income_budget' => round($rows->where('account.type', 'income')->sum('budget'), 2),
+                'income_actual' => round($rows->where('account.type', 'income')->sum('actual'), 2),
+                'expense_budget' => round($rows->where('account.type', 'expense')->sum('budget'), 2),
+                'expense_actual' => round($rows->where('account.type', 'expense')->sum('actual'), 2),
+            ],
         ];
     }
 }

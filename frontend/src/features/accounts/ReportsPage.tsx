@@ -19,6 +19,7 @@ const tabs = [
   ['trial-balance', 'Trial Balance'],
   ['ledger', 'Ledger / Cash book'],
   ['day-book', 'Day Book'],
+  ['cash-flow', 'Cash Flow'],
 ] as const
 
 /** Accounts §১২ financial reports, each printable as PDF. */
@@ -62,7 +63,7 @@ export default function ReportsPage() {
               ))}
           </Select>
         )}
-        {['income-statement', 'ledger'].includes(tab) && <Input type="date" value={from} onChange={(e) => setFrom(e.target.value)} className="sm:w-44" aria-label="From" />}
+        {['income-statement', 'ledger', 'cash-flow'].includes(tab) && <Input type="date" value={from} onChange={(e) => setFrom(e.target.value)} className="sm:w-44" aria-label="From" />}
         <Input type="date" value={to} max={todayISO()} onChange={(e) => setTo(e.target.value)} className="sm:w-44" aria-label={tab === 'day-book' ? 'Date' : 'To'} />
         {ready && (
           <a href={reportPdfUrl(tab, query)} target="_blank" rel="noreferrer" className="sm:ml-auto">
@@ -83,6 +84,8 @@ export default function ReportsPage() {
         <BalanceSheet data={data as never} />
       ) : tab === 'trial-balance' ? (
         <TrialBalance data={data as never} />
+      ) : tab === 'cash-flow' ? (
+        <CashFlow data={data as never} />
       ) : tab === 'ledger' ? (
         <Ledger data={data as never} />
       ) : (
@@ -262,6 +265,52 @@ function DayBook({ data }: { data: { entries: { voucher_no: string; narration: s
           </table>
         </Card>
       ))}
+    </div>
+  )
+}
+
+function CashFlow({ data }: { data: { opening: number; closing: number; net_change: number; sections: Record<'operating' | 'investing' | 'financing', { rows: { label: string; amount: number }[]; total: number }> } }) {
+  const titles = { operating: 'Operating activities', investing: 'Investing (equipment, furniture)', financing: 'Financing (owner, loans)' } as const
+  return (
+    <div className="max-w-3xl space-y-4">
+      <Card className="flex justify-between p-4 text-sm">
+        <span>Cash, bank & mobile money at start</span>
+        <b className="tabular-nums">{taka(data.opening)}</b>
+      </Card>
+      {(Object.keys(titles) as (keyof typeof titles)[]).map((k) => (
+        <Card key={k} className="overflow-hidden">
+          <p className="bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-700">{titles[k]}</p>
+          <table className="w-full text-sm">
+            <tbody className="divide-y divide-slate-100">
+              {data.sections[k].rows.map((r) => (
+                <tr key={r.label}>
+                  <td className="px-4 py-1.5">{r.label}</td>
+                  <td className={cn('px-4 py-1.5 text-right tabular-nums', r.amount < 0 && 'text-red-600')}>{taka(r.amount)}</td>
+                </tr>
+              ))}
+              {data.sections[k].rows.length === 0 && (
+                <tr>
+                  <td className="px-4 py-2 text-slate-400">None</td>
+                </tr>
+              )}
+              <tr className="font-semibold">
+                <td className="px-4 py-2">Net cash</td>
+                <td className="px-4 py-2 text-right tabular-nums">{taka(data.sections[k].total)}</td>
+              </tr>
+            </tbody>
+          </table>
+        </Card>
+      ))}
+      <Card className="space-y-1 p-4 text-sm">
+        <p className="flex justify-between">
+          <span>Net change</span>
+          <span className="tabular-nums">{taka(data.net_change)}</span>
+        </p>
+        <p className="flex justify-between font-semibold">
+          <span>Cash, bank & mobile money at end</span>
+          <span className="tabular-nums">{taka(data.closing)}</span>
+        </p>
+      </Card>
     </div>
   )
 }
