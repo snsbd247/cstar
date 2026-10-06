@@ -1,15 +1,18 @@
 <?php
 
+use App\Enums\AppointmentStatus;
 use App\Enums\EnrollmentStatus;
 use App\Enums\EnrollmentType;
 use App\Enums\Role;
 use App\Enums\UserStatus;
+use App\Models\Appointment;
 use App\Models\Branch;
 use App\Models\Enrollment;
 use App\Models\User;
 use App\Services\AppointmentService;
 use App\Services\ChargeService;
 use App\Services\ExpenseService;
+use App\Services\NotificationService;
 use App\Services\PackageService;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Carbon;
@@ -97,3 +100,33 @@ Artisan::command('cstar:recurring-expenses', function (ExpenseService $expenses)
 })->purpose('Raise this month\'s recurring expenses as drafts');
 
 Schedule::command('cstar:recurring-expenses')->dailyAt('06:00');
+
+// Plan §১৬ "দিনের আগে Reminder": parents hear about tomorrow's appointments; therapists about notes left open.
+Artisan::command('cstar:reminders {--type=all : parents | staff | all}', function (NotificationService $notify) {
+    $type = $this->option('type');
+    if (in_array($type, ['parents', 'all'], true) && $notify->enabled('parent_reminders')) {
+        $sent = 0;
+        Appointment::with(['patient', 'service', 'therapist'])->whereDate('date', today()->addDay())
+            ->whereIn('status', [AppointmentStatus::Pending->value, AppointmentStatus::Confirmed->value])->get()
+            ->each(function (Appointment $a) use ($notify, &$sent) {
+                $sent += $notify->toParents($a->patient, 'appointment.reminder', 'আগামীকাল অ্যাপয়েন্টমেন্ট',
+                    ($a->service->name_bn ?: $a->service->name).' — '.NotificationService::bnTime(substr($a->start_time, 0, 5)).", {$a->therapist->name}", '/portal/schedule');
+            });
+        $this->info("Parent reminders: {$sent}");
+    }
+    if (in_array($type, ['staff', 'all'], true) && $notify->enabled('staff_reminders')) {
+        $sent = 0;
+        Appointment::with(['therapist.user', 'session'])->whereDate('date', '<', today())->whereDate('date', '>=', today()->subDays(14))
+            ->whereIn('status', [AppointmentStatus::Confirmed->value, AppointmentStatus::CheckedIn->value])->where('type', 'therapy')
+            ->get()->filter(fn ($a) => $a->session?->status !== 'final' && $a->therapist->user)
+            ->groupBy('therapist_id')
+            ->each(function ($list) use ($notify, &$sent) {
+                $sent += $notify->send($list->first()->therapist->user, 'notes.pending', "{$list->count()} session note(s) to finalize",
+                    'Finalize them so families see the summary and billing stays correct.', '/therapist');
+            });
+        $this->info("Therapist reminders: {$sent}");
+    }
+})->purpose('Send appointment reminders to parents and pending-note reminders to therapists');
+
+Schedule::command('cstar:reminders --type=parents')->dailyAt('18:00');
+Schedule::command('cstar:reminders --type=staff')->dailyAt('08:00');

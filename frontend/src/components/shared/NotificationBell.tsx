@@ -15,7 +15,7 @@ interface AppNotification {
 }
 
 /** In-app notifications (e.g. new website appointment requests). Polls every minute. */
-export function NotificationBell() {
+export function NotificationBell({ bangla }: { bangla?: boolean } = {}) {
   const [open, setOpen] = useState(false)
   const box = useRef<HTMLDivElement>(null)
   const navigate = useNavigate()
@@ -46,15 +46,15 @@ export function NotificationBell() {
       {open && (
         <div className="absolute right-0 z-50 mt-1 w-80 max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg">
           <div className="flex items-center justify-between border-b border-slate-100 px-4 py-2.5">
-            <p className="text-sm font-semibold text-slate-900">Notifications</p>
+            <p className="text-sm font-semibold text-slate-900">{bangla ? 'নোটিফিকেশন' : 'Notifications'}</p>
             {!!data?.unread && (
               <button onClick={() => markAll.mutate()} className="text-xs text-sky-brand-600 hover:underline">
-                Mark all read
+                {bangla ? 'সব পড়া হয়েছে' : 'Mark all read'}
               </button>
             )}
           </div>
           <ul className="max-h-96 overflow-y-auto">
-            {!data?.data.length && <li className="px-4 py-6 text-center text-sm text-slate-500">Nothing yet.</li>}
+            {!data?.data.length && <li className="px-4 py-6 text-center text-sm text-slate-500">{bangla ? 'এখনো কিছু নেই।' : 'Nothing yet.'}</li>}
             {data?.data.map((n) => (
               <li key={n.id}>
                 <button
@@ -67,7 +67,7 @@ export function NotificationBell() {
                 >
                   <p className="text-sm font-medium text-slate-900">{n.title}</p>
                   <p className="truncate text-xs text-slate-500">{n.body}</p>
-                  <p className="mt-0.5 text-[11px] text-slate-400">{new Date(n.created_at).toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Dhaka' })}</p>
+                  <p className="mt-0.5 text-[11px] text-slate-400">{new Date(n.created_at).toLocaleString(bangla ? 'bn-BD' : 'en-GB', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Dhaka' })}</p>
                 </button>
               </li>
             ))}

@@ -29,4 +29,9 @@ class TrainingAttendance extends Model
     {
         return $this->belongsTo(Patient::class);
     }
+
+    public function trainingGroup(): BelongsTo
+    {
+        return $this->belongsTo(TrainingGroup::class);
+    }
 }

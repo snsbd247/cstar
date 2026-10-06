@@ -99,7 +99,7 @@ export const adminNav: NavGroup[] = [
   },
   {
     title: 'Insights',
-    items: [{ label: 'Reports', to: '/app/reports', icon: BarChart3, permissions: ['reports.view'], sprint: 14 }],
+    items: [{ label: 'Reports', to: '/app/reports', icon: BarChart3, permissions: ['reports.view'] }],
   },
   {
     title: 'Administration',
@@ -110,7 +110,7 @@ export const adminNav: NavGroup[] = [
       { label: 'Holidays', to: '/app/holidays', icon: CalendarOff, permissions: ['branches.view'] },
       { label: 'My Payslips', to: '/app/my-payslips', icon: ReceiptText },
       { label: 'Website CMS', to: '/app/cms', icon: Globe, permissions: ['cms.manage', 'appointment_requests.manage'] },
-      { label: 'Notifications', to: '/app/notifications', icon: Bell, permissions: ['notifications.send'], sprint: 14 },
+      { label: 'Notifications', to: '/app/notifications', icon: Bell, permissions: ['notifications.send'] },
       { label: 'Settings', to: '/app/settings', icon: Settings, permissions: ['settings.manage'], sprint: 16 },
     ],
   },

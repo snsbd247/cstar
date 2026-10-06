@@ -23,6 +23,7 @@ use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\PatientController;
 use App\Http\Controllers\Api\V1\PatientDocumentController;
 use App\Http\Controllers\Api\V1\Portal\PortalController;
+use App\Http\Controllers\Api\V1\ReportController as OperationalReportController;
 use App\Http\Controllers\Api\V1\RoleController;
 use App\Http\Controllers\Api\V1\Therapy\AppointmentController;
 use App\Http\Controllers\Api\V1\Therapy\AssessmentController;
@@ -79,6 +80,8 @@ Route::prefix('v1')->group(function () {
             ->whereIn('action', ['activate', 'hold', 'resume', 'complete', 'discontinue']);
 
         Route::get('dashboard', [DashboardController::class, 'summary']);
+        Route::get('reports', [OperationalReportController::class, 'index']);
+        Route::get('reports/{key}', [OperationalReportController::class, 'show']);
         Route::get('lookups/enrollment-options', [LookupController::class, 'enrollmentOptions']);
         Route::get('lookups/diagnoses', [LookupController::class, 'diagnoses']);
         Route::get('lookups/bookable-services', [LookupController::class, 'bookableServices']);
@@ -275,5 +278,9 @@ Route::prefix('v1')->group(function () {
         Route::get('notifications', [NotificationController::class, 'index']);
         Route::post('notifications/read-all', [NotificationController::class, 'markAllRead']);
         Route::post('notifications/{id}/read', [NotificationController::class, 'markRead']);
+        Route::get('announcements', [NotificationController::class, 'announcements']);
+        Route::post('announcements', [NotificationController::class, 'announce'])->middleware('throttle:20,60');
+        Route::get('notification-settings', [NotificationController::class, 'settings']);
+        Route::put('notification-settings', [NotificationController::class, 'updateSettings']);
     });
 });

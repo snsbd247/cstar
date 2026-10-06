@@ -93,6 +93,10 @@ class AppointmentService
                 ucfirst(str_replace('_', ' ', $to->value)).": {$appointment->service->name} on {$appointment->date->format('d M')}", $appointment,
                 description: $data['reason'] ?? null, branchId: $appointment->branch_id, visibility: 'parent');
             $this->charges->appointmentMissed($appointment, $user);
+            if ($action === 'cancel') {
+                app(NotificationService::class)->toParents($appointment->patient, 'appointment.cancelled', 'অ্যাপয়েন্টমেন্ট বাতিল',
+                    ($appointment->service->name_bn ?: $appointment->service->name).' — '.NotificationService::bnDate($appointment->date).($data['reason'] ?? null ? " ({$data['reason']})" : ''), '/portal/schedule');
+            }
         }
 
         return $appointment;
@@ -202,6 +206,9 @@ class AppointmentService
             $this->timeline->record($patient, 'appointment.booked',
                 "Appointment: {$service->name} with {$therapist->name}, {$start->format('d M, g:i A')}", $appointment,
                 branchId: $branchId, visibility: 'parent');
+            // Recurring bookings are announced by the evening-before reminder instead.
+            app(NotificationService::class)->toParents($patient, 'appointment.booked', 'নতুন অ্যাপয়েন্টমেন্ট',
+                ($service->name_bn ?: $service->name).' — '.NotificationService::bnDate($start).', '.NotificationService::bnTime($start->format('H:i')).", {$therapist->name}", '/portal/schedule');
         }
 
         return $appointment;

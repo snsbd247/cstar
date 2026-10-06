@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\Permission;
 use App\Models\Appointment;
 use App\Models\Invoice;
 use App\Models\Package;
@@ -76,6 +77,16 @@ class PackageService
             $package->increment('used_sessions');
             if ($package->remaining() === 0) {
                 $package->update(['status' => 'exhausted']);
+            }
+            // Plan §১৮: renewal alert when two sessions are left, and when the package is used up.
+            if (in_array($package->remaining(), [2, 0], true)) {
+                $package->loadMissing(['package', 'patient']);
+                $left = $package->remaining();
+                $notify = app(NotificationService::class);
+                $notify->toParents($package->patient, 'package.low', $left ? 'প্যাকেজ প্রায় শেষ' : 'প্যাকেজ শেষ',
+                    ($package->package->name_bn ?: $package->package->name).($left ? ' — আর মাত্র ২টি সেশন বাকি।' : ' — সব সেশন ব্যবহার হয়েছে। নবায়নের জন্য রিসেপশনে যোগাযোগ করুন।'), '/portal/billing');
+                $notify->toStaff(Permission::INVOICES_MANAGE, $package->branch_id, 'package.low',
+                    "Package renewal: {$package->patient->name}", "{$package->package->name} — {$left} sessions left", "/app/patients/{$package->patient_id}?tab=billing");
             }
 
             $appointment->loadMissing(['service', 'patient']);

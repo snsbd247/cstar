@@ -1,0 +1,40 @@
+<?php
+
+namespace App\Notifications;
+
+use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Notifications\Notification;
+
+/**
+ * One notification type for every in-app message (bell) — and email when it is switched on and the person
+ * has an address (Plan §৩৪). SMS/WhatsApp channels plug in here once a gateway is chosen.
+ */
+class AppNotification extends Notification
+{
+    public function __construct(
+        public string $kind,
+        public string $title,
+        public string $body,
+        public string $url,
+        public bool $email = false,
+    ) {}
+
+    public function via(object $notifiable): array
+    {
+        return $this->email && filled($notifiable->email ?? null) ? ['database', 'mail'] : ['database'];
+    }
+
+    public function toArray(object $notifiable): array
+    {
+        return ['kind' => $this->kind, 'title' => $this->title, 'body' => $this->body, 'url' => $this->url];
+    }
+
+    public function toMail(object $notifiable): MailMessage
+    {
+        return (new MailMessage)
+            ->subject($this->title.' — C-STAR')
+            ->greeting($this->title)
+            ->line($this->body)
+            ->action('Open C-STAR', rtrim((string) config('app.url'), '/').$this->url);
+    }
+}

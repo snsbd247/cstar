@@ -101,6 +101,8 @@ class AssessmentService
         if ($shared) {
             $this->timeline->record($assessment->patient, 'assessment.shared', "Assessment report shared: {$assessment->type->name}", $assessment,
                 description: $assessment->parent_summary, branchId: $assessment->branch_id, visibility: 'parent');
+            app(NotificationService::class)->toParents($assessment->patient, 'assessment.shared', 'নতুন রিপোর্ট',
+                ($assessment->type->name_bn ?: $assessment->type->name).' রিপোর্ট দেখা ও ডাউনলোড করা যাবে।', '/portal/progress');
         }
 
         return $assessment;

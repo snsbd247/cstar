@@ -26,6 +26,8 @@ import ReportsPage from '../features/accounts/ReportsPage'
 import VouchersPage from '../features/accounts/VouchersPage'
 import EmployeesPage, { EmployeeDetailPage } from '../features/payroll/EmployeesPage'
 import PayrollPage, { MyPayslipsPage, PayrollRunPage } from '../features/payroll/PayrollPage'
+import NotificationsPage from '../features/notifications/NotificationsPage'
+import OperationalReportsPage from '../features/reports/ReportsPage'
 import InvoiceDetailPage from '../features/billing/InvoiceDetailPage'
 import InvoicesPage from '../features/billing/InvoicesPage'
 import PackagesPage from '../features/billing/PackagesPage'
@@ -95,6 +97,8 @@ export const router = createBrowserRouter([
           { path: 'payroll', element: <RequirePermission permission={['accounts.payroll.manage', 'accounts.payroll.approve']}><PayrollPage /></RequirePermission> },
           { path: 'payroll/:id', element: <RequirePermission permission={['accounts.payroll.manage', 'accounts.payroll.approve']}><PayrollRunPage /></RequirePermission> },
           { path: 'my-payslips', element: <MyPayslipsPage /> },
+          { path: 'reports', element: <RequirePermission permission="reports.view"><OperationalReportsPage /></RequirePermission> },
+          { path: 'notifications', element: <RequirePermission permission="notifications.send"><NotificationsPage /></RequirePermission> },
           { path: 'accounts/vouchers', element: <RequirePermission permission="accounts.view"><VouchersPage /></RequirePermission> },
           { path: 'accounts/reports', element: <RequirePermission permission="accounts.reports"><ReportsPage /></RequirePermission> },
           { path: 'expenses', element: <RequirePermission permission="accounts.expense.create"><ExpensesPage /></RequirePermission> },

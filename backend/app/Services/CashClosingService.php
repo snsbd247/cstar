@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\Permission;
 use App\Models\CashClosing;
 use App\Models\Expense;
 use App\Models\Payment;
@@ -54,6 +55,10 @@ class CashClosingService
         if (abs($difference) > 0.001 && blank($data['reason'] ?? null)) {
             throw ValidationException::withMessages(['reason' => 'Explain why the cash is '.($difference < 0 ? 'short' : 'over').' by ৳'.number_format(abs($difference), 2).'.']);
         }
+
+        app(NotificationService::class)->toStaff(Permission::ACCOUNTS_VIEW, (int) $data['branch_id'], 'cash.closed',
+            "{$user->name} closed their cash", 'Counted ৳'.number_format($counted).($difference ? ' — '.($difference < 0 ? 'short' : 'over').' ৳'.number_format(abs($difference)) : '').'. Please receive it.',
+            '/app/cash-closing', $user->id);
 
         return CashClosing::create([
             'branch_id' => $data['branch_id'],

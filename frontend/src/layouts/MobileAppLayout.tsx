@@ -1,6 +1,7 @@
 import { LogOut, ReceiptText, type LucideIcon } from 'lucide-react'
 import { Link, NavLink, Outlet, useNavigate } from 'react-router'
 import { Logo } from '../components/shared/Logo'
+import { NotificationBell } from '../components/shared/NotificationBell'
 import { useAuth } from '../contexts/useAuth'
 import { cn } from '../utils/cn'
 
@@ -30,6 +31,7 @@ export function MobileAppLayout({ title, nav, bangla, payslipsTo }: { title: str
             </div>
           </div>
           <div className="flex items-center gap-1">
+            <NotificationBell bangla={bangla} />
             {payslipsTo && (
               <Link to={payslipsTo} className="rounded-md p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700" aria-label="My payslips" title="My payslips">
                 <ReceiptText className="size-5" />

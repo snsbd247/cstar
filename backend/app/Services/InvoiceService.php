@@ -94,6 +94,11 @@ class InvoiceService
 
             // Money already held as advance pays the new invoice straight away.
             app(PaymentService::class)->applyAdvance($invoice->patient, $user, $invoice);
+            $invoice->refresh();
+            if ((float) $invoice->due_total > 0) {
+                app(NotificationService::class)->toParents($invoice->patient, 'invoice.issued', 'নতুন বিল',
+                    "{$invoice->invoice_no} — ".NotificationService::bnTaka((float) $invoice->due_total).' বকেয়া', '/portal/billing');
+            }
 
             return $invoice->refresh();
         });

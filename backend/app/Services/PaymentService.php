@@ -74,6 +74,8 @@ class PaymentService
             $open->whereIn('id', array_keys($plan))->each(fn ($inv) => $this->invoices->refreshTotals($inv));
             $this->timeline->record($patient, 'payment.received', 'Payment received — ৳'.number_format($amount).' ('.strtoupper($payment->method).')', $payment,
                 branchId: $payment->branch_id, visibility: 'parent');
+            app(NotificationService::class)->toParents($patient, 'payment.received', 'পেমেন্ট গ্রহণ করা হয়েছে',
+                NotificationService::bnTaka($amount)." পাওয়া গেছে — রসিদ {$payment->receipt_no}। ধন্যবাদ।", '/portal/billing');
 
             return $payment->load('allocations.invoice');
         });

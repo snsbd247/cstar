@@ -29,7 +29,7 @@ class UserFactory extends Factory
         return [
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
-            'phone' => '01'.fake()->unique()->numerify('#########'),
+            'phone' => '01'.fake()->unique()->numerify(fake()->numberBetween(3, 9).'########'), // valid BD mobile (013–019)
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'user_type' => UserType::Staff,
