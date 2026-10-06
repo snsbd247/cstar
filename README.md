@@ -4,7 +4,7 @@
 Public Website + Center Management System + Parent Portal
 
 > এই README-ই প্রকল্পের **মূল পরিকল্পনা ও অগ্রগতির document** (বাংলা)। প্রতিটি কাজ শেষ হলে নিচের অগ্রগতি তালিকা হালনাগাদ করা হয়।
-> সংস্করণ: Plan v1.2 · শেষ হালনাগাদ: ০৬ অক্টোবর ২০২৬ · সহযোগী document: [docs/C-STAR-Accounts-BN.md](docs/C-STAR-Accounts-BN.md) (সম্পূর্ণ Accounts Module)
+> সংস্করণ: Plan v1.3 · শেষ হালনাগাদ: ০৬ অক্টোবর ২০২৬ (Sprint ৫ শেষ) · সহযোগী document: [docs/C-STAR-Accounts-BN.md](docs/C-STAR-Accounts-BN.md) (সম্পূর্ণ Accounts Module)
 
 ## সূচিপত্র
 
@@ -38,7 +38,9 @@ cd backend
 composer install
 cp .env.example .env             # XAMPP-এর MySQL database "cstar"-এর জন্য আগেই সাজানো
 php artisan key:generate
-php artisan migrate --seed       # role, permission, branch, service, demo user ও demo শিশু
+php artisan migrate --seed       # role, permission, branch, service, demo user, demo শিশু ও demo website content
+php artisan storage:link         # website-এর ছবি (gallery, team, service) দেখানোর জন্য
+npm install && npm run build     # public website-এর CSS/JS (public/build)
 php artisan serve                # http://127.0.0.1:8000
 
 # ২. Frontend (আরেকটি terminal-এ)
@@ -72,13 +74,13 @@ cd frontend && npx tsc -b && npm run lint
 
 ### Production build (server-এ Node.js লাগবে না)
 
-`frontend/`-এ `npm run build` চালালে React app তৈরি হয়ে `backend/public/spa/`-তে যায়। Laravel নিজেই `/app`, `/trainer`, `/therapist`, `/portal`, `/login` path-এ এটা দেখায়। cPanel-এ `backend/` folder (সাথে `vendor/` ও `public/spa/`) upload করতে হবে। Server-এ **PHP 8.3 বা তার বেশি** লাগবে। প্রথম আসল admin তৈরি করতে: `php artisan cstar:create-admin`। `APP_ENV=production` হলে demo user কখনো তৈরি হয় না।
+`frontend/`-এ `npm run build` চালালে React app তৈরি হয়ে `backend/public/spa/`-তে যায়। Laravel নিজেই `/app`, `/trainer`, `/therapist`, `/portal`, `/login` path-এ এটা দেখায়। Public website-এর CSS/JS-এর জন্য `backend/`-এ `npm run build` চালালে `public/build/` তৈরি হয়। cPanel-এ `backend/` folder (সাথে `vendor/`, `public/spa/` ও `public/build/`) upload করতে হবে, আর একবার `php artisan storage:link` চালাতে হবে। Server-এ **PHP 8.3 বা তার বেশি** লাগবে। প্রথম আসল admin তৈরি করতে: `php artisan cstar:create-admin`। `APP_ENV=production` হলে demo user কখনো তৈরি হয় না।
 
 ---
 
 ## ✅ কাজের অগ্রগতি (Progress Tracker)
 
-> চিহ্ন: ✅ শেষ · 🔄 চলছে · ⬜ বাকি — **শেষ হালনাগাদ: ০৬ অক্টোবর ২০২৬ (Sprint ৬ শেষ)**
+> চিহ্ন: ✅ শেষ · 🔄 চলছে · ⬜ বাকি — **শেষ হালনাগাদ: ০৬ অক্টোবর ২০২৬ (Sprint ৫ শেষ)**
 > প্রতিটি কাজ শেষ হলে এখানে চিহ্ন বদলানো হবে।
 
 ### Phase 1 — পরিকল্পনা ও Requirement
@@ -101,7 +103,7 @@ cd frontend && npx tsc -b && npm run lint
 |---|---|---|
 | ✅ | ৩ | ERD চূড়ান্ত (§৪–৬); ভিত্তি migration ও seeder: users, branches, rooms, holidays, settings, id_sequences, audit_logs, role/permission — ০৬ অক্টো ২০২৬। *Patient, enrollment ইত্যাদি module-এর table নিজ নিজ sprint-এ তৈরি হবে, যাতে প্রতিটি table তার কাজের সাথে test হয়।* |
 | ✅ | ৪ | Laravel 13 + React 19 setup; Sanctum login (email/মোবাইল); ৭টি role ও ৫৯টি permission; branch অনুযায়ী access; Branch, User, Role management (API + UI); audit log; role অনুযায়ী ৪টি app (Admin/Trainer/Therapist/Parent); ৩৫টি backend test পাস — ০৬ অক্টো ২০২৬ |
-| ⬜ | ৫ | Public Website (Blade) + CMS (basic) + Online Appointment Request |
+| ✅ | ৫ | Public Website (Blade) + CMS (basic) + Online Appointment Request — ০৬ অক্টো ২০২৬: SEO-বান্ধব public website (Home, About, Services ও প্রতিটি service-এর page, Therapists, Training, Branches, Gallery, FAQ, Notices, Contact, Appointment), sitemap.xml ও robots.txt; Therapy ও Training আলাদা ভাগে; online appointment form (spam রোধ: লুকানো honeypot field + rate limit) → front desk-এ notification → "Register child" (তথ্য আগে থেকে বসানো) → request স্বয়ংক্রিয়ভাবে converted; contact form; CMS: website settings, service page, team profile, testimonial, FAQ, gallery (অভিভাবকের consent ছাড়া শিশুর ছবি publish হয় না), notice; notification bell; ৭৯টি test পাস। *Contact তথ্য, পরিসংখ্যান, আসল testimonial ও FAQ C-STAR থেকে পেলে CMS-এ বসাতে হবে — demo-তে শুধু নমুনা।* |
 | ✅ | ৬ | Patient + Guardian + Documents + **Enrollment System** — ০৬ অক্টো ২০২৬: patient registration (স্বয়ংক্রিয় ID `CSTAR-2026-00001`, duplicate সতর্কবার্তা, ভাই-বোনের জন্য একই guardian, consent), clinical তথ্য আলাদা ও সুরক্ষিত, private document ও ছবি, parent portal login তৈরি, enrollment (Training: class + trainer, Therapy: service + therapist), hold/resume/complete/discontinue/transfer ও ইতিহাস, patient timeline, global search; trainer/therapist শুধু নিজের শিশুদের দেখেন; ৬৯টি test পাস। *Trainer, therapist, class ও service-এর মূল table এখানেই তৈরি; এদের management page Sprint ৭–৮-এ।* |
 | ⬜ | ৭ | Class + Trainer + Training Attendance + Training Session/Record + ITP |
 | ⬜ | ৮ | Therapist + Schedule + Appointment + Therapy Session |
@@ -975,4 +977,4 @@ SMS (BD gateway) · WhatsApp · Online Payment (bKash/SSLCommerz) · Email autom
 
 ---
 
-**পরবর্তী ধাপ:** Sprint ৩, ৪ ও ৬ শেষ। এখন Sprint ৫ (Public Website)।
+**পরবর্তী ধাপ:** Sprint ৩, ৪, ৫ ও ৬ শেষ। পরের কাজ Sprint ৭ (Class + Trainer + Training Attendance + Training Session/Record + ITP)।

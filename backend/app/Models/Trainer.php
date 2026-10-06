@@ -9,11 +9,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Storage;
 
 /** Physical/functional training staff. Not a therapist (TRAINER ≠ THERAPIST). */
 #[Fillable([
     'user_id', 'branch_id', 'employee_code', 'name', 'slug', 'phone', 'email',
-    'qualification', 'experience_years', 'bio', 'status', 'show_on_website',
+    'qualification', 'experience_years', 'bio', 'photo_path', 'status', 'show_on_website', 'sort_order',
 ])]
 class Trainer extends Model
 {
@@ -37,6 +38,11 @@ class Trainer extends Model
     public function ledGroups(): HasMany
     {
         return $this->hasMany(TrainingGroup::class, 'lead_trainer_id');
+    }
+
+    public function photoUrl(): ?string
+    {
+        return $this->photo_path ? Storage::disk('public')->url($this->photo_path) : null;
     }
 
     public function isActive(): bool

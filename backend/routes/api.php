@@ -2,6 +2,10 @@
 
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\BranchController;
+use App\Http\Controllers\Api\V1\Cms\CmsContentController;
+use App\Http\Controllers\Api\V1\Cms\WebsiteSetupController;
+use App\Http\Controllers\Api\V1\EnquiryInboxController;
+use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\EnrollmentController;
 use App\Http\Controllers\Api\V1\GuardianController;
 use App\Http\Controllers\Api\V1\LookupController;
@@ -54,5 +58,34 @@ Route::prefix('v1')->group(function () {
 
         Route::get('lookups/enrollment-options', [LookupController::class, 'enrollmentOptions']);
         Route::get('lookups/diagnoses', [LookupController::class, 'diagnoses']);
+
+        // Website front-desk inbox
+        Route::get('appointment-requests', [EnquiryInboxController::class, 'appointmentRequests']);
+        Route::put('appointment-requests/{appointmentRequest}', [EnquiryInboxController::class, 'updateAppointmentRequest']);
+        Route::get('contact-messages', [EnquiryInboxController::class, 'contactMessages']);
+        Route::put('contact-messages/{contactMessage}', [EnquiryInboxController::class, 'updateContactMessage']);
+
+        // Website CMS
+        Route::prefix('cms')->group(function () {
+            Route::get('settings', [WebsiteSetupController::class, 'settings']);
+            Route::put('settings', [WebsiteSetupController::class, 'updateSettings']);
+            Route::get('services', [WebsiteSetupController::class, 'services']);
+            Route::put('services/{service}', [WebsiteSetupController::class, 'updateService']);
+            Route::post('services/{service}/image', [WebsiteSetupController::class, 'uploadServiceImage']);
+            Route::get('team', [WebsiteSetupController::class, 'team']);
+            Route::put('team/{kind}/{id}', [WebsiteSetupController::class, 'updateTeamMember'])->whereIn('kind', ['therapist', 'trainer']);
+            Route::post('team/{kind}/{id}/photo', [WebsiteSetupController::class, 'uploadTeamPhoto'])->whereIn('kind', ['therapist', 'trainer']);
+
+            $types = ['testimonials', 'faqs', 'notices', 'gallery'];
+            Route::get('{type}', [CmsContentController::class, 'index'])->whereIn('type', $types);
+            Route::post('{type}', [CmsContentController::class, 'store'])->whereIn('type', $types);
+            // POST alias so the gallery can send a new image with multipart/form-data
+            Route::match(['put', 'post'], '{type}/{id}', [CmsContentController::class, 'update'])->whereIn('type', $types)->whereNumber('id');
+            Route::delete('{type}/{id}', [CmsContentController::class, 'destroy'])->whereIn('type', $types)->whereNumber('id');
+        });
+
+        Route::get('notifications', [NotificationController::class, 'index']);
+        Route::post('notifications/read-all', [NotificationController::class, 'markAllRead']);
+        Route::post('notifications/{id}/read', [NotificationController::class, 'markRead']);
     });
 });

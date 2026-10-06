@@ -10,11 +10,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Storage;
 
 /** Clinical therapy staff. Not a trainer (TRAINER ≠ THERAPIST). */
 #[Fillable([
     'user_id', 'primary_branch_id', 'employee_code', 'name', 'slug', 'designation', 'therapist_type',
-    'phone', 'email', 'qualification', 'experience_years', 'bio', 'status', 'show_on_website',
+    'phone', 'email', 'qualification', 'experience_years', 'bio', 'photo_path', 'status', 'show_on_website', 'sort_order',
 ])]
 class Therapist extends Model
 {
@@ -41,6 +42,11 @@ class Therapist extends Model
     public function services(): BelongsToMany
     {
         return $this->belongsToMany(Service::class);
+    }
+
+    public function photoUrl(): ?string
+    {
+        return $this->photo_path ? Storage::disk('public')->url($this->photo_path) : null;
     }
 
     public function isActive(): bool

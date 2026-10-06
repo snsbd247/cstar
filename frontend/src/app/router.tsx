@@ -6,6 +6,8 @@ import AdminDashboard from '../features/dashboard/AdminDashboard'
 import PatientFormPage from '../features/patients/PatientFormPage'
 import PatientProfilePage from '../features/patients/PatientProfilePage'
 import PatientsPage from '../features/patients/PatientsPage'
+import CmsPage from '../features/cms/CmsPage'
+import OnlineRequestsPage from '../features/requests/OnlineRequestsPage'
 import { portalNav } from '../features/portal/nav'
 import { PortalHome } from '../features/portal/PortalApp'
 import { therapistNav } from '../features/therapist/nav'
@@ -49,6 +51,8 @@ export const router = createBrowserRouter([
           { path: 'patients/new', element: <RequirePermission permission="patients.create"><PatientFormPage /></RequirePermission> },
           { path: 'patients/:id', element: <RequirePermission permission="patients.view"><PatientProfilePage /></RequirePermission> },
           { path: 'patients/:id/edit', element: <RequirePermission permission="patients.update"><PatientFormPage /></RequirePermission> },
+          { path: 'online-requests', element: <RequirePermission permission="appointment_requests.manage"><OnlineRequestsPage /></RequirePermission> },
+          { path: 'cms', element: <RequirePermission permission={['cms.manage', 'appointment_requests.manage']}><CmsPage /></RequirePermission> },
           { path: 'branches', element: <RequirePermission permission={['branches.view', 'branches.manage']}><BranchesPage /></RequirePermission> },
           { path: 'users', element: <RequirePermission permission={['users.view', 'users.manage']}><UsersPage /></RequirePermission> },
           { path: 'roles', element: <RequirePermission permission={['users.view', 'roles.manage']}><RolesPage /></RequirePermission> },

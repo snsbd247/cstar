@@ -2,6 +2,7 @@ import { LogOut, Menu, X } from 'lucide-react'
 import { useState } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router'
 import { Logo } from '../components/shared/Logo'
+import { NotificationBell } from '../components/shared/NotificationBell'
 import { useAuth } from '../contexts/useAuth'
 import { PatientQuickSearch } from '../features/patients/components/PatientQuickSearch'
 import { cn } from '../utils/cn'
@@ -39,11 +40,10 @@ export default function AdminLayout() {
         <UserBox />
       </aside>
 
-      {can('patients.view') && (
-        <div className="sticky top-14 z-20 border-b border-slate-200 bg-white/95 px-4 py-2 backdrop-blur sm:px-6 lg:top-0 lg:px-8">
-          <PatientQuickSearch />
-        </div>
-      )}
+      <div className="sticky top-14 z-20 flex items-center justify-between gap-3 border-b border-slate-200 bg-white/95 px-4 py-2 backdrop-blur sm:px-6 lg:top-0 lg:px-8">
+        {can('patients.view') ? <PatientQuickSearch /> : <span />}
+        <NotificationBell />
+      </div>
 
       <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <Outlet />

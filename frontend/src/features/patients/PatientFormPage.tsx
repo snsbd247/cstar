@@ -1,8 +1,8 @@
 import { AlertTriangle, ArrowLeft, UserCheck } from 'lucide-react'
 import { useEffect, useState, type ReactNode } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
-import { Link, useNavigate, useParams } from 'react-router'
-import { errorMessage, validationErrors } from '../../api/client'
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router'
+import { api, errorMessage, validationErrors } from '../../api/client'
 import { Button } from '../../components/ui/Button'
 import { Alert, Card, PageHeader } from '../../components/ui/Card'
 import { Field, Input, Select, Textarea } from '../../components/ui/Field'
@@ -90,9 +90,17 @@ function PatientForm({ patient }: { patient?: PatientDetail }) {
   const [guardianMatches, setGuardianMatches] = useState<GuardianMatch[]>([])
   const [existingGuardian, setExistingGuardian] = useState<GuardianMatch | null>(null)
 
-  const { register, handleSubmit, control, getValues, setError: setFieldError, formState } = useForm<FormValues>({
-    defaultValues: defaults(patient, branches.length === 1 ? String(branches[0].id) : ''),
-  })
+  // Coming from an online appointment request: prefill and link the request after saving.
+  const [params] = useSearchParams()
+  const requestId = !editing ? params.get('request_id') : null
+  const initial = defaults(patient, branches.length === 1 ? String(branches[0].id) : '')
+  if (requestId) {
+    initial.name = params.get('name') ?? ''
+    initial.phone = params.get('phone') ?? ''
+    initial.guardian = { ...initial.guardian, name: params.get('guardian_name') ?? '', phone: params.get('phone') ?? '' }
+  }
+
+  const { register, handleSubmit, control, getValues, setError: setFieldError, formState } = useForm<FormValues>({ defaultValues: initial })
   // Errors for nested fields ("guardian.phone") live in nested objects.
   const err = (name: string) =>
     (name.split('.').reduce<unknown>((node, key) => (node as Record<string, unknown> | undefined)?.[key], formState.errors) as { message?: string } | undefined)?.message
@@ -141,6 +149,9 @@ function PatientForm({ patient }: { patient?: PatientDetail }) {
 
     try {
       const saved = await save.mutateAsync({ ...payload, id: patient?.id })
+      if (requestId) {
+        await api.put(`/appointment-requests/${requestId}`, { status: 'converted', patient_id: saved.id }).catch(() => undefined)
+      }
       navigate(`/app/patients/${saved.id}`, { replace: true })
     } catch (e) {
       const fields = validationErrors(e)
