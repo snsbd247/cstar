@@ -21,7 +21,7 @@ class UserRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'email' => ['nullable', 'required_without:phone', 'email', 'max:255', Rule::unique('users')->ignore($id)],
             'phone' => ['nullable', 'required_without:email', 'string', 'regex:/^01[3-9]\d{8}$/', Rule::unique('users')->ignore($id)],
-            'password' => [$creating ? 'required' : 'nullable', 'string', Password::min(8)->letters()->numbers()],
+            'password' => [$creating ? 'required' : 'nullable', 'string', Password::defaults()],
             'role' => ['required', new Enum(Role::class)],
             'status' => ['sometimes', new Enum(UserStatus::class)],
             'must_change_password' => ['sometimes', 'boolean'],

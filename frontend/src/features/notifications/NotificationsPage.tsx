@@ -99,7 +99,7 @@ export default function NotificationsPage() {
         </Card>
 
         <div className="space-y-4">
-          {can('settings.manage') && <SettingsCard />}
+          {can('settings.manage') && <NotificationSettingsCard />}
           <Card className="p-5">
             <h2 className="font-semibold text-slate-900">Sent</h2>
             <ul className="mt-2 divide-y divide-slate-100">
@@ -124,7 +124,7 @@ export default function NotificationsPage() {
   )
 }
 
-function SettingsCard() {
+export function NotificationSettingsCard() {
   const qc = useQueryClient()
   const { data } = useQuery({ queryKey: ['notification-settings'], queryFn: async () => (await api.get<{ data: Record<string, string> }>('/notification-settings')).data.data })
   const save = useMutation({

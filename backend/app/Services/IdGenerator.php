@@ -10,9 +10,10 @@ use Illuminate\Support\Facades\DB;
  */
 class IdGenerator
 {
-    public function next(string $key, string $prefix, int $pad = 5, ?int $year = null): string
+    /** With $withYear = false the number runs on across years (stored as year 0) and the year is left out of the code. */
+    public function next(string $key, string $prefix, int $pad = 5, ?int $year = null, bool $withYear = true): string
     {
-        $year ??= (int) now()->format('Y');
+        $year = $withYear ? ($year ?? (int) now()->format('Y')) : 0;
 
         $value = DB::transaction(function () use ($key, $year) {
             DB::table('id_sequences')->insertOrIgnore([
@@ -34,6 +35,8 @@ class IdGenerator
             return $next;
         });
 
-        return sprintf('%s-%d-%s', $prefix, $year, str_pad((string) $value, $pad, '0', STR_PAD_LEFT));
+        $number = str_pad((string) $value, $pad, '0', STR_PAD_LEFT);
+
+        return $withYear ? sprintf('%s-%d-%s', $prefix, $year, $number) : "{$prefix}-{$number}";
     }
 }

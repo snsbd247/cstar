@@ -1,5 +1,6 @@
 import { Check, Lock } from 'lucide-react'
 import { useState } from 'react'
+import { useSearchParams } from 'react-router'
 import { errorMessage } from '../../api/client'
 import { Button } from '../../components/ui/Button'
 import { Alert, Badge, Card, PageHeader } from '../../components/ui/Card'
@@ -7,19 +8,44 @@ import { Spinner } from '../../components/ui/Spinner'
 import { useAuth } from '../../contexts/useAuth'
 import type { RoleInfo } from '../../types'
 import { cn } from '../../utils/cn'
+import { UrlTabs } from '../../components/ui/Tabs'
 import { usePermissionCatalog, useRoles, useSaveRolePermissions } from './api'
+import { PermissionMatrix } from './PermissionMatrix'
 
 export default function RolesPage() {
+  const { can } = useAuth()
+  const [params] = useSearchParams()
   const { data: roles, isLoading } = useRoles()
+  const { data: catalog } = usePermissionCatalog(can('roles.manage'))
   const [selected, setSelected] = useState<string>('branch_admin')
 
   if (isLoading || !roles) return <Spinner className="text-brand-600" />
+  const tabs = (
+    <UrlTabs
+      tabs={[
+        ['roles', 'Roles'],
+        ['permissions', 'Permission matrix'],
+      ]}
+      fallback="roles"
+    />
+  )
+
+  if (params.get('tab') === 'permissions') {
+    return (
+      <>
+        <PageHeader title="Permissions" description="Who can do what, by role. Record-level rules (own branch, assigned children, own child) always apply on top." />
+        {tabs}
+        <PermissionMatrix roles={roles} catalog={catalog} />
+      </>
+    )
+  }
 
   const role = roles.find((r) => r.name === selected) ?? roles[0]
 
   return (
     <>
       <PageHeader title="Roles & Permissions" description="What each role can do. Record-level rules (own branch, assigned children, own child) always apply on top." />
+      {tabs}
 
       <div className="grid gap-4 lg:grid-cols-[240px_1fr]">
         <Card className="h-fit p-2">

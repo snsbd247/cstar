@@ -4,7 +4,7 @@
 Public Website + Center Management System + Parent Portal
 
 > এই README-ই প্রকল্পের **মূল পরিকল্পনা ও অগ্রগতির document** (বাংলা)। প্রতিটি কাজ শেষ হলে নিচের অগ্রগতি তালিকা হালনাগাদ করা হয়।
-> সংস্করণ: Plan v2.2 · শেষ হালনাগাদ: ০৭ অক্টোবর ২০২৬ (Sprint ১৫ শেষ) · সহযোগী document: [docs/C-STAR-Accounts-BN.md](docs/C-STAR-Accounts-BN.md) (সম্পূর্ণ Accounts Module)
+> সংস্করণ: Plan v2.3 · শেষ হালনাগাদ: ০৭ অক্টোবর ২০২৬ (Sprint ১৬ শেষ) · সহযোগী document: [docs/C-STAR-Accounts-BN.md](docs/C-STAR-Accounts-BN.md) (সম্পূর্ণ Accounts Module) · [docs/C-STAR-UAT-BN.md](docs/C-STAR-UAT-BN.md) (UAT চেকলিস্ট)
 
 ## সূচিপত্র
 
@@ -135,7 +135,7 @@ cd frontend && npx tsc -b && npm run lint
 | ✅ | ১৩ | Parent Portal — ০৬ অক্টো ২০২৬: অভিভাবকদের জন্য **বাংলায়** (D7), ফোনে ব্যবহারের উপযোগী, নিচে ৫টি ঘর: **হোম** (সন্তানের প্রোগ্রাম, পরবর্তী appointment, এ মাসের উপস্থিতি %, বকেয়া, নতুন রিপোর্ট, সর্বশেষ নোট ও বাসায় অনুশীলন, সাম্প্রতিক খবর), **সময়সূচি** (ট্রেনিং class-এর সাপ্তাহিক সময়, আসন্ন ও আগের appointment, appointment-এর **অনুরোধ** পাঠানো → রিসেপশনে notification, Online Requests-এ আসে), **অগ্রগতি** (মাসিক উপস্থিতির calendar ও হার, plan-এর লক্ষ্য ও অগ্রগতি bar, therapy session ও training class-এর অভিভাবকের জন্য লেখা নোট, শেয়ার করা assessment রিপোর্ট ও অগ্রগতি রিপোর্ট PDF), **বিল** (বকেয়া, অগ্রিম, package-এর বাকি session, invoice ও রসিদ PDF), **প্রোফাইল** (অভিভাবকের তথ্য, সন্তানের তালিকা, অনুরোধের অবস্থা, পাসওয়ার্ড পরিবর্তন); একাধিক সন্তান থাকলে উপরে সন্তান বাছাই; সন্তানের enrollment অনুযায়ী অংশ দেখায় (ট্রেনিং না থাকলে উপস্থিতি দেখায় না); সংখ্যা ও তারিখ বাংলায়; **নিরাপত্তা:** শুধু নিজের সেই সন্তান যার জন্য "portal access" চালু, শুধু অভিভাবকের জন্য লেখা তথ্য — clinical note, therapist/trainer-এর internal note, draft session, শেয়ার না করা assessment ও draft invoice কখনো portal-এ যায় না (test দিয়ে যাচাই); ১৪৫টি test পাস। |
 | ✅ | ১৪ | Reports + Dashboard charts + Notifications — ০৬ অক্টো ২০২৬: **১২টি report** (§২০): Operational (দিনভিত্তিক appointment, finalize না হওয়া session note), Training (class অনুযায়ী উপস্থিতি %, trainer অনুযায়ী record), Therapy (therapist অনুযায়ী session ও no-show %, service-এর ব্যবহার ও আয়), Clinical (programme অনুযায়ী লক্ষ্য অর্জন), Management (নতুন registration ও enrollment-এর ধারা, branch তুলনা), Financial (training বনাম therapy আয়, payment method অনুযায়ী collection, বকেয়ার বয়স ০–৩০/৩১–৬০/৬১–৯০/৯০+); তারিখ ও branch filter, table + chart, **PDF ও Excel (CSV, বাংলা ঠিক থাকে)** export, export audit log-এ; টাকার report শুধু financial permission-এ, সব report নিজের branch-এ সীমিত; **Dashboard:** ৬ মাসের chart (আয়, training বনাম therapy enrollment, নতুন registration, therapy session, training উপস্থিতি %) ও **"Needs attention"** তালিকা (নতুন অনুরোধ, নিশ্চিত না হওয়া appointment, বাকি session note, নবায়নের package, সবচেয়ে বেশি বকেয়া) — role অনুযায়ী; **Notifications:** অভিভাবকের কাছে বাংলায় স্বয়ংক্রিয় বার্তা (নতুন/বাতিল appointment, আগের দিন সন্ধ্যা ৬টায় reminder, নতুন বিল, পেমেন্ট গ্রহণ, রিপোর্ট শেয়ার, package প্রায় শেষ), staff-এর কাছে (voucher ও payroll অনুমোদনের অপেক্ষা — প্রস্তুতকারী নিজে নয়, cash গ্রহণের অপেক্ষা, package নবায়ন, therapist-কে সকাল ৮টায় বাকি note-এর reminder); in-app bell (admin, trainer, therapist ও বাংলায় parent portal) + email (ঠিকানা থাকলে, setting দিয়ে বন্ধ করা যায়); **ঘোষণা পাঠানো** (অভিভাবক / staff / সবাই, branch অনুযায়ী, পাঠানোর আগে কতজন পাবে দেখা যায়, পাঠানোর ইতিহাস); SMS/WhatsApp gateway পরে যুক্ত হবে; ১৫৩টি test পাস। |
 | ✅ | ১৫ | **Accounts C** — Vendor/Payables, Bank Reconciliation, Fixed Assets, Budget, Year-end — ০৭ অক্টো ২০২৬: **Vendor ও Payables** (সরবরাহকারীর তালিকা, go-live-এর আগের পাওনা opening balance হিসেবে; vendor bill `VB-2026-00001` — একাধিক খরচ/সম্পদের খাত, due date; পরিশোধ `VP-2026-00001` cash/ব্যাংক/bKash থেকে — পুরনো bill আগে শোধ হয়; শুধু অপরিশোধিত bill কারণসহ void; কত দিন ধরে বকেয়া (০–৩০/৩১–৬০/৬০+)); **Bank Reconciliation** (ব্যাংক statement CSV import, একই অঙ্ক ও ±৫ দিনের মধ্যে স্বয়ংক্রিয় মিল, হাতে মিলানো, ব্যাংক charge বা সুদ এক click-এ হিসাবে post; বইয়ের balance, outstanding ও পার্থক্য দেখায় — পার্থক্য ০ হলে তবেই complete); **Fixed Assets** (`FA-2026-001`, কেনার তারিখ, দাম, আয়ুষ্কাল ও residual value; ব্যাংক/cash থেকে কেনা বা go-live-এর আগের সম্পদ; মাসিক straight-line **depreciation** — বাদ পড়া মাসগুলোসহ এক entry-তে; বিক্রি/বাতিল করলে লাভ বা ক্ষতি নিজে থেকে post); **Budget** (বছরের, খাত অনুযায়ী মাসিক ভাগ, **Budget বনাম আসল** — কত % খরচ হয়েছে); **Cash Flow statement** (operating / investing / financing, PDF); **Year-end closing** (১২ মাস বন্ধ হলে তবেই; আয়-ব্যয়ের balance branch অনুযায়ী Retained Earnings-এ যায়; closing-এর পরও সেই বছরের P&L দেখা যায়); Periods page-এ বছর বাছাই; ১৫৮টি test পাস। *Vendor, সম্পদ, budget ও ব্যাংক statement সব demo।* |
-| ⬜ | ১৬ | Security hardening, Testing, UAT — **সাথে পূর্ণ Admin menu (§২)**: ✅ নতুন sidebar (১৭টি অংশ, খোঁজা, permission অনুযায়ী, menu থেকে সরাসরি filter); ⬜ "soon" চিহ্নিত page-গুলো (Activity Logs, Settings, Enrollments, Calendar/Queue, Guardians/Documents/Consents, Rooms, Leave ইত্যাদি) |
+| ✅ | ১৬ | Security hardening, Testing, UAT + **পূর্ণ Admin menu (§২)** — ০৭ অক্টো ২০২৬: **Menu:** আপনার দেওয়া কাঠামো অনুযায়ী ১৭টি অংশ, খোলা/বন্ধ করা যায়, "Find a page…" দিয়ে খোঁজা, permission অনুযায়ী দেখায়, menu থেকে সরাসরি filter/tab (যেমন Payment Vouchers, Expiring Packages, Session Notes); **১৪৬টি link-এর প্রতিটি browser দিয়ে খুলে যাচাই — কোনো ত্রুটি নেই**। **নতুন page:** Appointments (All, Calendar — মাস/সপ্তাহ, Check-in / Queue — নিজে থেকে হালনাগাদ), Patients (Guardians, Documents, Consents — consent ছাড়া শিশুর তালিকা, Patient Timeline), Training (Dashboard, Schedules, Attendance, Sessions, Activities, ITP), Therapy (Dashboard, Services — দাম ও সময়, Therapist Schedule — সপ্তাহ, ছুটি ও বুকিং, Home Programs, Progress Reports), Assessments (New, Types, Templates — লেখা finding থাকলে section মোছা যায় না, Recommendations), Enrollments (সব, ধরন/অবস্থা অনুযায়ী, Transfer History), Packages (Package Usage, Expiring), Billing (Dashboard, Receipts, Refunds, Payment Allocations, Discounts), Accounts (Bills / Payables, Employee Advances, Bank Accounts — নতুন ব্যাংক/বিকাশ হিসাব যোগ), Staff (Employee Profiles, Salary Structures, **Leave / Absence** — therapist-এর ছুটি দিলে ওই দিন booking বন্ধ, Staff Assignments), Branches (Rooms, Services by Branch, Staff by Branch), Reports (Patients, Enrollments, Assessments, Staff workload — PDF/Excel), Website / CMS (Dashboard, Pages — menu ও Google-এ শিরোনাম, Page Sections — home page-এর অংশের ক্রম ও লুকানো, Branches, SEO — পরীক্ষার সময় search engine থেকে লুকানো, Search Console, Analytics), Notifications (Notification Center, **Templates** — অভিভাবকের বাংলা বার্তার লেখা বদলানো যায়, Logs), Users (Permission matrix, Branch Access), **Activity Logs** (System, Login History, Patient Activity, Clinical Access, Audit — CSV), **Settings** (General, Center Information — সব PDF-এ, Patient ID format, Appointment — late cancel ঘণ্টা ও কত সপ্তাহ আগে বুক, PDF — কাগজ/রং/footer, Security, Backup, System — go-live checklist)। **Security (§২১):** security header, idle timeout ও মেয়াদ শেষে নিজে থেকে login page, password নিয়ম ও login-চেষ্টার সীমা Settings থেকে, প্রতিটি API route-এ sign-in লাগে তা test দিয়ে পাহারা, প্রতিদিন database backup (restore করে যাচাই), composer/npm audit — কোনো দুর্বলতা নেই। **UAT:** [docs/C-STAR-UAT-BN.md](docs/C-STAR-UAT-BN.md) — role অনুযায়ী ৬০টি পরীক্ষা, সমস্যার তালিকা ও sign-off; **আপনার team-এর পরীক্ষা ও স্বাক্ষর বাকি**। ১৮৪টি test পাস। |
 | ⬜ | ১৭ | cPanel deployment, staff training, go-live |
 
 ---
@@ -261,7 +261,7 @@ PATIENT (একজন শিশু — একটি profile)
 
 ### Admin / Staff Panel (`/app`)
 
-০৭ অক্টোবর ২০২৬-এ আপনার দেওয়া পূর্ণ menu অনুযায়ী sidebar নতুন করে সাজানো হয়েছে। প্রতিটি অংশ খোলা/বন্ধ করা যায়, উপরে "Find a page…" দিয়ে খোঁজা যায়, আর প্রত্যেকে শুধু নিজের permission-এর অংশগুলো দেখেন। কোনো menu-তে click করলে page-টি সঠিক tab বা filter বাছাই করা অবস্থায় খোলে (যেমন Payment Vouchers → শুধু PV)। যেগুলোর page এখনো তৈরি হয়নি সেগুলোর পাশে "soon" লেখা — সেগুলো Sprint ১৬-এ তৈরি হবে।
+০৭ অক্টোবর ২০২৬-এ আপনার দেওয়া পূর্ণ menu অনুযায়ী sidebar নতুন করে সাজানো হয়েছে এবং Sprint ১৬-এ প্রতিটি menu-র page তৈরি হয়েছে। প্রতিটি অংশ খোলা/বন্ধ করা যায়, উপরে "Find a page…" দিয়ে খোঁজা যায়, আর প্রত্যেকে শুধু নিজের permission-এর অংশগুলো দেখেন। কোনো menu-তে click করলে page-টি সঠিক tab বা filter বাছাই করা অবস্থায় খোলে (যেমন Payment Vouchers → শুধু PV)।
 
 ```
 Dashboard
@@ -862,6 +862,21 @@ Report শুধু permission অনুযায়ী (accountant → financia
 | Backup | প্রতিদিন database dump (cron) + সাপ্তাহিক file backup, server-এর বাইরে কপি |
 | Parent isolation | `/portal` route শুধু `patient_guardians` link দিয়ে query — অন্য child-এর ID দিলে 403/404 |
 
+**Sprint ১৬-এ যা যুক্ত/যাচাই হয়েছে (০৭ অক্টো ২০২৬):**
+
+| বিষয় | ব্যবস্থা |
+|---|---|
+| Security header | প্রতিটি response-এ `X-Content-Type-Options: nosniff`, `X-Frame-Options: SAMEORIGIN`, `Referrer-Policy`, `Permissions-Policy`; HTTPS হলে HSTS; API response কখনো cache হয় না (`Cache-Control: private, no-store`) |
+| Session | Idle timeout Settings → Security থেকে (default ১২০ মিনিট); মেয়াদ শেষ হলে app নিজেই login page-এ নিয়ে যায় — screen-এ কোনো শিশুর তথ্য থেকে যায় না |
+| Password | ন্যূনতম দৈর্ঘ্য ও symbol বাধ্যতামূলক কিনা Settings থেকে (সবসময় অক্ষর + সংখ্যা); password বদল audit log-এ |
+| Login | মিনিটে কতবার চেষ্টা করা যাবে Settings থেকে (default ৫); Login History-তে ৫+ ব্যর্থ চেষ্টার IP আলাদা দেখায় |
+| Activity Logs | System Activity, Login History, Patient Activity (এক শিশুর সব ঘটনা), Clinical Access, Audit Logs — filter ও CSV export (export-ও log হয়); branch admin শুধু নিজের branch |
+| Route guard test | একটি test নিশ্চিত করে `/api/v1`-এর login ছাড়া প্রতিটি route-এ sign-in লাগে — নতুন route ভুলে খোলা থাকলে test fail করবে |
+| Backup | প্রতিদিন রাত ২:৩০-এ database backup (PHP দিয়ে, mysqldump লাগে না), N দিন রাখা, Super Admin download করতে পারেন (log হয়); restore phpMyAdmin-এ import করে — **নমুনা backup আলাদা database-এ restore করে সব table ও হিসাব মিলিয়ে দেখা হয়েছে** |
+| Go-live checklist | Settings → System: debug বন্ধ, production mode, HTTPS, secure cookie, cron চলছে, ২ দিনের মধ্যে backup, demo account নেই, email চালু — কোনটা বাকি তা দেখায় |
+| Dependency audit | `composer audit` ও `npm audit` — কোনো জানা দুর্বলতা নেই (০৭ অক্টো ২০২৬) |
+| Website | পরীক্ষার সময় "search engine থেকে লুকানো" (robots.txt `Disallow: /` + `noindex`); go-live-এ বন্ধ করতে হবে |
+
 ---
 
 ## ২২. cPanel Deployment Architecture
@@ -1008,4 +1023,4 @@ SMS (BD gateway) · WhatsApp · Online Payment (bKash/SSLCommerz) · Email autom
 
 ---
 
-**পরবর্তী ধাপ:** Sprint ৩–১৫ শেষ। পরের কাজ Sprint ১৬ — Security hardening, Testing, UAT।
+**পরবর্তী ধাপ:** Sprint ৩–১৬ শেষ। এখন center-এর staff [UAT চেকলিস্ট](docs/C-STAR-UAT-BN.md) ধরে পরীক্ষা করবেন; গুরুতর সমস্যা ঠিক হলে ও sign-off হলে Sprint ১৭ — cPanel deployment, staff training, go-live।

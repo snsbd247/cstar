@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class PdfService
 {
-    public function __construct(private SiteSettings $settings) {}
+    public function __construct(private SiteSettings $settings, private SystemSettings $system) {}
 
     public function render(string $view, array $data, string $title): string
     {
@@ -22,7 +22,7 @@ class PdfService
 
         $mpdf = new Mpdf([
             'tempDir' => $tempDir,
-            'format' => 'A4',
+            'format' => $this->system->get('pdf', 'paper_size'),
             'margin_top' => 28,
             'margin_bottom' => 18,
             'margin_left' => 16,
@@ -33,14 +33,36 @@ class PdfService
             'autoLangToFont' => true,
         ]);
         $mpdf->SetTitle($title);
-        $mpdf->SetAuthor('C-STAR');
+        $doc = $this->letterhead();
+        $mpdf->SetAuthor($doc['short_name']);
 
-        $site = $this->settings->all();
+        $site = $doc;
         $mpdf->SetHTMLHeader(view('pdf.partials.header', ['site' => $site, 'title' => $title])->render());
         $mpdf->SetHTMLFooter(view('pdf.partials.footer', ['site' => $site])->render());
         $mpdf->WriteHTML(view($view, $data)->render());
 
         return $mpdf->Output('', 'S');
+    }
+
+    /**
+     * Letterhead for every PDF: names from Settings → General, contact lines from Center Information
+     * (falling back to the public website details), colour and footer from PDF Settings.
+     */
+    public function letterhead(): array
+    {
+        $web = $this->settings->all();
+        $center = $this->system->group('center');
+        $pick = fn (string $key) => $center[$key] !== '' ? $center[$key] : ($web[$key] ?? '');
+
+        return [
+            'short_name' => $this->system->get('general', 'center_short_name'),
+            'full_name' => $center['legal_name'] !== '' ? $center['legal_name'] : $this->system->get('general', 'center_full_name'),
+            'phone' => $pick('phone'), 'email' => $pick('email'), 'address' => $pick('address'),
+            'website' => $center['website'], 'registration_no' => $center['registration_no'], 'tin' => $center['tin'],
+            'color' => $this->system->get('pdf', 'brand_color'),
+            'footer_note' => $this->system->get('pdf', 'footer_note'),
+            'show_printed_date' => $this->system->flag('pdf', 'show_printed_date'),
+        ];
     }
 
     /** Inline PDF response (opens in the browser's viewer). */

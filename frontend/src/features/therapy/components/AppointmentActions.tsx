@@ -73,7 +73,7 @@ function CancelDialog({ appointment, onClose }: { appointment: Appointment; onCl
         <p className="text-sm text-slate-600">
           {appointment.patient?.name} · {appointment.service?.name} · {appointment.date} {appointment.start_time}
         </p>
-        <Field label="Reason" htmlFor="cancel_reason" hint="Cancelling less than 24 hours before counts as a late cancellation.">
+        <Field label="Reason" htmlFor="cancel_reason" hint="Cancelling close to the start (24 hours by default — Settings → Appointment) counts as a late cancellation.">
           <Input id="cancel_reason" value={reason} onChange={(e) => setReason(e.target.value)} />
         </Field>
         <div className="flex justify-end gap-2">

@@ -7,6 +7,7 @@ use App\Models\Branch;
 use App\Models\Service;
 use App\Models\User;
 use App\Services\SiteSettings;
+use App\Services\SystemSettings;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
@@ -15,6 +16,7 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rules\Password;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -36,10 +38,17 @@ class AppServiceProvider extends ServiceProvider
         // Super Admin passes every permission check. Record-level policies still run for everyone else.
         Gate::before(fn (User $user) => $user->hasRole(Role::SuperAdmin->value) ? true : null);
 
+        // Password rules from Settings → Security (always letters + numbers; length and symbols configurable).
+        Password::defaults(function () {
+            $rule = Password::min((int) SystemSettings::safe('security', 'password_min_length'))->letters()->numbers();
+
+            return SystemSettings::safe('security', 'password_require_symbol') === '1' ? $rule->symbols() : $rule;
+        });
+
         RateLimiter::for('login', function (Request $request) {
             $key = Str::lower((string) $request->input('login')).'|'.$request->ip();
 
-            return Limit::perMinute(5)->by($key);
+            return Limit::perMinute((int) SystemSettings::safe('security', 'login_attempts_per_minute'))->by($key);
         });
 
         RateLimiter::for('api', fn (Request $request) => Limit::perMinute(120)->by($request->user()?->id ?: $request->ip()));

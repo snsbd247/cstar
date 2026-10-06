@@ -17,6 +17,16 @@ class EnrollmentAssignment extends Model
         ];
     }
 
+    public function enrollment(): BelongsTo
+    {
+        return $this->belongsTo(Enrollment::class);
+    }
+
+    public function createdBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
     public function trainer(): BelongsTo
     {
         return $this->belongsTo(Trainer::class);

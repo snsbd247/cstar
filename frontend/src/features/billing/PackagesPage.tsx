@@ -217,7 +217,7 @@ function SoldPackages() {
   )
 }
 
-function BillingSettingsForm() {
+export function BillingSettingsForm() {
   const { data } = useBillingSettings()
   const { saveSettings } = useBillingMutations()
   if (!data) return <Spinner className="text-brand-600" />
@@ -252,7 +252,7 @@ function SettingsBody({ data, save }: { data: Record<string, string>; save: Retu
       </label>
       <label className="flex items-center gap-2 text-sm text-slate-700">
         <input type="checkbox" className="size-4 accent-brand-600" checked={v.late_cancel_deducts_package === '1'} onChange={(e) => set('late_cancel_deducts_package', e.target.checked ? '1' : '0')} />
-        Cancelling within 24 hours uses a package session
+        A late cancellation (inside the window set in Settings → Appointment) uses a package session
       </label>
       <div className="flex justify-end">
         <Button

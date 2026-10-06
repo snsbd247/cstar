@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\V1\Accounts\AccountListsController;
 use App\Http\Controllers\Api\V1\Accounts\AssetsBankBudgetController;
 use App\Http\Controllers\Api\V1\Accounts\CashClosingController;
 use App\Http\Controllers\Api\V1\Accounts\ExpenseController;
@@ -9,30 +10,39 @@ use App\Http\Controllers\Api\V1\Accounts\ReportController;
 use App\Http\Controllers\Api\V1\Accounts\SetupController;
 use App\Http\Controllers\Api\V1\Accounts\VendorController;
 use App\Http\Controllers\Api\V1\Accounts\VoucherController;
+use App\Http\Controllers\Api\V1\AuditLogController;
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\Billing\BillingAdminController;
 use App\Http\Controllers\Api\V1\Billing\InvoiceController;
 use App\Http\Controllers\Api\V1\Billing\PackageController;
 use App\Http\Controllers\Api\V1\Billing\PaymentController;
 use App\Http\Controllers\Api\V1\BranchController;
 use App\Http\Controllers\Api\V1\Cms\CmsContentController;
+use App\Http\Controllers\Api\V1\Cms\WebsitePagesController;
 use App\Http\Controllers\Api\V1\Cms\WebsiteSetupController;
 use App\Http\Controllers\Api\V1\DashboardController;
 use App\Http\Controllers\Api\V1\EnquiryInboxController;
 use App\Http\Controllers\Api\V1\EnrollmentController;
 use App\Http\Controllers\Api\V1\GuardianController;
 use App\Http\Controllers\Api\V1\LookupController;
+use App\Http\Controllers\Api\V1\NotificationAdminController;
 use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\PatientController;
 use App\Http\Controllers\Api\V1\PatientDocumentController;
+use App\Http\Controllers\Api\V1\PatientRecordsController;
 use App\Http\Controllers\Api\V1\Portal\PortalController;
 use App\Http\Controllers\Api\V1\ReportController as OperationalReportController;
 use App\Http\Controllers\Api\V1\RoleController;
+use App\Http\Controllers\Api\V1\SettingsController;
+use App\Http\Controllers\Api\V1\StaffAdminController;
 use App\Http\Controllers\Api\V1\Therapy\AppointmentController;
 use App\Http\Controllers\Api\V1\Therapy\AssessmentController;
 use App\Http\Controllers\Api\V1\Therapy\TherapistController;
+use App\Http\Controllers\Api\V1\Therapy\TherapyAdminController;
 use App\Http\Controllers\Api\V1\Therapy\TherapySessionController;
 use App\Http\Controllers\Api\V1\Training\IndividualPlanController;
 use App\Http\Controllers\Api\V1\Training\TrainerController;
+use App\Http\Controllers\Api\V1\Training\TrainingAdminController;
 use App\Http\Controllers\Api\V1\Training\TrainingAttendanceController;
 use App\Http\Controllers\Api\V1\Training\TrainingGroupController;
 use App\Http\Controllers\Api\V1\Training\TrainingOverviewController;
@@ -75,6 +85,11 @@ Route::prefix('v1')->group(function () {
 
         // Enrollments: one patient, many enrollments (training and/or therapy)
         Route::get('enrollments', [EnrollmentController::class, 'index']);
+        Route::get('enrollment-transfers', [EnrollmentController::class, 'transfers']);
+        Route::get('records/guardians', [PatientRecordsController::class, 'guardians']);
+        Route::get('records/documents', [PatientRecordsController::class, 'documents']);
+        Route::get('records/consents', [PatientRecordsController::class, 'consents']);
+        Route::get('records/timeline', [PatientRecordsController::class, 'timeline']);
         Route::post('enrollments', [EnrollmentController::class, 'store']);
         Route::get('enrollments/{enrollment}', [EnrollmentController::class, 'show']);
         Route::post('enrollments/{enrollment}/transfer', [EnrollmentController::class, 'transfer']);
@@ -82,6 +97,16 @@ Route::prefix('v1')->group(function () {
             ->whereIn('action', ['activate', 'hold', 'resume', 'complete', 'discontinue']);
 
         Route::get('dashboard', [DashboardController::class, 'summary']);
+        Route::get('settings', [SettingsController::class, 'index']);
+        Route::get('settings/system', [SettingsController::class, 'system']);
+        Route::post('settings/system/clear-cache', [SettingsController::class, 'clearCache']);
+        Route::get('settings/backups', [SettingsController::class, 'backups']);
+        Route::post('settings/backups', [SettingsController::class, 'createBackup'])->middleware('throttle:5,60');
+        Route::get('settings/backups/{name}', [SettingsController::class, 'downloadBackup']);
+        Route::delete('settings/backups/{name}', [SettingsController::class, 'deleteBackup']);
+        Route::put('settings/{group}', [SettingsController::class, 'update']);
+        Route::get('audit-logs', [AuditLogController::class, 'index']);
+        Route::get('audit-logs/options', [AuditLogController::class, 'options']);
         Route::get('reports', [OperationalReportController::class, 'index']);
         Route::get('reports/{key}', [OperationalReportController::class, 'show']);
         Route::get('lookups/enrollment-options', [LookupController::class, 'enrollmentOptions']);
@@ -109,6 +134,26 @@ Route::prefix('v1')->group(function () {
         Route::post('enrollments/{enrollment}/plans', [IndividualPlanController::class, 'store']);
         Route::put('plans/{plan}', [IndividualPlanController::class, 'update']);
 
+        // Training / Therapy / Assessments menu pages (Sprint 16).
+        Route::get('training/dashboard', [TrainingAdminController::class, 'dashboard']);
+        Route::get('training/schedule', [TrainingAdminController::class, 'schedule']);
+        Route::get('training/attendance-day', [TrainingAdminController::class, 'attendance']);
+        Route::get('training/sessions', [TrainingAdminController::class, 'sessions']);
+        Route::get('activity-types', [TrainingAdminController::class, 'activities']);
+        Route::post('activity-types', [TrainingAdminController::class, 'storeActivity']);
+        Route::put('activity-types/{activityType}', [TrainingAdminController::class, 'updateActivity']);
+        Route::get('plans', [TrainingAdminController::class, 'plans']);
+        Route::get('therapy/dashboard', [TherapyAdminController::class, 'dashboard']);
+        Route::get('therapy/schedule', [TherapyAdminController::class, 'schedule']);
+        Route::get('therapy/home-programs', [TherapyAdminController::class, 'homePrograms']);
+        Route::get('therapy/progress-reports', [TherapyAdminController::class, 'progressReports']);
+        Route::get('service-catalog', [TherapyAdminController::class, 'services']);
+        Route::post('service-catalog', [TherapyAdminController::class, 'storeService']);
+        Route::put('service-catalog/{service}', [TherapyAdminController::class, 'updateService']);
+        Route::get('assessment-types', [TherapyAdminController::class, 'assessmentTypes']);
+        Route::post('assessment-types', [TherapyAdminController::class, 'saveAssessmentType']);
+        Route::put('assessment-types/{type}', [TherapyAdminController::class, 'saveAssessmentType']);
+        Route::get('assessment-recommendations', [TherapyAdminController::class, 'recommendations']);
         Route::get('training-records', [TrainingRecordController::class, 'index']);
         Route::get('training-records/{trainingRecord}', [TrainingRecordController::class, 'show']);
         Route::get('students', [TrainingOverviewController::class, 'students']);
@@ -168,6 +213,11 @@ Route::prefix('v1')->group(function () {
         Route::get('patients/{patient}/billing', [PaymentController::class, 'account']);
         Route::get('billing/dues', [PaymentController::class, 'dues']);
         Route::get('billing/collection', [PaymentController::class, 'collection']);
+        Route::get('billing/dashboard', [BillingAdminController::class, 'dashboard']);
+        Route::get('billing/payment-list', [BillingAdminController::class, 'payments']);
+        Route::get('billing/allocations', [BillingAdminController::class, 'allocations']);
+        Route::get('billing/discounts', [BillingAdminController::class, 'discounts']);
+        Route::get('package-usage', [BillingAdminController::class, 'packageUsage']);
 
         // Accounts (read-only until Accounts A): chart with balances, auto-posted journal
         Route::get('accounts/chart', [LedgerController::class, 'chart']);
@@ -210,6 +260,9 @@ Route::prefix('v1')->group(function () {
         Route::get('accounts/reports/cash-flow', [ReportController::class, 'cashFlow']);
 
         // Accounts C: vendors & payables, bank reconciliation, fixed assets, budgets, year-end
+        Route::get('accounts/vendor-bills', [AccountListsController::class, 'bills']);
+        Route::get('accounts/money-accounts', [AccountListsController::class, 'moneyAccounts']);
+        Route::post('accounts/money-accounts', [AccountListsController::class, 'storeMoneyAccount']);
         Route::get('accounts/vendors', [VendorController::class, 'index']);
         Route::post('accounts/vendors', [VendorController::class, 'store']);
         Route::get('accounts/vendors/{vendor}', [VendorController::class, 'show']);
@@ -234,6 +287,18 @@ Route::prefix('v1')->group(function () {
         Route::post('accounts/fiscal-years/{year}/close', [AssetsBankBudgetController::class, 'closeYear']);
 
         // Accounts B: employees, pay setup, advances, payroll, payslips
+        // Staff and Branches menu pages (Sprint 16).
+        Route::get('staff/leaves', [StaffAdminController::class, 'leaves']);
+        Route::post('staff/leaves', [StaffAdminController::class, 'storeLeave']);
+        Route::delete('staff/leaves/{leave}', [StaffAdminController::class, 'destroyLeave']);
+        Route::get('staff/assignments', [StaffAdminController::class, 'assignments']);
+        Route::get('hr/salary-structures', [StaffAdminController::class, 'structures']);
+        Route::get('hr/advances', [StaffAdminController::class, 'advances']);
+        Route::get('branches-overview/staff', [StaffAdminController::class, 'staffByBranch']);
+        Route::get('branches-overview/services', [StaffAdminController::class, 'servicesByBranch']);
+        Route::get('rooms', [StaffAdminController::class, 'rooms']);
+        Route::post('rooms', [StaffAdminController::class, 'saveRoom']);
+        Route::put('rooms/{room}', [StaffAdminController::class, 'saveRoom']);
         Route::get('hr/employees', [PayrollController::class, 'employees']);
         Route::get('hr/employee-options', [PayrollController::class, 'employeeOptions']);
         Route::post('hr/employees', [PayrollController::class, 'storeEmployee']);
@@ -286,6 +351,12 @@ Route::prefix('v1')->group(function () {
 
         // Website CMS
         Route::prefix('cms')->group(function () {
+            Route::get('dashboard', [WebsitePagesController::class, 'dashboard']);
+            Route::get('structure', [WebsitePagesController::class, 'structure']);
+            Route::put('pages', [WebsitePagesController::class, 'savePages']);
+            Route::put('home-sections', [WebsitePagesController::class, 'saveSections']);
+            Route::put('seo', [WebsitePagesController::class, 'saveSeo']);
+            Route::put('branches/{branch}', [WebsitePagesController::class, 'saveBranch']);
             Route::get('settings', [WebsiteSetupController::class, 'settings']);
             Route::put('settings', [WebsiteSetupController::class, 'updateSettings']);
             Route::get('services', [WebsiteSetupController::class, 'services']);
@@ -304,6 +375,12 @@ Route::prefix('v1')->group(function () {
         });
 
         Route::get('notifications', [NotificationController::class, 'index']);
+        Route::get('notifications/center', [NotificationAdminController::class, 'center']);
+        Route::get('notification-logs', [NotificationAdminController::class, 'logs']);
+        Route::get('notification-templates', [NotificationAdminController::class, 'templates']);
+        Route::put('notification-templates/{key}', [NotificationAdminController::class, 'saveTemplate']);
+        Route::get('branch-access', [NotificationAdminController::class, 'branchAccess']);
+        Route::put('branch-access/{user}', [NotificationAdminController::class, 'saveBranchAccess']);
         Route::post('notifications/read-all', [NotificationController::class, 'markAllRead']);
         Route::post('notifications/{id}/read', [NotificationController::class, 'markRead']);
         Route::get('announcements', [NotificationController::class, 'announcements']);

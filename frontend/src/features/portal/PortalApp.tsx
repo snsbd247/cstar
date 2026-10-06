@@ -210,9 +210,11 @@ function ScheduleBody({ child }: { child: Child }) {
       <Card className="p-4">
         <div className="flex items-center justify-between">
           <h2 className="font-semibold text-slate-900">আসন্ন অ্যাপয়েন্টমেন্ট</h2>
-          <Button variant="secondary" onClick={() => setAsking((x) => !x)}>
-            <CalendarPlus className="size-4" /> অনুরোধ
-          </Button>
+          {data.requests_enabled && (
+            <Button variant="secondary" onClick={() => setAsking((x) => !x)}>
+              <CalendarPlus className="size-4" /> অনুরোধ
+            </Button>
+          )}
         </div>
         {asking && <RequestForm childId={child.id} services={data.services} onDone={() => setAsking(false)} />}
         <div className="divide-y divide-slate-100">

@@ -11,6 +11,7 @@ use App\Models\Service;
 use App\Models\Testimonial;
 use App\Models\Therapist;
 use App\Models\Trainer;
+use App\Services\SiteSettings;
 use Illuminate\Http\Response;
 use Illuminate\View\View;
 
@@ -28,6 +29,7 @@ class WebsiteController extends Controller
             'faqs' => Faq::published()->limit(5)->get(),
             'notices' => Notice::onWebsite()->limit(3)->get(),
             'therapistCount' => $this->publicTherapists()->count(),
+            'homeSections' => app(SiteSettings::class)->homeSections(),
         ]);
     }
 
@@ -116,6 +118,9 @@ class WebsiteController extends Controller
     /** Keeps search engines out of the staff/parent apps and points them to the sitemap (absolute URL). */
     public function robots(): Response
     {
+        if (app(SiteSettings::class)->get('seo_noindex') === '1') {
+            return response("User-agent: *\nDisallow: /\n", 200, ['Content-Type' => 'text/plain']);
+        }
         $body = "User-agent: *\n"
             .collect(['/app', '/trainer', '/therapist', '/portal', '/login', '/api/', '/appointment/thank-you'])->map(fn ($p) => "Disallow: $p")->implode("\n")
             ."\n\nSitemap: ".route('sitemap')."\n";

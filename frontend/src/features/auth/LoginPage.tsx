@@ -65,6 +65,9 @@ export default function LoginPage() {
           <p className="font-bn mt-0.5 text-sm text-slate-500">অভিভাবকগণ মোবাইল নম্বর দিয়ে লগইন করুন</p>
 
           <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-5" noValidate>
+            {!error && new URLSearchParams(location.search).has('expired') && (
+              <Alert>You were signed out after a period of inactivity. Please sign in again. · নিষ্ক্রিয়তার কারণে লগআউট হয়েছে, আবার লগইন করুন।</Alert>
+            )}
             {error && <Alert>{error}</Alert>}
 
             <Field label="Email or mobile number" htmlFor="login" error={formState.errors.login?.message}>

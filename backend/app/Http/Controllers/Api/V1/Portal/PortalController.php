@@ -99,6 +99,7 @@ class PortalController extends Controller
                     'weekday' => $s->weekday, 'start_time' => substr($s->start_time, 0, 5), 'end_time' => substr($s->end_time, 0, 5),
                 ]),
             ] : null,
+            'requests_enabled' => app(\App\Services\SystemSettings::class)->flag('appointment', 'portal_requests_enabled'),
             'services' => Service::where('is_active', true)->where('is_bookable_online', true)->orderBy('sort_order')->get(['id', 'name', 'name_bn']),
         ]]);
     }
@@ -187,6 +188,7 @@ class PortalController extends Controller
     public function requestAppointment(Request $request, Patient $patient, IdGenerator $ids): JsonResponse
     {
         $this->authorizeChild($request, $patient);
+        abort_unless(app(\App\Services\SystemSettings::class)->flag('appointment', 'portal_requests_enabled'), 403, 'অনলাইনে appointment-এর অনুরোধ এখন বন্ধ আছে। অনুগ্রহ করে center-এ ফোন করুন।');
         $data = $request->validate([
             'service_id' => ['nullable', 'integer', Rule::exists('services', 'id')->where('is_active', true)],
             'preferred_date' => ['nullable', 'date', 'after_or_equal:today', 'before:+90 days'],

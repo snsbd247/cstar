@@ -80,8 +80,8 @@ class AppointmentService
             'cancel' => $changes += [
                 'cancelled_at' => now(),
                 'cancel_reason' => $data['reason'] ?? null,
-                // Decision D3: cancelling within 24 hours counts as a late cancellation (used by package rules).
-                'is_late_cancellation' => now()->diffInHours($appointment->startsAt(), false) < Appointment::LATE_CANCEL_HOURS,
+                // Decision D3: cancelling within the late-cancel window (Settings, default 24 hours) counts as a late cancellation (used by package rules).
+                'is_late_cancellation' => now()->diffInHours($appointment->startsAt(), false) < Appointment::lateCancelHours(),
             ],
             default => null,
         };
@@ -94,8 +94,10 @@ class AppointmentService
                 description: $data['reason'] ?? null, branchId: $appointment->branch_id, visibility: 'parent');
             $this->charges->appointmentMissed($appointment, $user);
             if ($action === 'cancel') {
-                app(NotificationService::class)->toParents($appointment->patient, 'appointment.cancelled', 'অ্যাপয়েন্টমেন্ট বাতিল',
-                    ($appointment->service->name_bn ?: $appointment->service->name).' — '.NotificationService::bnDate($appointment->date).($data['reason'] ?? null ? " ({$data['reason']})" : ''), '/portal/schedule');
+                app(NotificationService::class)->parentsTemplate($appointment->patient, 'appointment.cancelled', [
+                    'service' => $appointment->service->name_bn ?: $appointment->service->name, 'date' => NotificationService::bnDate($appointment->date),
+                    'reason' => ($data['reason'] ?? null) ? " ({$data['reason']})" : '',
+                ], '/portal/schedule');
             }
         }
 
@@ -207,8 +209,10 @@ class AppointmentService
                 "Appointment: {$service->name} with {$therapist->name}, {$start->format('d M, g:i A')}", $appointment,
                 branchId: $branchId, visibility: 'parent');
             // Recurring bookings are announced by the evening-before reminder instead.
-            app(NotificationService::class)->toParents($patient, 'appointment.booked', 'নতুন অ্যাপয়েন্টমেন্ট',
-                ($service->name_bn ?: $service->name).' — '.NotificationService::bnDate($start).', '.NotificationService::bnTime($start->format('H:i')).", {$therapist->name}", '/portal/schedule');
+            app(NotificationService::class)->parentsTemplate($patient, 'appointment.booked', [
+                'service' => $service->name_bn ?: $service->name, 'date' => NotificationService::bnDate($start),
+                'time' => NotificationService::bnTime($start->format('H:i')), 'therapist' => $therapist->name,
+            ], '/portal/schedule');
         }
 
         return $appointment;

@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 #[Fillable([
-    'user_id', 'action', 'auditable_type', 'auditable_id',
+    'user_id', 'action', 'auditable_type', 'auditable_id', 'patient_id',
     'old_values', 'new_values', 'ip_address', 'user_agent',
 ])]
 class AuditLog extends Model
@@ -26,6 +26,11 @@ class AuditLog extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function patient(): BelongsTo
+    {
+        return $this->belongsTo(Patient::class)->withTrashed();
     }
 
     public function auditable(): MorphTo

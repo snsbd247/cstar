@@ -3,9 +3,13 @@
         ['home', 'Home'], ['about', 'About'], ['services', 'Services'], ['therapists', 'Therapists'],
         ['trainers', 'Training'], ['branches', 'Branches'], ['faq', 'FAQ'], ['contact', 'Contact'],
     ];
+    $siteSettings = app(\App\Services\SiteSettings::class);
+    $hiddenPages = $siteSettings->navHidden();
+    $nav = array_values(array_filter($nav, fn ($item) => $item[0] === 'home' || ! in_array($item[0], $hiddenPages, true)));
+    $pageSeo = $siteSettings->pageSeo()[request()->route()?->getName() ?? ''] ?? [];
     $title = trim($__env->yieldContent('title'));
-    $fullTitle = $title ? "$title | C-STAR" : 'C-STAR — Center for Speech Therapy & Autism Rehabilitation';
-    $description = trim($__env->yieldContent('description')) ?: $site['hero_subtitle'];
+    $fullTitle = ! empty($pageSeo['title']) ? $pageSeo['title'] : ($title ? "$title | C-STAR" : 'C-STAR — Center for Speech Therapy & Autism Rehabilitation');
+    $description = ($pageSeo['description'] ?? '') ?: (trim($__env->yieldContent('description')) ?: ($site['seo_default_description'] ?: $site['hero_subtitle']));
 @endphp
 <!DOCTYPE html>
 <html lang="en">
@@ -15,6 +19,12 @@
     <title>{{ $fullTitle }}</title>
     <meta name="description" content="{{ \Illuminate\Support\Str::limit(strip_tags($description), 160) }}">
     <link rel="canonical" href="{{ url()->current() }}">
+    @if ($site['seo_noindex'] === '1')
+        <meta name="robots" content="noindex, nofollow">
+    @endif
+    @if ($site['google_site_verification'])
+        <meta name="google-site-verification" content="{{ $site['google_site_verification'] }}">
+    @endif
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="C-STAR">
     <meta property="og:title" content="{{ $fullTitle }}">
@@ -26,6 +36,10 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600&family=Inter:wght@400;500;600;700&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @if ($site['google_analytics_id'] && $site['seo_noindex'] !== '1')
+        <script async src="https://www.googletagmanager.com/gtag/js?id={{ $site['google_analytics_id'] }}"></script>
+        <script>window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', @json($site['google_analytics_id']));</script>
+    @endif
     <script type="application/ld+json">
         {!! json_encode(array_filter([
             '@context' => 'https://schema.org',

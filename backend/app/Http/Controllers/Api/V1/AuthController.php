@@ -65,6 +65,7 @@ class AuthController extends Controller
             'password' => $request->input('password'),
             'must_change_password' => false,
         ]);
+        AuditLogger::log('password_changed', $request->user());
 
         return response()->json(['message' => 'Password changed.']);
     }

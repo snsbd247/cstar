@@ -1,6 +1,6 @@
 import { ChevronLeft, ChevronRight, Plus } from 'lucide-react'
 import { useState } from 'react'
-import { Link } from 'react-router'
+import { Link, useSearchParams } from 'react-router'
 import { Button } from '../../components/ui/Button'
 import { Card, PageHeader } from '../../components/ui/Card'
 import { Input, Select } from '../../components/ui/Field'
@@ -20,7 +20,9 @@ function shift(date: string, days: number) {
 /** Day board for the front desk: every therapist's appointments for one date. */
 export default function AppointmentsPage() {
   const { can } = useAuth()
-  const [date, setDate] = useState(todayISO())
+  const [params] = useSearchParams()
+  // The calendar and lists link here with ?date=YYYY-MM-DD.
+  const [date, setDate] = useState(params.get('date') ?? todayISO())
   const [therapistId, setTherapistId] = useState<number | undefined>()
   const [booking, setBooking] = useState(false)
   const { data: therapists } = useTherapists()
@@ -30,7 +32,7 @@ export default function AppointmentsPage() {
   return (
     <>
       <PageHeader
-        title="Appointments"
+        title={date === todayISO() ? "Today's Appointments" : 'Appointments'}
         description="Therapy appointments by therapist. Students' class attendance is separate."
         actions={
           can('appointments.manage') && (

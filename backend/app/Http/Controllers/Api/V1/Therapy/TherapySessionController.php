@@ -171,7 +171,7 @@ class TherapySessionController extends Controller
     public function generate(Request $request, Enrollment $enrollment, AppointmentService $appointments): JsonResponse
     {
         Gate::authorize('update', $enrollment);
-        $weeks = $request->validate(['weeks' => ['nullable', 'integer', 'between:1,12']])['weeks'] ?? 4;
+        $weeks = $request->validate(['weeks' => ['nullable', 'integer', 'between:1,12']])['weeks'] ?? app(\App\Services\SystemSettings::class)->int('appointment', 'recurring_weeks');
 
         return response()->json(['data' => $appointments->generateRecurring($enrollment, $request->user(), $weeks)]);
     }

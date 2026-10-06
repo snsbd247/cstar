@@ -98,9 +98,7 @@ function Periods() {
   const { data: periodData } = usePeriods(yearStart)
   const periods = periodData?.data
   const year = periodData?.year
-  const { data: settings } = useAccountSettings()
-  const { periodAction, saveSettings } = useAccountsMutations()
-  const [limit, setLimit] = useState<string | null>(null)
+  const { periodAction } = useAccountsMutations()
   const qc = useQueryClient()
   const closeYear = useMutation({
     mutationFn: (id: number) => api.post(`/accounts/fiscal-years/${id}/close`),
@@ -171,18 +169,30 @@ function Periods() {
           ))}
         </ul>
       </Card>
-      <Card className="h-fit space-y-3 p-5">
-        <h3 className="font-semibold text-slate-900">Approval limit</h3>
-        <p className="text-sm text-slate-500">Vouchers and expenses up to this amount post without a second person.</p>
-        <Input type="number" min={0} disabled={!can('settings.manage')} value={limit ?? settings?.approval_limit ?? ''} onChange={(e) => setLimit(e.target.value)} aria-label="Approval limit" />
-        {saveSettings.isSuccess && <Alert tone="green">Saved.</Alert>}
-        {can('settings.manage') && (
-          <Button loading={saveSettings.isPending} disabled={limit === null} onClick={() => saveSettings.mutate({ approval_limit: Number(limit) })}>
-            Save
-          </Button>
-        )}
-      </Card>
+      <ApprovalLimitCard />
     </div>
+  )
+}
+
+/** Maker-checker limit (Accounts §৪) — also shown under Settings → Accounts. */
+export function ApprovalLimitCard() {
+  const { can } = useAuth()
+  const { data: settings } = useAccountSettings()
+  const { saveSettings } = useAccountsMutations()
+  const [limit, setLimit] = useState<string | null>(null)
+
+  return (
+    <Card className="h-fit space-y-3 p-5">
+      <h3 className="font-semibold text-slate-900">Approval limit</h3>
+      <p className="text-sm text-slate-500">Vouchers and expenses up to this amount post without a second person.</p>
+      <Input type="number" min={0} disabled={!can('settings.manage')} value={limit ?? settings?.approval_limit ?? ''} onChange={(e) => setLimit(e.target.value)} aria-label="Approval limit" />
+      {saveSettings.isSuccess && <Alert tone="green">Saved.</Alert>}
+      {can('settings.manage') && (
+        <Button loading={saveSettings.isPending} disabled={limit === null} onClick={() => saveSettings.mutate({ approval_limit: Number(limit) })}>
+          Save
+        </Button>
+      )}
+    </Card>
   )
 }
 

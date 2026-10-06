@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\PatientStatus;
+use App\Models\Branch;
 use App\Models\Guardian;
 use App\Models\Patient;
 use App\Models\PatientClinicalProfile;
@@ -18,7 +19,37 @@ class PatientService
     public function __construct(
         private IdGenerator $ids,
         private TimelineService $timeline,
+        private SystemSettings $settings,
     ) {}
+
+    /**
+     * Patient ID from Settings → Patient ID: PREFIX[-BRANCH][-YEAR]-NNNNN. With the branch code each branch counts on its own.
+     * Codes are unique in the table; after a format change an old code could in theory repeat, so we skip ahead.
+     */
+    public function nextCode(int $branchId, bool $preview = false): string
+    {
+        $cfg = $this->settings->group('patient_id');
+        $prefix = $cfg['prefix'];
+        $key = 'patient';
+        if ($cfg['include_branch_code'] === '1' && ($code = Branch::whereKey($branchId)->value('code'))) {
+            $prefix .= '-'.strtoupper($code);
+            $key .= ':'.$branchId;
+        }
+        $digits = (int) $cfg['digits'];
+        $withYear = $cfg['include_year'] === '1';
+
+        if ($preview) {
+            $number = str_pad('1', $digits, '0', STR_PAD_LEFT);
+
+            return $withYear ? $prefix.'-'.now()->year.'-'.$number : "{$prefix}-{$number}";
+        }
+
+        do {
+            $code = $this->ids->next($key, $prefix, $digits, null, $withYear);
+        } while (Patient::withTrashed()->where('patient_code', $code)->exists());
+
+        return $code;
+    }
 
     /**
      * Registers a child: patient + clinical profile + diagnoses + primary guardian + consents, in one transaction.
@@ -29,7 +60,7 @@ class PatientService
         return DB::transaction(function () use ($data, $actor, $photo) {
             $patient = Patient::create([
                 ...Arr::except($data, ['clinical', 'diagnosis_ids', 'guardian', 'consents', 'photo']),
-                'patient_code' => $this->ids->next('patient', 'CSTAR'),
+                'patient_code' => $this->nextCode((int) $data['home_branch_id']),
                 'registration_date' => $data['registration_date'] ?? today(),
                 'status' => PatientStatus::Active,
                 'created_by' => $actor->id,

@@ -41,8 +41,12 @@ class AppointmentController extends Controller
             ->when($request->filled('therapist_id'), fn ($q) => $q->where('therapist_id', $request->integer('therapist_id')))
             ->when($request->filled('patient_id'), fn ($q) => $q->where('patient_id', $request->integer('patient_id')))
             ->when($request->filled('status'), fn ($q) => $q->where('status', $request->input('status')))
+            ->when($request->filled('type'), fn ($q) => $q->where('type', $request->string('type')))
+            ->when($request->filled('q'), fn ($q) => $q->where(fn ($w) => $w->where('appointment_code', 'like', '%'.$request->string('q').'%')
+                ->orWhereHas('patient', fn ($p) => $p->where('name', 'like', '%'.$request->string('q').'%')->orWhere('patient_code', 'like', '%'.$request->string('q').'%'))))
             ->orderBy('date', $request->boolean('desc') ? 'desc' : 'asc')->orderBy('start_time')
-            ->paginate($request->integer('per_page', 50));
+            // The calendar asks for a whole month at once.
+            ->paginate(min($request->integer('per_page', 50), 500));
 
         return AppointmentResource::collection($appointments);
     }

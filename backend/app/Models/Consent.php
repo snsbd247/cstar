@@ -14,12 +14,19 @@ class Consent extends Model
 
     public const TYPES = ['treatment', 'photo_media', 'data_sharing'];
 
+    public const LABELS = ['treatment' => 'Treatment', 'photo_media' => 'Photo / video on website & social media', 'data_sharing' => 'Data sharing'];
+
     protected function casts(): array
     {
         return [
             'granted' => 'boolean',
             'signed_on' => 'date',
         ];
+    }
+
+    public function patient(): BelongsTo
+    {
+        return $this->belongsTo(Patient::class);
     }
 
     public function guardian(): BelongsTo

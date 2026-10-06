@@ -126,6 +126,7 @@ export const usePortalSchedule = (childId?: number) =>
     upcoming: PortalAppointment[]
     past: PortalAppointment[]
     class: { name: string; trainer: string | null; days: { weekday: number; start_time: string; end_time: string }[] } | null
+    requests_enabled: boolean
     services: { id: number; name: string; name_bn: string | null }[]
   }>(childId, 'schedule')
 

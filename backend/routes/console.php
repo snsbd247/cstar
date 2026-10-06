@@ -10,13 +10,16 @@ use App\Models\Branch;
 use App\Models\Enrollment;
 use App\Models\User;
 use App\Services\AppointmentService;
+use App\Services\BackupService;
 use App\Services\ChargeService;
 use App\Services\ExpenseService;
 use App\Services\NotificationService;
 use App\Services\PackageService;
+use App\Services\SystemSettings;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schedule;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules\Password;
@@ -30,14 +33,14 @@ Artisan::command('cstar:create-admin {--name=} {--email=} {--phone=}', function 
         'name' => $this->option('name') ?: $this->ask('Name'),
         'email' => $this->option('email') ?: $this->ask('Email'),
         'phone' => $this->option('phone') ?: $this->ask('Mobile (01XXXXXXXXX)'),
-        'password' => $this->secret('Password (min 8, letters + numbers)'),
+        'password' => $this->secret('Password (letters + numbers; length as in Settings → Security)'),
     ];
 
     $validator = Validator::make($data, [
         'name' => ['required', 'string', 'max:255'],
         'email' => ['required', 'email', 'unique:users,email'],
         'phone' => ['required', 'regex:/^01[3-9]\d{8}$/', 'unique:users,phone'],
-        'password' => ['required', Password::min(8)->letters()->numbers()],
+        'password' => ['required', Password::defaults()],
     ]);
 
     if ($validator->fails()) {
@@ -57,15 +60,16 @@ Artisan::command('cstar:create-admin {--name=} {--email=} {--phone=}', function 
     return 0;
 })->purpose('Create a C-STAR Super Admin account (use on the production server)');
 
-// Books the next four weeks of every active therapy enrollment's weekly slots (Plan §১৬ "Recurring").
+// Books the next N weeks (Settings → Appointment, default 4) of every active therapy enrollment's weekly slots (Plan §১৬ "Recurring").
 // Production runs this from the single cPanel cron: * * * * * php artisan schedule:run
-Artisan::command('cstar:generate-appointments {--weeks=4}', function (AppointmentService $appointments) {
+Artisan::command('cstar:generate-appointments {--weeks=}', function (AppointmentService $appointments) {
+    $weeks = (int) ($this->option('weeks') ?: SystemSettings::safe('appointment', 'recurring_weeks'));
     $system = User::role(Role::SuperAdmin->value)->orderBy('id')->firstOrFail();
     $created = 0;
 
     Enrollment::where('type', EnrollmentType::Therapy)->where('status', EnrollmentStatus::Active)->has('slots')
         ->each(function (Enrollment $enrollment) use ($appointments, $system, &$created) {
-            $result = $appointments->generateRecurring($enrollment, $system, (int) $this->option('weeks'));
+            $result = $appointments->generateRecurring($enrollment, $system, $weeks);
             $created += $result['created'];
             foreach ($result['skipped'] as $reason) {
                 $this->warn("{$enrollment->enrollment_code} skipped {$reason}");
@@ -109,8 +113,9 @@ Artisan::command('cstar:reminders {--type=all : parents | staff | all}', functio
         Appointment::with(['patient', 'service', 'therapist'])->whereDate('date', today()->addDay())
             ->whereIn('status', [AppointmentStatus::Pending->value, AppointmentStatus::Confirmed->value])->get()
             ->each(function (Appointment $a) use ($notify, &$sent) {
-                $sent += $notify->toParents($a->patient, 'appointment.reminder', 'আগামীকাল অ্যাপয়েন্টমেন্ট',
-                    ($a->service->name_bn ?: $a->service->name).' — '.NotificationService::bnTime(substr($a->start_time, 0, 5)).", {$a->therapist->name}", '/portal/schedule');
+                $sent += $notify->parentsTemplate($a->patient, 'appointment.reminder', [
+                    'service' => $a->service->name_bn ?: $a->service->name, 'time' => NotificationService::bnTime(substr($a->start_time, 0, 5)), 'therapist' => $a->therapist->name,
+                ], '/portal/schedule');
             });
         $this->info("Parent reminders: {$sent}");
     }
@@ -130,3 +135,20 @@ Artisan::command('cstar:reminders {--type=all : parents | staff | all}', functio
 
 Schedule::command('cstar:reminders --type=parents')->dailyAt('18:00');
 Schedule::command('cstar:reminders --type=staff')->dailyAt('08:00');
+
+// Plan §২১ Backup: database dump every night (Settings → Backup), old files removed after N days.
+Artisan::command('cstar:backup {--force : Run even when the daily backup is turned off}', function (BackupService $backups, SystemSettings $settings) {
+    if (! $this->option('force') && ! $settings->flag('backup', 'daily_enabled')) {
+        $this->info('Daily backup is turned off in Settings.');
+
+        return;
+    }
+    $file = $backups->create();
+    $removed = $backups->prune($settings->int('backup', 'keep_days'));
+    $this->info("Backup {$file['name']} (".number_format($file['size'] / 1024, 1)." KB); removed {$removed} old file(s).");
+})->purpose('Back up the database to storage/app/private/backups');
+
+Schedule::command('cstar:backup')->dailyAt('02:30');
+
+// Settings → System shows when the scheduler (cPanel cron) last ran, so a missing cron job is noticed.
+Schedule::call(fn () => Cache::forever('scheduler.heartbeat', now()->toIso8601String()))->everyMinute()->name('scheduler-heartbeat');

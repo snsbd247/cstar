@@ -94,7 +94,7 @@ class GuardianController extends Controller
             throw ValidationException::withMessages(['guardian' => 'This guardian already has a portal account.']);
         }
 
-        $request->validate(['password' => ['required', 'string', Password::min(8)->letters()->numbers()]]);
+        $request->validate(['password' => ['required', 'string', Password::defaults()]]);
         if (User::where('phone', $guardian->phone)->exists()) {
             throw ValidationException::withMessages(['phone' => 'Another account already uses this mobile number.']);
         }

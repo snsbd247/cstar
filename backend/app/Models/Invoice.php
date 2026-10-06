@@ -55,6 +55,11 @@ class Invoice extends Model
         return $this->hasMany(PaymentAllocation::class);
     }
 
+    public function issuer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'issued_by');
+    }
+
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');

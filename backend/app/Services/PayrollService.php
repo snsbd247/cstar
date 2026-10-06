@@ -54,9 +54,9 @@ class PayrollService
                 'status' => 'draft', 'prepared_by' => $user->id, 'notes' => $data['notes'] ?? null,
             ]);
             $this->calculate($run);
-            app(NotificationService::class)->toStaff(Permission::ACCOUNTS_PAYROLL_APPROVE, $run->branch_id, 'payroll.prepared',
-                "{$run->label()} is ready for approval", '৳'.number_format((float) $run->total_net)." net for {$run->items()->count()} staff (prepared by {$user->name})",
-                "/app/payroll/{$run->id}", $user->id);
+            app(NotificationService::class)->staffTemplate(Permission::ACCOUNTS_PAYROLL_APPROVE, $run->branch_id, 'payroll.prepared', [
+                'payroll' => $run->label(), 'amount' => '৳'.number_format((float) $run->total_net), 'staff_count' => $run->items()->count(), 'by' => $user->name,
+            ], "/app/payroll/{$run->id}", $user->id);
 
             return $run;
         });

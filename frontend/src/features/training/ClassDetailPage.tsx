@@ -1,6 +1,6 @@
 import { ArrowLeft } from 'lucide-react'
 import { useState } from 'react'
-import { Link, useParams } from 'react-router'
+import { Link, useParams, useSearchParams } from 'react-router'
 import { Card, PageHeader } from '../../components/ui/Card'
 import { Input } from '../../components/ui/Field'
 import { Spinner } from '../../components/ui/Spinner'
@@ -19,7 +19,8 @@ export default function ClassDetailPage() {
   const { can } = useAuth()
   const { data: cls } = useClass(classId)
   const { data: roster } = useRoster(classId)
-  const [date, setDate] = useState(todayISO())
+  const [params] = useSearchParams()
+  const [date, setDate] = useState(params.get('date') ?? todayISO())
   const [month, setMonth] = useState(todayISO().slice(0, 7))
   const { data: sheet } = useClassMonth(classId, month)
 

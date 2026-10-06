@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\ApplySecuritySettings;
 use App\Http\Middleware\EnsureUserIsActive;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -18,6 +19,8 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         // Sanctum SPA cookie auth: the React app is served from the same origin as /api.
         $middleware->statefulApi();
+        // Session timeout from Settings → Security must be known before the session starts.
+        $middleware->prepend(ApplySecuritySettings::class);
 
         $middleware->alias([
             'active' => EnsureUserIsActive::class,

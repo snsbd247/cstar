@@ -22,6 +22,7 @@ export interface Appointment {
   therapist?: { id: number; name: string }
   branch?: { id: number; name: string }
   session?: { id: number; status: 'draft' | 'final' } | null
+  checked_in_at?: string | null
 }
 
 export interface TherapySession {

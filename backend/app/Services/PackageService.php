@@ -83,10 +83,10 @@ class PackageService
                 $package->loadMissing(['package', 'patient']);
                 $left = $package->remaining();
                 $notify = app(NotificationService::class);
-                $notify->toParents($package->patient, 'package.low', $left ? 'প্যাকেজ প্রায় শেষ' : 'প্যাকেজ শেষ',
-                    ($package->package->name_bn ?: $package->package->name).($left ? ' — আর মাত্র ২টি সেশন বাকি।' : ' — সব সেশন ব্যবহার হয়েছে। নবায়নের জন্য রিসেপশনে যোগাযোগ করুন।'), '/portal/billing');
-                $notify->toStaff(Permission::INVOICES_MANAGE, $package->branch_id, 'package.low',
-                    "Package renewal: {$package->patient->name}", "{$package->package->name} — {$left} sessions left", "/app/patients/{$package->patient_id}?tab=billing");
+                $notify->parentsTemplate($package->patient, $left ? 'package.low' : 'package.finished',
+                    ['package' => $package->package->name_bn ?: $package->package->name, 'left' => NotificationService::bnNumber($left)], '/portal/billing', 'package.low');
+                $notify->staffTemplate(Permission::INVOICES_MANAGE, $package->branch_id, 'package.renewal',
+                    ['child' => $package->patient->name, 'package' => $package->package->name, 'left' => $left], "/app/patients/{$package->patient_id}?tab=billing", kind: 'package.low');
             }
 
             $appointment->loadMissing(['service', 'patient']);

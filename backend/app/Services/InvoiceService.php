@@ -96,8 +96,8 @@ class InvoiceService
             app(PaymentService::class)->applyAdvance($invoice->patient, $user, $invoice);
             $invoice->refresh();
             if ((float) $invoice->due_total > 0) {
-                app(NotificationService::class)->toParents($invoice->patient, 'invoice.issued', 'নতুন বিল',
-                    "{$invoice->invoice_no} — ".NotificationService::bnTaka((float) $invoice->due_total).' বকেয়া', '/portal/billing');
+                app(NotificationService::class)->parentsTemplate($invoice->patient, 'invoice.issued',
+                    ['invoice_no' => $invoice->invoice_no, 'amount' => NotificationService::bnTaka((float) $invoice->due_total)], '/portal/billing');
             }
 
             return $invoice->refresh();

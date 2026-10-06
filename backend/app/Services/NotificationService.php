@@ -83,6 +83,27 @@ class NotificationService
         return $this->send($this->staffWith($permission, $branchId, $exceptUserId), $kind, $title, $body, $url);
     }
 
+    /** Parent message from Notifications → Templates ({child} is always available). */
+    public function parentsTemplate(Patient $patient, string $template, array $vars, string $url = '/portal', ?string $kind = null): int
+    {
+        $message = app(NotificationTemplates::class)->render($template, ['child' => $patient->name, ...$vars]);
+
+        return $this->toParents($patient, $kind ?? $template, $message['title'], $message['body'], $url);
+    }
+
+    /** Staff message from Notifications → Templates. */
+    public function staffTemplate(string $permission, ?int $branchId, string $template, array $vars, string $url, ?int $exceptUserId = null, ?string $kind = null): int
+    {
+        $message = app(NotificationTemplates::class)->render($template, $vars);
+
+        return $this->toStaff($permission, $branchId, $kind ?? $template, $message['title'], $message['body'], $url, $exceptUserId);
+    }
+
+    public static function bnNumber(int|string $value): string
+    {
+        return strtr((string) $value, array_combine(range(0, 9), ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯']));
+    }
+
     /** "৳1,500" with Bangla digits for parent messages. */
     public static function bnTaka(float $amount): string
     {

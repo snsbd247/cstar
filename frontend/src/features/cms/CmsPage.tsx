@@ -5,19 +5,24 @@ import { useAuth } from '../../contexts/useAuth'
 import { cn } from '../../utils/cn'
 import { ContentManager } from './ContentManager'
 import { MessagesTab } from './MessagesTab'
+import { PagesTab, SectionsTab, SeoTab, WebsiteBranchesTab } from './PagesTabs'
 import { ServicesTab } from './ServicesTab'
 import { SettingsTab } from './SettingsTab'
 import { TeamTab } from './TeamTab'
 
 const tabs = [
   ['settings', 'Website', 'cms.manage'],
+  ['pages', 'Pages', 'cms.manage'],
+  ['sections', 'Page Sections', 'cms.manage'],
   ['services', 'Services', 'cms.manage'],
   ['team', 'Team', 'cms.manage'],
   ['testimonials', 'Testimonials', 'cms.manage'],
   ['faqs', 'FAQ', 'cms.manage'],
   ['gallery', 'Gallery', 'cms.manage'],
   ['notices', 'Notices', 'cms.manage'],
+  ['branches', 'Branches', 'cms.manage'],
   ['messages', 'Messages', 'appointment_requests.manage'],
+  ['seo', 'SEO', 'cms.manage'],
 ] as const
 
 const published = (item: Record<string, unknown>) => (item.is_published ? { label: 'Published', tone: 'green' as const } : { label: 'Hidden', tone: 'gray' as const })
@@ -55,6 +60,10 @@ export default function CmsPage() {
       </div>
 
       {tab === 'settings' && <SettingsTab />}
+      {tab === 'pages' && <PagesTab />}
+      {tab === 'sections' && <SectionsTab />}
+      {tab === 'branches' && <WebsiteBranchesTab />}
+      {tab === 'seo' && <SeoTab />}
       {tab === 'services' && <ServicesTab />}
       {tab === 'team' && <TeamTab />}
       {tab === 'testimonials' && (

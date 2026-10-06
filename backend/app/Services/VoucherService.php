@@ -76,9 +76,9 @@ class VoucherService
 
         $voucher->update(['status' => 'submitted', 'submitted_at' => now()]);
         $this->syncExpense($voucher);
-        app(NotificationService::class)->toStaff(Permission::ACCOUNTS_VOUCHER_APPROVE, $voucher->branch_id, 'voucher.submitted',
-            "Voucher {$voucher->voucher_no} needs approval", '৳'.number_format((float) $voucher->amount).' — '.$voucher->narration.' (by '.$user->name.')',
-            '/app/accounts/vouchers', $user->id);
+        app(NotificationService::class)->staffTemplate(Permission::ACCOUNTS_VOUCHER_APPROVE, $voucher->branch_id, 'voucher.submitted', [
+            'voucher_no' => $voucher->voucher_no, 'amount' => '৳'.number_format((float) $voucher->amount), 'narration' => $voucher->narration, 'by' => $user->name,
+        ], '/app/accounts/vouchers', $user->id);
 
         return $voucher;
     }

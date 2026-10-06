@@ -5,9 +5,12 @@ namespace App\Services;
 use App\Enums\AppointmentStatus;
 use App\Enums\EnrollmentStatus;
 use App\Enums\EnrollmentType;
+use App\Enums\PatientStatus;
 use App\Enums\Permission;
 use App\Models\Account;
 use App\Models\Appointment;
+use App\Models\Assessment;
+use App\Models\AssessmentRecommendation;
 use App\Models\Branch;
 use App\Models\Enrollment;
 use App\Models\Invoice;
@@ -15,6 +18,9 @@ use App\Models\JournalLine;
 use App\Models\Patient;
 use App\Models\Payment;
 use App\Models\PlanGoal;
+use App\Models\StaffLeave;
+use App\Models\Therapist;
+use App\Models\Trainer;
 use App\Models\TherapySession;
 use App\Models\TrainingAttendance;
 use App\Models\TrainingRecord;
@@ -41,6 +47,10 @@ class ReportService
         'collection' => ['Financial', 'Collection by payment method', Permission::REPORTS_FINANCIAL, ['branch']],
         'due-aging' => ['Financial', 'Due aging (receivables)', Permission::REPORTS_FINANCIAL, ['branch']],
         'branch-performance' => ['Management', 'Branch performance', Permission::REPORTS_FINANCIAL, []],
+        'patients' => ['Patients', 'Patients by branch, status and age', Permission::REPORTS_VIEW, ['branch']],
+        'enrollments' => ['Patients', 'Enrollments by programme', Permission::REPORTS_VIEW, ['branch']],
+        'assessments' => ['Clinical', 'Assessments & recommendations', Permission::REPORTS_VIEW, ['branch']],
+        'staff' => ['Staff', 'Staff workload', Permission::REPORTS_VIEW, ['branch']],
     ];
 
     private Carbon $from;
@@ -387,5 +397,111 @@ class ReportService
 
         return ['columns' => $columns, 'rows' => $rows, 'totals' => $this->totals($rows, $columns, 'child'), 'chart' => null,
             'note' => 'Due now, by how long each invoice is past its due date (date range not applied).'];
+    }
+
+    // ---- Sprint 16: patients, enrollments, assessments, staff -------------------------------------
+
+    private function patients(array $f): array
+    {
+        $patients = $this->inBranches(Patient::query(), 'home_branch_id')->get(['id', 'home_branch_id', 'status', 'gender', 'date_of_birth', 'registration_date']);
+        $branchNames = Branch::whereIn('id', $patients->pluck('home_branch_id')->unique())->pluck('name', 'id');
+        $age = fn ($p) => $p->date_of_birth ? (int) $p->date_of_birth->diffInYears($this->to) : null;
+
+        $rows = $patients->groupBy('home_branch_id')->map(fn ($list, $branchId) => [
+            'branch' => $branchNames[$branchId] ?? '—',
+            'active' => $list->where('status', PatientStatus::Active)->count(),
+            'on_hold' => $list->where('status', PatientStatus::OnHold)->count(),
+            'discharged' => $list->whereIn('status', [PatientStatus::Discharged, PatientStatus::Inactive])->count(),
+            'new' => $list->filter(fn ($p) => $p->registration_date?->between($this->from, $this->to))->count(),
+            'boys' => $list->where('gender', 'male')->count(),
+            'girls' => $list->where('gender', 'female')->count(),
+            'under3' => $list->filter(fn ($p) => $age($p) !== null && $age($p) < 3)->count(),
+            'age3to5' => $list->filter(fn ($p) => $age($p) !== null && $age($p) >= 3 && $age($p) <= 5)->count(),
+            'age6to10' => $list->filter(fn ($p) => $age($p) !== null && $age($p) >= 6 && $age($p) <= 10)->count(),
+            'over10' => $list->filter(fn ($p) => $age($p) !== null && $age($p) > 10)->count(),
+        ])->sortBy('branch')->values();
+        $columns = [$this->col('branch', 'Branch', 'text'), $this->col('active', 'Active'), $this->col('on_hold', 'On hold'), $this->col('discharged', 'Discharged / inactive'),
+            $this->col('new', 'Registered in period'), $this->col('boys', 'Boys'), $this->col('girls', 'Girls'), $this->col('under3', 'Under 3'),
+            $this->col('age3to5', '3–5 yrs'), $this->col('age6to10', '6–10 yrs'), $this->col('over10', 'Over 10')];
+
+        return ['columns' => $columns, 'rows' => $rows, 'totals' => $this->totals($rows, $columns, 'branch'),
+            'chart' => ['type' => 'bar', 'x' => 'branch', 'series' => [['key' => 'active', 'label' => 'Active'], ['key' => 'new', 'label' => 'New']]],
+            'note' => 'Status and age are as of the end date; "Registered in period" uses the date range.'];
+    }
+
+    private function enrollments(array $f): array
+    {
+        $enrollments = $this->inBranches(Enrollment::with(['therapyEnrollment.service:id,name']))->get(['id', 'type', 'status', 'start_date', 'end_date']);
+        $programme = fn ($e) => $e->type === EnrollmentType::Training ? 'Regular Training' : ($e->therapyEnrollment?->service?->name ?? 'Therapy');
+        $ended = fn ($e, EnrollmentStatus $status) => $e->status === $status && $e->end_date?->between($this->from, $this->to);
+
+        $rows = $enrollments->groupBy($programme)->map(fn ($list, $name) => [
+            'programme' => $name,
+            'active' => $list->filter(fn ($e) => $e->status === EnrollmentStatus::Active)->count(),
+            'pending' => $list->filter(fn ($e) => $e->status === EnrollmentStatus::Pending)->count(),
+            'on_hold' => $list->filter(fn ($e) => $e->status === EnrollmentStatus::OnHold)->count(),
+            'started' => $list->filter(fn ($e) => $e->start_date->between($this->from, $this->to))->count(),
+            'completed' => $list->filter(fn ($e) => $ended($e, EnrollmentStatus::Completed))->count(),
+            'discontinued' => $list->filter(fn ($e) => $ended($e, EnrollmentStatus::Discontinued))->count(),
+        ])->sortByDesc('active')->values();
+        $columns = [$this->col('programme', 'Programme', 'text'), $this->col('active', 'Active now'), $this->col('pending', 'Pending'), $this->col('on_hold', 'On hold'),
+            $this->col('started', 'Started in period'), $this->col('completed', 'Completed in period'), $this->col('discontinued', 'Discontinued in period')];
+
+        return ['columns' => $columns, 'rows' => $rows, 'totals' => $this->totals($rows, $columns, 'programme'),
+            'chart' => ['type' => 'bar', 'x' => 'programme', 'series' => [['key' => 'active', 'label' => 'Active'], ['key' => 'started', 'label' => 'Started']]]];
+    }
+
+    private function assessments(array $f): array
+    {
+        $list = $this->inBranches(Assessment::with(['type:id,name']))
+            ->whereBetween('date', [$this->from->toDateString(), $this->to->toDateString()])->get(['id', 'assessment_type_id', 'status', 'shared_with_parent']);
+        $recs = AssessmentRecommendation::whereIn('assessment_id', $list->pluck('id'))->get(['assessment_id', 'enrollment_id'])->groupBy('assessment_id');
+
+        $rows = $list->groupBy(fn ($a) => $a->type?->name ?? 'Other')->map(fn ($items, $type) => [
+            'type' => $type,
+            'written' => $items->count(),
+            'final' => $items->where('status', 'final')->count(),
+            'draft' => $items->where('status', 'draft')->count(),
+            'shared' => $items->where('shared_with_parent', true)->count(),
+            'recommended' => $items->sum(fn ($a) => ($recs[$a->id] ?? collect())->count()),
+            'enrolled' => $items->sum(fn ($a) => ($recs[$a->id] ?? collect())->whereNotNull('enrollment_id')->count()),
+        ])->sortByDesc('written')->values();
+        $columns = [$this->col('type', 'Assessment type', 'text'), $this->col('written', 'Written'), $this->col('final', 'Final'), $this->col('draft', 'Still draft'),
+            $this->col('shared', 'Shared with parents'), $this->col('recommended', 'Programmes recommended'), $this->col('enrolled', 'Enrolled from them')];
+
+        return ['columns' => $columns, 'rows' => $rows, 'totals' => $this->totals($rows, $columns, 'type'),
+            'chart' => ['type' => 'bar', 'x' => 'type', 'series' => [['key' => 'final', 'label' => 'Final'], ['key' => 'enrolled', 'label' => 'Enrolled']]]];
+    }
+
+    private function staff(array $f): array
+    {
+        $range = [$this->from->toDateString(), $this->to->toDateString()];
+        $appointments = $this->inBranches(Appointment::query())->whereBetween('date', $range)
+            ->selectRaw('therapist_id, status, COUNT(*) as n')->groupBy('therapist_id', 'status')->get()->groupBy('therapist_id');
+        $sessions = $this->inBranches(TherapySession::query())->where('status', 'final')->whereBetween('date', $range)
+            ->selectRaw('therapist_id, COUNT(*) as n')->groupBy('therapist_id')->pluck('n', 'therapist_id');
+        $assessments = $this->inBranches(Assessment::query())->whereBetween('date', $range)
+            ->selectRaw('therapist_id, COUNT(*) as n')->groupBy('therapist_id')->pluck('n', 'therapist_id');
+        $records = TrainingRecord::whereHas('session', fn ($s) => $this->inBranches($s)->whereBetween('date', $range))
+            ->selectRaw('trainer_id, COUNT(*) as n')->groupBy('trainer_id')->pluck('n', 'trainer_id');
+        $leave = StaffLeave::whereDate('start_date', '<=', $this->to)->whereDate('end_date', '>=', $this->from)->get(['employee_id', 'days'])
+            ->groupBy('employee_id')->map(fn ($rows) => $rows->sum('days'));
+
+        $therapistRows = Therapist::where('status', 'active')->orderBy('name')->get(['id', 'name', 'employee_id'])->map(function (Therapist $t) use ($appointments, $sessions, $assessments, $leave) {
+            $mine = ($appointments[$t->id] ?? collect())->mapWithKeys(fn ($r) => [(string) ($r->status->value ?? $r->status) => (int) $r->n]);
+
+            return ['name' => $t->name, 'role' => 'Therapist', 'booked' => $mine->except(['cancelled', 'rescheduled'])->sum(), 'done' => (int) ($sessions[$t->id] ?? 0),
+                'no_show' => (int) ($mine['no_show'] ?? 0), 'assessments' => (int) ($assessments[$t->id] ?? 0), 'records' => 0, 'leave_days' => (int) ($leave[$t->employee_id] ?? 0)];
+        });
+        $trainerRows = Trainer::where('status', 'active')->orderBy('name')->get(['id', 'name', 'employee_id'])->map(fn (Trainer $t) => [
+            'name' => $t->name, 'role' => 'Trainer', 'booked' => 0, 'done' => 0, 'no_show' => 0, 'assessments' => 0,
+            'records' => (int) ($records[$t->id] ?? 0), 'leave_days' => (int) ($leave[$t->employee_id] ?? 0),
+        ]);
+        $rows = $therapistRows->concat($trainerRows)->values();
+        $columns = [$this->col('name', 'Staff', 'text'), $this->col('role', 'Role', 'text'), $this->col('booked', 'Appointments'), $this->col('done', 'Sessions finalized'),
+            $this->col('no_show', 'No-shows'), $this->col('assessments', 'Assessments'), $this->col('records', 'Training records'), $this->col('leave_days', 'Leave days')];
+
+        return ['columns' => $columns, 'rows' => $rows, 'totals' => $this->totals($rows, $columns, 'name'),
+            'chart' => ['type' => 'bar', 'x' => 'name', 'series' => [['key' => 'done', 'label' => 'Sessions'], ['key' => 'records', 'label' => 'Training records']]]];
     }
 }

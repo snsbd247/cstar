@@ -48,6 +48,7 @@ export interface Enrollment {
   end_note: string | null
   notes: string | null
   branch?: { id: number; name: string; code: string }
+  patient?: { id: number; patient_code: string; name: string }
   training: { class: { id: number; name: string; code: string }; trainer: { id: number; name: string }; monthly_fee: string | null } | null
   therapy: {
     service: { id: number; name: string }

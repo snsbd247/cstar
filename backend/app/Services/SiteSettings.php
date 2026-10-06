@@ -30,6 +30,28 @@ class SiteSettings
         'map_embed_url' => '',
         'stat_children' => '',
         'stat_years' => '',
+        // Sprint 16 — Website / CMS → SEO, Pages and Page Sections.
+        'seo_default_description' => '',
+        'seo_noindex' => '0',              // 1 = ask search engines not to list the site (testing period)
+        'google_site_verification' => '',
+        'google_analytics_id' => '',
+        'nav_hidden' => '[]',              // JSON list of page keys left out of the top menu
+        'page_seo' => '{}',                // JSON {page: {title, description}}
+        'home_sections' => '',             // JSON [{key, visible}] in display order; empty = default
+    ];
+
+    /** Public pages that can be renamed for search engines; the first eight are in the top menu. */
+    public const PAGES = [
+        'home' => 'Home', 'about' => 'About', 'services' => 'Services', 'therapists' => 'Therapists', 'trainers' => 'Training',
+        'branches' => 'Branches', 'faq' => 'FAQ', 'contact' => 'Contact', 'gallery' => 'Gallery', 'notices' => 'Notices', 'appointment' => 'Book an appointment',
+    ];
+
+    public const MENU_PAGES = ['home', 'about', 'services', 'therapists', 'trainers', 'branches', 'faq', 'contact'];
+
+    public const HOME_SECTIONS = [
+        'hero' => 'Hero banner', 'stats' => 'Numbers strip', 'therapy' => 'Therapy services', 'training' => 'Regular training program',
+        'about' => 'About & why choose us', 'steps' => 'How it works', 'therapists' => 'Therapists', 'testimonials' => 'Parent testimonials',
+        'gallery' => 'Gallery', 'visit' => 'Branches & FAQ', 'notices' => 'Notice board',
     ];
 
     private const CACHE_KEY = 'settings.website';
@@ -40,6 +62,33 @@ class SiteSettings
         $stored = Cache::rememberForever(self::CACHE_KEY, fn () => Setting::where('group', 'website')->pluck('value', 'key')->all());
 
         return array_merge(self::DEFAULTS, array_intersect_key(array_filter($stored, fn ($v) => $v !== null), self::DEFAULTS));
+    }
+
+    /** @return list<array{key: string, label: string, visible: bool}> sections in display order (new sections appear at the end). */
+    public function homeSectionList(): array
+    {
+        $saved = collect(json_decode($this->get('home_sections'), true) ?: [])->filter(fn ($s) => isset(self::HOME_SECTIONS[$s['key'] ?? '']))->keyBy('key');
+        $order = $saved->keys()->merge(array_keys(self::HOME_SECTIONS))->unique();
+
+        return $order->map(fn ($key) => ['key' => $key, 'label' => self::HOME_SECTIONS[$key], 'visible' => (bool) ($saved[$key]['visible'] ?? true)])->values()->all();
+    }
+
+    /** @return list<string> keys of the home sections to show, in order */
+    public function homeSections(): array
+    {
+        return collect($this->homeSectionList())->where('visible', true)->pluck('key')->all();
+    }
+
+    /** @return array<string, array{title: string, description: string}> */
+    public function pageSeo(): array
+    {
+        return json_decode($this->get('page_seo'), true) ?: [];
+    }
+
+    /** @return list<string> */
+    public function navHidden(): array
+    {
+        return json_decode($this->get('nav_hidden'), true) ?: [];
     }
 
     public function get(string $key): string

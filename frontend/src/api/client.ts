@@ -23,6 +23,19 @@ export const api = axios.create({
   headers: { Accept: 'application/json' },
 })
 
+/**
+ * A signed-in page whose session ended (idle timeout from Settings → Security, or signed out elsewhere) gets 401,
+ * or 419 on a form post. Reload to the login page so no patient data stays on screen.
+ */
+api.interceptors.response.use(undefined, (error) => {
+  const status = error?.response?.status
+  const url: string = error?.config?.url ?? ''
+  if ((status === 401 || status === 419) && !/\/auth\/(me|login)$/.test(url) && !window.location.pathname.endsWith('/login')) {
+    window.location.assign(`${APP_BASE}/login?expired=1`)
+  }
+  return Promise.reject(error)
+})
+
 export function fetchCsrfCookie() {
   return axios.get(`${APP_BASE}/sanctum/csrf-cookie`, { withCredentials: true })
 }

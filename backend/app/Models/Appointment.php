@@ -23,8 +23,11 @@ class Appointment extends Model
 
     public const TYPES = ['assessment', 'therapy', 'consultation', 'follow_up'];
 
-    /** Cancelling closer than this to the start counts as a late cancellation (decision D3). */
-    public const LATE_CANCEL_HOURS = 24;
+    /** Cancelling closer than this to the start counts as a late cancellation (decision D3; Settings → Appointment). */
+    public static function lateCancelHours(): int
+    {
+        return app(\App\Services\SystemSettings::class)->int('appointment', 'late_cancel_hours');
+    }
 
     protected function casts(): array
     {
