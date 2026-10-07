@@ -291,7 +291,7 @@ function BranchSettings() {
 
 function LanguageInfo() {
   const rows = [
-    ['Staff panel, trainer and therapist apps', 'English', 'Clinical and accounting terms stay in English so staff and reports match.'],
+    ['Staff panel, trainer and therapist apps', 'English / বাংলা', 'Each person chooses with the বাংলা / English button at the top (kept on that device). Names, numbers and PDFs stay as they are.'],
     ['Parent portal', 'বাংলা', 'Decision D7 — parents read everything in Bangla, with Bangla numbers and dates.'],
     ['Messages to parents (in-app, email)', 'বাংলা', 'Appointment, bill, payment and report messages.'],
     ['Public website', 'English', 'Bangla page content can be written in Website / CMS.'],
@@ -301,7 +301,7 @@ function LanguageInfo() {
   return (
     <Card className="max-w-3xl p-5">
       <h2 className="font-semibold text-slate-900">Language</h2>
-      <p className="text-sm text-slate-500">Languages are fixed by the approved plan, so everyone sees the same wording.</p>
+      <p className="text-sm text-slate-500">Decision D7: staff screens in English with a Bangla switch; parents always in Bangla.</p>
       <table className="mt-3 w-full text-sm">
         <tbody className="divide-y divide-slate-100">
           {rows.map(([where, lang, note]) => (

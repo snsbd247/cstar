@@ -33,6 +33,11 @@ body {
   @apply bg-slate-50 text-slate-800 antialiased;
 }
 
+/* Staff screens in Bangla (Sprint 23): Bangla font first, Latin text and numbers keep the normal face. */
+.lang-bn body {
+  font-family: var(--font-sans), var(--font-bangla);
+}
+
 /* Bangla-first screens (parent portal) */
 .font-bn {
   font-family: var(--font-bangla);

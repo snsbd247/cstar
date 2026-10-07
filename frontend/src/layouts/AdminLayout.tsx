@@ -2,6 +2,7 @@ import { ChevronRight, LogOut, Menu, Search, X } from 'lucide-react'
 import { useState } from 'react'
 import { Link, Outlet, useLocation, useNavigate, useSearchParams } from 'react-router'
 import { Logo } from '../components/shared/Logo'
+import { LanguageToggle } from '../components/shared/LanguageToggle'
 import { NotificationBell } from '../components/shared/NotificationBell'
 import { useAuth } from '../contexts/useAuth'
 import { PatientQuickSearch } from '../features/patients/components/PatientQuickSearch'
@@ -49,6 +50,7 @@ export default function AdminLayout() {
 
       <div className="sticky top-14 z-20 flex items-center justify-between gap-3 border-b border-slate-200 bg-white/95 px-4 py-2 backdrop-blur sm:px-6 lg:top-0 lg:px-8">
         {can('patients.view') ? <PatientQuickSearch /> : <span />}
+        <LanguageToggle />
         <NotificationBell />
       </div>
 

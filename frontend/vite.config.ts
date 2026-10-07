@@ -1,5 +1,6 @@
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
+import { fileURLToPath } from 'node:url'
 import { defineConfig, loadEnv } from 'vite'
 
 const backend = 'http://127.0.0.1:8000'
@@ -14,7 +15,11 @@ export default defineConfig(({ command, mode }) => {
 
   return {
     base: command === 'build' ? `${appBase}/spa/` : '/',
-    plugins: [react(), tailwindcss()],
+    // Our JSX runtime translates staff-screen text when Bangla is chosen (src/i18n, Sprint 23).
+    plugins: [react({ jsxImportSource: '@cstar/i18n' }), tailwindcss()],
+    resolve: {
+      alias: { '@cstar/i18n': fileURLToPath(new URL('./src/i18n', import.meta.url)) },
+    },
     server: {
       port: 5173,
       proxy: {
