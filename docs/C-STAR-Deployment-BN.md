@@ -97,6 +97,8 @@ Terminal থেকেও একই checklist: `php artisan cstar:go-live-check`
 5. `cd ~/cstar-app && php artisan cstar:deploy` — নতুন table/permission যোগ হয়; আপনার বদলানো role, website-এর লেখা ও settings অপরিবর্তিত থাকে
 6. `php artisan up`
 
+> **মহড়া করা (০৭ অক্টো ২০২৬):** Sprint ১৭-এর package দিয়ে install করা server-এ (admin, বদলানো role, setting, website-এর লেখা ও একজন শিশুসহ) Sprint ২১-এর package বসিয়ে `cstar:deploy` চালানো হয়েছে — নতুন ৬টি table ও ২টি permission যোগ হয়েছে, বদলানো role/setting/লেখা ও শিশুর তথ্য অক্ষত, admin login ও নতুন সব পাতা browser-এ কাজ করেছে। পুরনো version-এর কোনো ফাইল মোছা হয়নি, তাই zip-এর উপর extract করাই যথেষ্ট।
+
 ## ৭. Backup ও ফেরত আনা (restore)
 
 - **প্রতিদিন রাত ২:৩০** database backup হয় `cstar-app/storage/app/private/backups/`-এ (*Settings → Backup*-এ কত দিন রাখা হবে)। সপ্তাহে অন্তত একবার একটি download করে server-এর বাইরে রাখুন।

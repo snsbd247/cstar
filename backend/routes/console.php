@@ -8,6 +8,7 @@ use App\Enums\UserStatus;
 use App\Models\Appointment;
 use App\Models\Branch;
 use App\Models\Enrollment;
+use App\Models\IndividualPlan;
 use App\Models\User;
 use App\Services\AppointmentService;
 use App\Services\BackupService;
@@ -130,8 +131,25 @@ Artisan::command('cstar:reminders {--type=all : parents | staff | all}', functio
                     'Finalize them so families see the summary and billing stays correct.', '/therapist');
             });
         $this->info("Therapist reminders: {$sent}");
+
+        // Sprint 22: plans (ITP / therapy plan) whose review date is near or past — once a week per plan until reviewed.
+        $sent = 0;
+        IndividualPlan::with(['patient:id,name', 'enrollment.therapyEnrollment.therapist.user', 'enrollment.trainingEnrollment.trainer.user'])
+            ->where('status', 'active')->whereNotNull('review_date')->whereDate('review_date', '<=', today()->addDays(7))
+            ->get()->filter(fn (IndividualPlan $p) => Cache::add("plan-review-reminded:{$p->id}", true, now()->addDays(7)))
+            ->groupBy(fn (IndividualPlan $p) => ($p->enrollment?->therapyEnrollment?->therapist?->user ?? $p->enrollment?->trainingEnrollment?->trainer?->user)?->id)
+            ->each(function ($plans, $userId) use ($notify, &$sent) {
+                $user = $userId ? User::find($userId) : null;
+                if (! $user) {
+                    return;
+                }
+                $names = $plans->map(fn ($p) => "{$p->patient->name} ({$p->review_date->format('j M')})")->take(5)->implode(', ');
+                $sent += $notify->send($user, 'plans.review_due', "{$plans->count()} plan(s) due for review", "{$names} — review the goals and set the next review date.",
+                    $user->hasRole(Role::Trainer->value) ? '/trainer/students' : '/therapist/patients');
+            });
+        $this->info("Plan review reminders: {$sent}");
     }
-})->purpose('Send appointment reminders to parents and pending-note reminders to therapists');
+})->purpose('Send appointment reminders to parents, and pending-note and plan-review reminders to staff');
 
 Schedule::command('cstar:reminders --type=parents')->dailyAt('18:00');
 Schedule::command('cstar:reminders --type=staff')->dailyAt('08:00');

@@ -4,15 +4,15 @@ namespace App\Models;
 
 use App\Enums\EnrollmentStatus;
 use App\Enums\EnrollmentType;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Carbon;
 use App\Models\Concerns\Auditable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
 /** A "Class" in the UI. The roster is its current training enrollments (no separate class_students table). */
 #[Fillable([
@@ -44,6 +44,19 @@ class TrainingGroup extends Model
     public function trainingEnrollments(): HasMany
     {
         return $this->hasMany(TrainingEnrollment::class);
+    }
+
+    public function substitutes(): HasMany
+    {
+        return $this->hasMany(ClassSubstitute::class);
+    }
+
+    /** Classes a trainer teaches: lead, assigned to a student, or covering as a substitute today (Sprint 22). */
+    public function scopeTaughtBy(Builder $query, int $trainerId): Builder
+    {
+        return $query->where(fn ($q) => $q->where('lead_trainer_id', $trainerId)
+            ->orWhereHas('trainingEnrollments', fn ($t) => $t->where('trainer_id', $trainerId))
+            ->orWhereHas('substitutes', fn ($s) => $s->where('trainer_id', $trainerId)->activeOn()));
     }
 
     /** Students counted against max_students (pending ones reserve a seat too). */
@@ -95,6 +108,7 @@ class TrainingGroup extends Model
         }
 
         return $this->lead_trainer_id === $trainer->id
+            || $this->substitutes()->where('trainer_id', $trainer->id)->activeOn()->exists()
             || $this->trainingEnrollments()->where('trainer_id', $trainer->id)
                 ->whereHas('enrollment', fn ($e) => $e->whereIn('status', EnrollmentStatus::open()))->exists();
     }

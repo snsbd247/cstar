@@ -80,8 +80,8 @@ export interface CashClosing {
 
 export const voucherTypeLabel: Record<VoucherType, string> = { payment: 'Payment (PV)', receipt: 'Receipt (RV)', journal: 'Journal (JV)', contra: 'Contra (CV)' }
 export const voucherStatusTone: Record<VoucherStatus, 'gray' | 'amber' | 'green' | 'red'> = { draft: 'gray', submitted: 'amber', posted: 'green', rejected: 'red', reversed: 'gray' }
-export const reportPdfUrl = (report: string, params: Record<string, string | number | undefined>) =>
-  apiUrl(`/accounts/reports/${report}?${new URLSearchParams(Object.entries({ ...params, format: 'pdf' }).filter(([, v]) => v !== undefined && v !== '').map(([k, v]) => [k, String(v)]))}`)
+export const reportPdfUrl = (report: string, params: Record<string, string | number | undefined>, format: 'pdf' | 'xlsx' = 'pdf') =>
+  apiUrl(`/accounts/reports/${report}?${new URLSearchParams(Object.entries({ ...params, format } as Record<string, string | number | undefined>).filter(([, v]) => v !== undefined && v !== '').map(([k, v]) => [k, String(v)]))}`)
 export const expenseAttachmentUrl = (id: number) => apiUrl(`/accounts/expenses/${id}/attachment`)
 
 function useInvalidate() {

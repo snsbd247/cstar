@@ -1,4 +1,4 @@
-import { CalendarClock, CalendarDays, ClipboardList, HeartPulse, Users } from 'lucide-react'
+import { CalendarClock, CalendarDays, ClipboardCheck, ClipboardList, HeartPulse, Users } from 'lucide-react'
 import type { BottomNavItem } from '../../layouts/MobileAppLayout'
 
 export const therapistNav: BottomNavItem[] = [
@@ -7,4 +7,5 @@ export const therapistNav: BottomNavItem[] = [
   { label: 'Patients', to: '/therapist/patients', icon: Users },
   { label: 'Sessions', to: '/therapist/sessions', icon: HeartPulse },
   { label: 'Assessments', to: '/therapist/assessments', icon: ClipboardList },
+  { label: 'Review', to: '/therapist/review', icon: ClipboardCheck, supervisorOnly: true },
 ]

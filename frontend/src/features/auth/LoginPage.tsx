@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Eye, EyeOff } from 'lucide-react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { Navigate, useLocation, useNavigate } from 'react-router'
+import { Link, Navigate, useLocation, useNavigate } from 'react-router'
 import { z } from 'zod'
 import { errorMessage, validationErrors } from '../../api/client'
 import { Logo } from '../../components/shared/Logo'
@@ -69,6 +69,9 @@ export default function LoginPage() {
               <Alert>You were signed out after a period of inactivity. Please sign in again. · নিষ্ক্রিয়তার কারণে লগআউট হয়েছে, আবার লগইন করুন।</Alert>
             )}
             {error && <Alert>{error}</Alert>}
+            {!error && new URLSearchParams(location.search).has('reset') && (
+              <Alert tone="green">Password changed — sign in with the new one. · পাসওয়ার্ড বদলানো হয়েছে, নতুনটি দিয়ে লগইন করুন।</Alert>
+            )}
 
             <Field label="Email or mobile number" htmlFor="login" error={formState.errors.login?.message}>
               <Input id="login" autoComplete="username" inputMode="email" autoFocus invalid={!!formState.errors.login} {...register('login')} />
@@ -103,6 +106,9 @@ export default function LoginPage() {
             <Button type="submit" className="w-full" loading={formState.isSubmitting}>
               Sign in
             </Button>
+            <Link to="/forgot-password" className="block text-center text-sm text-brand-700 hover:underline">
+              Forgot password? · <span className="font-bn">পাসওয়ার্ড ভুলে গেছেন?</span>
+            </Link>
           </form>
         </div>
       </main>

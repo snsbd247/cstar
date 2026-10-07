@@ -6,7 +6,7 @@ use App\Models\TherapySession;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-/** @mixin \App\Models\TherapySession */
+/** @mixin TherapySession */
 class TherapySessionResource extends JsonResource
 {
     public function toArray(Request $request): array
@@ -22,6 +22,7 @@ class TherapySessionResource extends JsonResource
             ...$this->only(TherapySession::TEXT_FIELDS),
             'status' => $this->status,
             'finalized_at' => $this->finalized_at,
+            'updated_at' => $this->updated_at,
             'patient' => $this->whenLoaded('patient', fn () => $this->patient->only(['id', 'name', 'patient_code'])),
             'therapist' => $this->whenLoaded('therapist', fn () => $this->therapist->only(['id', 'name'])),
             'service' => $this->whenLoaded('service', fn () => $this->service->only(['id', 'name'])),

@@ -2,10 +2,11 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Enrollment;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-/** @mixin \App\Models\Enrollment */
+/** @mixin Enrollment */
 class EnrollmentResource extends JsonResource
 {
     public function toArray(Request $request): array

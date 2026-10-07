@@ -30,13 +30,13 @@
 
 | দল | সময় | যা শেখানো হবে | অনুশীলন (UAT লাইন) |
 |---|---|---|---|
-| সবাই (একসাথে) | ৩০ মিনিট | লগইন, password, menu ও খোঁজা, ঘণ্টা, sign out, তথ্যের গোপনীয়তা (কে কী দেখেন, সব কাজ লেখা থাকে) | — |
-| রিসেপশন | ২ সেশন × ২ ঘণ্টা | নিবন্ধন, ভর্তি, appointment ও check-in, টাকা নেওয়া ও রসিদ, ছাড়ের নিয়ম, অনলাইন অনুরোধ, cash closing, ছোট খরচ, অভিভাবকের portal চালু | R1–R18 |
-| থেরাপিস্ট | ১.৫ ঘণ্টা | আজকের তালিকা, session note ও finalize (অভিভাবকের জন্য সংক্ষেপ বাংলায়), assessment ও সুপারিশ, plan-এর লক্ষ্য | T1–T7 |
-| ট্রেইনার | ১ ঘণ্টা | ফোনে হাজিরা, training record, ITP | G1–G3 |
-| হিসাবরক্ষক | ২ সেশন × ২ ঘণ্টা | খরচ ও voucher, অনুমোদন, cash গ্রহণ, vendor, ব্যাংক মেলানো, payroll, রিপোর্ট, মাস বন্ধ, opening balance | A1–A9 |
-| ব্রাঞ্চ অ্যাডমিন / পরিচালক | ১.৫ ঘণ্টা | অনুমোদন, dashboard ও রিপোর্ট, staff ও ছুটি, activity log | B1–B6 |
-| IT / Super Admin | ২ ঘণ্টা | Settings, backup ও restore, user ও role, CMS, update চালানো ([Deployment গাইড](C-STAR-Deployment-BN.md) §৬–৮) | S1–S10, X1–X5 |
+| সবাই (একসাথে) | ৪০ মিনিট | লগইন, password, menu ও খোঁজা, ঘণ্টা, sign out, তথ্যের গোপনীয়তা (কে কী দেখেন, সব কাজ লেখা থাকে); **প্রতিদিন Check in / Check out** | R22, T10, G4 |
+| রিসেপশন | ৩ সেশন × ২ ঘণ্টা | নিবন্ধন, ভর্তি, appointment ও check-in, টাকা নেওয়া ও রসিদ, ছাড়ের নিয়ম, অনলাইন অনুরোধ, cash closing, ছোট খরচ, অভিভাবকের portal চালু; **waiting list**, অভিভাবকের অনলাইন বুকিং confirm করা, **inventory** (স্টোর থেকে জিনিস দেওয়া/নেওয়া), অভিভাবককে portal-এর বুকিং, বাসায় অনুশীলন ও অনলাইন পেমেন্ট দেখানো | R1–R22, P6–P10 |
+| থেরাপিস্ট | ১.৫ ঘণ্টা | আজকের তালিকা, session note ও finalize (অভিভাবকের জন্য সংক্ষেপ বাংলায়), **বাসায় অনুশীলন** লেখা ও পরের সেশনে পরিবারের feedback দেখা, assessment ও সুপারিশ, plan-এর লক্ষ্য, **Progress chart** | T1–T10 |
+| ট্রেইনার | ১ ঘণ্টা | ফোনে হাজিরা, training record, ITP, নিজের check-in | G1–G4 |
+| হিসাবরক্ষক | ২ সেশন × ২ ঘণ্টা | খরচ ও voucher, অনুমোদন, cash গ্রহণ, vendor, ব্যাংক মেলানো, payroll, রিপোর্ট, মাস বন্ধ, opening balance; **অনলাইন পেমেন্ট মেলানো**, **staff-এর হাজিরা sheet** (payroll-এর আগে), inventory-র মূল্য | A1–A12 |
+| ব্রাঞ্চ অ্যাডমিন / পরিচালক | ১.৫ ঘণ্টা | অনুমোদন, dashboard ও রিপোর্ট, staff ও ছুটি, activity log, low-stock সতর্কতা | B1–B8 |
+| IT / Super Admin | ২ ঘণ্টা | Settings, backup ও restore, user ও role, CMS, update চালানো ([Deployment গাইড](C-STAR-Deployment-BN.md) §৬–৮); **SMS (GreenWeb)**, **অনলাইন পেমেন্ট** (sandbox → live), staff attendance ও অনলাইন বুকিং-এর setting | S1–S14, X1–X5 |
 
 **"প্রথম সহায়ক" (super user):** রিসেপশন ও হিসাব বিভাগে একজন করে যিনি বেশি শিখবেন এবং প্রথম দুই সপ্তাহ অন্যদের সাহায্য করবেন।
 
@@ -52,6 +52,8 @@
 - [ ] রিসেপশনের কম্পিউটারে login, printer-এ একটি রসিদ print পরীক্ষা
 - [ ] থেরাপিস্ট ও ট্রেইনারের ফোনে login
 - [ ] *Website / CMS → SEO* → "Hide from search engines" বন্ধ
+- [ ] *Settings → SMS & WhatsApp* → নিজের নম্বরে **Send test** — SMS আসে
+- [ ] অনলাইন পেমেন্ট চালু করলে: *Settings → Online Payment*-এ **Sandbox বন্ধ** (live merchant account), একজন স্টাফের ফোন থেকে ৳১০ পরিশোধ করে রসিদ ও *Online Payments*-এ "Paid" দেখুন
 
 **দিনভর:**
 - নতুন সব নিবন্ধন, appointment, হাজিরা, note, টাকা — শুধু system-এ (সাথে §১-এর সমান্তরাল খাতা)

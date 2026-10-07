@@ -10,6 +10,8 @@ export interface BottomNavItem {
   label: string
   to: string
   icon: LucideIcon
+  /** Shown only to clinical supervisors (Sprint 22). */
+  supervisorOnly?: boolean
 }
 
 /**
@@ -19,6 +21,7 @@ export interface BottomNavItem {
 export function MobileAppLayout({ title, nav, bangla, payslipsTo }: { title: string; nav: BottomNavItem[]; bangla?: boolean; payslipsTo?: string }) {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
+  nav = nav.filter((item) => !item.supervisorOnly || user?.is_clinical_supervisor)
 
   return (
     <div className={cn('min-h-screen pb-20 sm:pb-0', bangla && 'font-bn')}>

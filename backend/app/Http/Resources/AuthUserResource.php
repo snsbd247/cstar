@@ -15,6 +15,7 @@ class AuthUserResource extends UserResource
         return [
             ...parent::toArray($request),
             'is_super_admin' => $this->isSuperAdmin(),
+            'is_clinical_supervisor' => (bool) $this->therapist?->is_supervisor,
             'permissions' => $this->getAllPermissions()->pluck('name')->values(),
         ];
     }

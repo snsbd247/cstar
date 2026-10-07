@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 /** A clinical assessment. Findings are clinical; recommendations are what reception acts on. */
 #[Fillable([
@@ -61,5 +62,11 @@ class Assessment extends Model
     public function isFinal(): bool
     {
         return $this->status === 'final';
+    }
+
+    /** Supervisor reviews (Sprint 22). */
+    public function reviews(): MorphMany
+    {
+        return $this->morphMany(ClinicalReview::class, 'reviewable');
     }
 }

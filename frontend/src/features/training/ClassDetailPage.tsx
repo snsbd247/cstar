@@ -11,6 +11,7 @@ import { PatientAvatar } from '../patients/components/badges'
 import { useClass, useClassMonth, useRoster } from './api'
 import { scheduleText } from './schedule'
 import { AttendanceSheet } from './components/AttendanceSheet'
+import { ClassSubstitutes } from './components/ClassSubstitutes'
 import { attendanceStyle } from './types'
 
 export default function ClassDetailPage() {
@@ -62,6 +63,8 @@ export default function ClassDetailPage() {
           </div>
         )}
       </div>
+
+      <ClassSubstitutes classId={classId} leadTrainerId={cls.lead_trainer?.id ?? null} canEdit={can('classes.manage')} />
 
       <Card className="mt-6 overflow-hidden">
         <div className="flex items-center justify-between gap-2 border-b border-slate-100 px-5 py-3">

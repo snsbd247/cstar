@@ -23,6 +23,8 @@ class AssessmentResource extends JsonResource
             ...$this->only(AssessmentService::TEXT_FIELDS),
             'section_findings' => $this->section_findings ?? (object) [],
             'can_edit' => $request->user()?->can('update', $this->resource) && ! $this->isFinal(),
+            'can_amend' => $request->user()?->can('update', $this->resource) && $this->isFinal(),
+            'updated_at' => $this->updated_at,
             'patient' => $this->whenLoaded('patient', fn () => $this->patient->only(['id', 'name', 'patient_code'])),
             'type' => $this->whenLoaded('type', fn () => $this->type->only(['id', 'name', 'name_bn', 'sections'])),
             'therapist' => $this->whenLoaded('therapist', fn () => $this->therapist->only(['id', 'name'])),

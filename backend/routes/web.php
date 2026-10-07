@@ -43,4 +43,4 @@ Route::controller(OnlinePaymentController::class)->prefix('pay')->group(function
 
 // React staff & parent apps. The production build lives in public/spa (see frontend/vite.config.ts);
 // every client-side route of those apps returns the same index.html.
-Route::get('/{area}/{path?}', SpaController::class)->where(['area' => 'app|trainer|therapist|portal|login|change-password', 'path' => '.*']);
+Route::get('/{area}/{path?}', SpaController::class)->where(['area' => 'app|trainer|therapist|portal|login|change-password|forgot-password', 'path' => '.*']);

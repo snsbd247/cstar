@@ -62,6 +62,7 @@ export interface TrainingRecord {
   parent_note: string | null
   next_plan: string | null
   status: 'draft' | 'final'
+  can_amend?: boolean
   patient?: { id: number; name: string; patient_code: string }
   trainer?: { id: number; name: string } | null
   class?: { id: number; name: string } | null

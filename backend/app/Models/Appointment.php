@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\AppointmentStatus;
 use App\Models\Concerns\Auditable;
+use App\Services\SystemSettings;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -13,7 +14,7 @@ use Illuminate\Support\Carbon;
 
 /** A booked therapy slot with a therapist (THERAPY APPOINTMENT ≠ STUDENT ATTENDANCE). */
 #[Fillable([
-    'appointment_code', 'patient_id', 'enrollment_id', 'service_id', 'therapist_id', 'branch_id', 'date',
+    'appointment_code', 'patient_id', 'enrollment_id', 'service_id', 'therapist_id', 'substitute_for_id', 'branch_id', 'date',
     'start_time', 'end_time', 'type', 'status', 'source', 'notes', 'cancel_reason', 'is_late_cancellation',
     'rescheduled_from_id', 'appointment_request_id', 'confirmed_at', 'checked_in_at', 'cancelled_at', 'created_by',
 ])]
@@ -26,7 +27,7 @@ class Appointment extends Model
     /** Cancelling closer than this to the start counts as a late cancellation (decision D3; Settings → Appointment). */
     public static function lateCancelHours(): int
     {
-        return app(\App\Services\SystemSettings::class)->int('appointment', 'late_cancel_hours');
+        return app(SystemSettings::class)->int('appointment', 'late_cancel_hours');
     }
 
     protected function casts(): array

@@ -2,10 +2,11 @@
 
 namespace App\Http\Resources;
 
+use App\Models\PatientDocument;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-/** @mixin \App\Models\PatientDocument */
+/** @mixin PatientDocument */
 class PatientDocumentResource extends JsonResource
 {
     public function toArray(Request $request): array

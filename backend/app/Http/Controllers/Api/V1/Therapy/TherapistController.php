@@ -34,7 +34,7 @@ class TherapistController extends Controller
             ->orderBy('name')->get();
 
         return response()->json(['data' => $therapists->map(fn (Therapist $t) => [
-            ...$t->only(['id', 'name', 'designation', 'phone', 'email', 'qualification', 'experience_years', 'status', 'employee_code', 'user_id']),
+            ...$t->only(['id', 'name', 'designation', 'phone', 'email', 'qualification', 'experience_years', 'status', 'is_supervisor', 'employee_code', 'user_id']),
             'therapist_type' => $t->therapist_type->value,
             'type_label' => $t->therapist_type->label(),
             'primary_branch' => $t->primaryBranch?->only(['id', 'name']),
@@ -151,6 +151,7 @@ class TherapistController extends Controller
             'qualification' => ['nullable', 'string', 'max:255'],
             'experience_years' => ['nullable', 'integer', 'between:0,60'],
             'status' => ['required', Rule::in(['active', 'inactive'])],
+            'is_supervisor' => ['sometimes', 'boolean'],
             'user_id' => ['nullable', 'integer', Rule::unique('therapists')->ignore($therapist?->id)],
             'service_ids' => ['required', 'array', 'min:1'],
             'service_ids.*' => ['integer', 'distinct'],

@@ -14,6 +14,8 @@
 - **ঘণ্টা (🔔):** আপনার জন্য অপেক্ষমাণ কাজ (অনুমোদন, নবায়ন ইত্যাদি)। সব দেখতে: *Notifications → Notification Center*।
 - **অনেকক্ষণ কিছু না করলে** নিজে থেকে লগআউট হয় — আবার লগইন করুন। কাজ শেষে সবসময় নিচে বাম কোণের ⇥ চিহ্নে **Sign out** করুন, বিশেষ করে শেয়ার করা কম্পিউটারে।
 - **হাজিরা:** অফিসে এসে dashboard-এর (ট্রেইনার/থেরাপিস্ট হলে app-এর) উপরে **Check in**, যাওয়ার সময় **Check out**। অফিস শুরুর সময়ের পরে (Settings-এ যত মিনিট ঠিক করা) এলে "late" হয়। ভুল হলে HR/হিসাবরক্ষককে বলুন — তাঁরা ঠিক করবেন।
+- **পাসওয়ার্ড ভুলে গেলে:** login পাতায় **Forgot password?** → নিজের মোবাইল নম্বর → SMS-এ আসা ৬ সংখ্যার কোড ও নতুন password (কোড ১০ মিনিট চলে)। মোবাইল নম্বর ভুল থাকলে IT/অ্যাডমিন password বদলে দেবেন।
+- **রিপোর্ট Excel-এ:** যেকোনো রিপোর্টে **PDF**-এর পাশে **Excel** বোতাম — সংখ্যাগুলো Excel-এ যোগ-বিয়োগ করা যায়।
 - **নিয়ম:** password কাউকে বলবেন না; একজনের login দিয়ে অন্যজন কাজ করবেন না — system-এ প্রতিটি কাজ কে করেছেন তা লেখা থাকে।
 
 ---
@@ -66,6 +68,9 @@
 - **Plan ও লক্ষ্য:** *Patients* → শিশু → plan → লক্ষ্য যোগ / অগ্রগতি % বদলান।
 - **বাসায় অনুশীলন:** অভিভাবক portal-এ "করেছি / কিছুটা / পারিনি" ও মন্তব্য দেন — পরের session note লেখার সময় ডান পাশে "Last session"-এর নিচে "Family reported"-এ দেখবেন; সব শিশুর জন্য একসাথে: *Therapy → Home Programs*।
 - **অগ্রগতির chart:** শিশুর profile → **Progress** tab — গত ৬ মাসের উপস্থিতি, class performance, therapy session ও প্রতিটি লক্ষ্যের score।
+- **Finalize করা note-এ ভুল:** note খুলে ডান পাশে **Amend note** → কোন অংশ → ঠিক লেখা → কারণ → **Save amendment**। আগের লেখা, আপনার নাম, সময় ও কারণ সবসময় থেকে যায় (মুছে ফেলা যায় না); অভিভাবকের সংক্ষেপ বদলালে portal-এও ঠিক হয়। Assessment-এও একইভাবে।
+- **Plan review:** plan-এর review তারিখ ৭ দিনের মধ্যে এলে বা পেরিয়ে গেলে সকালে ঘণ্টায় মনে করিয়ে দেয় — লক্ষ্য দেখে নতুন review তারিখ দিন।
+- **Clinical supervisor হলে** (অ্যাডমিন Therapists → Edit-এ চালু করেন): app-এ **Review** tab — সহকর্মীদের finalize করা note ও assessment পড়ে **OK** বা **Needs changes** (মন্তব্যসহ); Needs changes হলে লেখক notification পান ও amend করেন।
 - **Schedule** — সপ্তাহের কাজ; **Payslips** — নিজের বেতনের রসিদ।
 - রিসেপশন clinical note দেখতে পান না; শুধু আপনি নিজের লেখা assessment বদলাতে পারেন।
 
@@ -75,6 +80,8 @@
 - **Records:** উপস্থিত শিশুদের training record — কী activity, কেমন করল, অভিভাবকের জন্য একটি লাইন।
 - **Students:** নিজের শিশুদের তালিকা, ITP (training plan) ও লক্ষ্যের অগ্রগতি।
 - **Payslips:** নিজের বেতনের রসিদ।
+- অন্য ট্রেইনারের class-এ **substitute** দেওয়া হলে সেই দিনগুলোতে class-টি Today-তে আসে — হাজিরা ও record আগের মতোই।
+- Finalize করা record-এ ভুল: record খুলে **Amend note** (কারণসহ)।
 
 ## ৪. হিসাবরক্ষক
 
@@ -92,9 +99,15 @@
 | মাস বন্ধ | মাস শেষে সব মিলিয়ে *Accounts → Accounting Periods* → **Close month**; বছর শেষে **Close the year** |
 | Budget | *Accounts → Budgets* — বছরের budget ও Budget বনাম আসল |
 
+**Excel:** *Accounts → Financial reports*-এর প্রতিটি রিপোর্টে **Excel** — PDF-এর মতোই টেবিল, সংখ্যা Excel-এ হিসাবযোগ্য।
+
 **Staff-এর হাজিরা:** *Staff → Staff Attendance* — মাসের sheet (P = উপস্থিত, L = দেরি, A = অনুপস্থিত, Lv = ছুটি, Hol = holiday, – = সাপ্তাহিক ছুটি, ? = কিছু লেখা নেই)। কোনো দিনে click করে উপস্থিতি/সময় লিখুন বা ঠিক করুন; ছুটি *Leave / Absence*-এ লিখলে sheet-এ নিজে থেকে বসে। বেতন কাটার হিসাব (অনুপস্থিতি) payroll-এ আগের মতো হাতে দিন।
 
 ## ৫. ব্রাঞ্চ অ্যাডমিন
+
+- **থেরাপিস্ট ছুটিতে:** *Therapy → Therapists* → **Leave** → ছুটির তারিখ দিন; বুক করা appointment থাকলে নিচে **Substitute** — একই সেবা দেন এমন সহকর্মী বেছে **Preview** → **Move**। যিনি সেই সময়ে ফাঁকা নন বা সেবাটি দেন না, তাঁর ক্ষেত্রে কারণ দেখায়; অভিভাবক বাংলায় বার্তা পান।
+- **ট্রেইনার ছুটিতে:** *Training → Classes* → class → **Substitute trainer** → ট্রেইনার ও তারিখ → **Add substitute** — শুধু সেই দিনগুলোতে তিনি class-এর হাজিরা ও record দেখতে/লিখতে পারেন।
+- **Clinical supervisor:** *Therapists* → Edit → "Clinical supervisor" টিক — সেই থেরাপিস্ট branch-এর সব therapy note review করতে পারবেন।
 
 - **অনুমোদন (🔔 দেখুন):** বড় খরচ/voucher (*Payment Vouchers* → Waiting approval), payroll (*Payroll* → run → **Approve**), cash গ্রহণ।
 - **Staff:** নতুন login *Users → Add User*; কে কোন শাখায় *Users → Branch Access*; ছুটি *Staff → Leave / Absence* (থেরাপিস্টের ছুটিতে booking বন্ধ হয়, আগের appointment থাকলে সংখ্যা জানায় — সেগুলো reschedule করুন)।

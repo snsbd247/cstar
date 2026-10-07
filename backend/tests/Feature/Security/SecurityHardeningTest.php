@@ -17,7 +17,7 @@ class SecurityHardeningTest extends TestCase
     use RefreshDatabase;
 
     /** Routes anyone may call without signing in. Adding one here must be a deliberate decision. */
-    private const PUBLIC_API = ['POST api/v1/auth/login'];
+    private const PUBLIC_API = ['POST api/v1/auth/login', 'POST api/v1/auth/forgot', 'POST api/v1/auth/reset'];
 
     public function test_every_api_route_requires_sign_in_except_the_public_list(): void
     {

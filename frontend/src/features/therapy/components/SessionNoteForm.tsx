@@ -9,6 +9,8 @@ import { cn } from '../../../utils/cn'
 import { usePlans } from '../../training/api'
 import { PlanPanel } from '../../training/components/PlanPanel'
 import { useAppointmentSession, useSaveSession, useTherapyActivityTypes, type SessionBundle } from '../api'
+import { AmendmentsPanel } from '../../../components/shared/AmendmentsPanel'
+import { ReviewHistory } from '../../therapist/ClinicalReviewPage'
 import { StatusPill } from './AppointmentActions'
 import { PracticeFeedbackSummary } from './PracticeFeedbackSummary'
 
@@ -31,7 +33,7 @@ type FieldKey = (typeof fields)[number][0] | 'parent_summary'
 export function SessionNote({ appointmentId, onDone }: { appointmentId: number; onDone?: () => void }) {
   const { data, isLoading } = useAppointmentSession(appointmentId)
   if (isLoading || !data) return <Spinner className="text-brand-600" />
-  return <NoteBody key={data.session?.id ?? 'new'} data={data} onDone={onDone} />
+  return <NoteBody key={`${data.session?.id ?? 'new'}-${data.session?.updated_at ?? ''}`} data={data} onDone={onDone} />
 }
 
 function NoteBody({ data, onDone }: { data: SessionBundle; onDone?: () => void }) {
@@ -97,6 +99,16 @@ function NoteBody({ data, onDone }: { data: SessionBundle; onDone?: () => void }
           </Card>
         )}
         {a.enrollment_id && <PlanPanel enrollmentId={a.enrollment_id} canEdit={can_write} title="Therapy plan" />}
+        {session?.status === 'final' && <ReviewHistory type="session" id={session.id} />}
+        {session?.status === 'final' && (
+          <AmendmentsPanel
+            url={`/appointments/${a.id}/session/amendments`}
+            fields={[...fields, ['parent_summary', 'Summary for parents']]}
+            current={session as unknown as Record<string, string | null>}
+            canAmend={can_write}
+            refresh={[['appointment-session', a.id]]}
+          />
+        )}
       </aside>
 
       <Card className="space-y-5 p-5">

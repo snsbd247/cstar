@@ -2,6 +2,7 @@ import { Lock, Star } from 'lucide-react'
 import { useState } from 'react'
 import { errorMessage, validationErrors } from '../../../api/client'
 import { Button } from '../../../components/ui/Button'
+import { AmendmentsPanel } from '../../../components/shared/AmendmentsPanel'
 import { Alert } from '../../../components/ui/Card'
 import { Field, Textarea } from '../../../components/ui/Field'
 import { cn } from '../../../utils/cn'
@@ -73,6 +74,23 @@ export function RecordForm({ classId, date, enrollmentId, record, lastNextPlan, 
         </Alert>
       )}
       {error && <Alert>{error}</Alert>}
+      {locked && record && (
+        <AmendmentsPanel
+          url={`/training-records/${record.id}/amendments`}
+          fields={[
+            ['observation', 'Observation'],
+            ['progress', 'Progress'],
+            ['challenges', 'Challenges'],
+            ['next_plan', 'Next plan'],
+            ['parent_note', 'Note for parents'],
+            ['trainer_notes', 'Trainer notes (internal)'],
+          ]}
+          current={record as unknown as Record<string, string | null>}
+          canAmend={!!record.can_amend}
+          refresh={[['records-day', classId], ['training-records']]}
+          onAmended={onDone}
+        />
+      )}
       {lastNextPlan && !record && <p className="rounded-lg bg-sky-brand-50 p-3 text-sm text-sky-brand-700">Last plan: {lastNextPlan}</p>}
 
       <div>

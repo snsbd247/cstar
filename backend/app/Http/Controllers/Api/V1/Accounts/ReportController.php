@@ -11,6 +11,7 @@ use App\Models\Voucher;
 use App\Services\AuditLogger;
 use App\Services\FinancialReportService;
 use App\Services\PdfService;
+use App\Services\XlsxWriter;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -19,7 +20,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Financial reports (Accounts §১২): trial balance, general ledger / cash & bank book, day book,
- * income statement and balance sheet — JSON for the screen, ?format=pdf for printing.
+ * income statement and balance sheet — JSON for the screen, ?format=pdf for printing, ?format=xlsx for Excel.
  */
 class ReportController extends Controller
 {
@@ -115,16 +116,26 @@ class ReportController extends Controller
 
     private function respond(Request $request, string $view, string $title, array $data): JsonResponse|Response
     {
-        if ($request->query('format') !== 'pdf') {
+        $format = $request->query('format');
+        if (! in_array($format, ['pdf', 'xlsx'], true)) {
             return response()->json(['data' => $data]);
         }
 
         $branchId = $this->branch($request);
-        AuditLogger::log('exported', null, new: ['report' => $view, 'filters' => $request->query()]);
+        AuditLogger::log('exported', null, new: ['report' => $view, 'format' => $format, 'filters' => $request->query()]);
+        $vars = ['data' => $data, 'branch' => $branchId ? Branch::find($branchId)?->name : 'All branches'];
+        $filename = "{$view}-".Carbon::now()->format('Ymd');
 
-        return app(PdfService::class)->response("pdf.accounts.{$view}", [
-            'data' => $data,
-            'branch' => $branchId ? Branch::find($branchId)?->name : 'All branches',
-        ], $title, "{$view}-".Carbon::now()->format('Ymd').'.pdf');
+        if ($format === 'xlsx') {
+            // Excel = the same tables as the PDF, with amounts as real numbers.
+            $bytes = app(XlsxWriter::class)->fromHtml(view("pdf.accounts.{$view}", $vars)->render(), [$title, $vars['branch']], $title);
+
+            return response($bytes, 200, [
+                'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'Content-Disposition' => "attachment; filename=\"{$filename}.xlsx\"",
+            ]);
+        }
+
+        return app(PdfService::class)->response("pdf.accounts.{$view}", $vars, $title, "{$filename}.pdf");
     }
 }

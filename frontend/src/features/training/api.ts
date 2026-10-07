@@ -160,3 +160,12 @@ export function useStudents(classId?: number) {
     queryFn: async () => (await api.get<{ data: StudentRow[] }>('/students', { params: { class_id: classId } })).data.data,
   })
 }
+
+/** Active-and-inactive trainer list for pickers (class form, substitute trainer). */
+export function useTrainers(enabled = true) {
+  return useQuery({
+    queryKey: ['trainers', 'options'],
+    queryFn: async () => (await api.get<{ data: { id: number; name: string; status: string; branch: { id: number } | null }[] }>('/trainers')).data.data,
+    enabled,
+  })
+}

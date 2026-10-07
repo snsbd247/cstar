@@ -11,6 +11,7 @@ import { useAuth } from '../../contexts/useAuth'
 import type { User } from '../../types'
 import { dayNames, weekOrder } from '../training/schedule'
 import { useTherapists, type TherapistRow } from './api'
+import { SubstitutePanel } from './components/SubstitutePanel'
 
 const types: [string, string][] = [
   ['slt', 'Speech & Language Therapist'],
@@ -140,7 +141,7 @@ function TherapistForm({ therapist, onClose }: { therapist: TherapistRow | null;
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const f = Object.fromEntries(new FormData(e.currentTarget)) as Record<string, string>
-    save.mutate({ ...f, primary_branch_id: Number(f.primary_branch_id), experience_years: Number(f.experience_years) || null, user_id: Number(f.user_id) || null, service_ids: serviceIds })
+    save.mutate({ ...f, primary_branch_id: Number(f.primary_branch_id), experience_years: Number(f.experience_years) || null, user_id: Number(f.user_id) || null, is_supervisor: f.is_supervisor === '1', service_ids: serviceIds })
   }
 
   return (
@@ -190,6 +191,9 @@ function TherapistForm({ therapist, onClose }: { therapist: TherapistRow | null;
           <Field label="Experience (years)" htmlFor="th_exp">
             <Input id="th_exp" name="experience_years" type="number" defaultValue={therapist?.experience_years ?? ''} />
           </Field>
+          <label className="flex items-center gap-2 self-end pb-2 text-sm text-slate-700">
+            <input type="checkbox" name="is_supervisor" value="1" defaultChecked={!!therapist?.is_supervisor} className="size-4 accent-brand-600" /> Clinical supervisor (reviews colleagues' notes)
+          </label>
           <Field label="Login account" htmlFor="th_user" hint="A user with the Therapist role" error={errors.user_id}>
             <Select id="th_user" name="user_id" defaultValue={therapist?.user_id ?? ''}>
               <option value="">No login</option>
@@ -287,9 +291,10 @@ function LeaveForm({ therapist, onClose }: { therapist: TherapistRow; onClose: (
   const refresh = useRefresh()
   const [result, setResult] = useState<number | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [cover, setCover] = useState<{ from: string; to: string } | null>(null)
   const add = useMutation({
     mutationFn: async (body: Record<string, string>) => (await api.post<{ data: { appointments_to_reschedule: number } }>(`/therapists/${therapist.id}/leaves`, body)).data.data,
-    onSuccess: (d) => (refresh(), setResult(d.appointments_to_reschedule)),
+    onSuccess: (d, body) => (refresh(), setResult(d.appointments_to_reschedule), d.appointments_to_reschedule && setCover({ from: body.start_date, to: body.end_date })),
     onError: (e) => setError(Object.values(validationErrors(e))[0] ?? errorMessage(e)),
   })
   const remove = useMutation({ mutationFn: (id: number) => api.delete(`/therapist-leaves/${id}`), onSuccess: refresh })
@@ -299,18 +304,22 @@ function LeaveForm({ therapist, onClose }: { therapist: TherapistRow; onClose: (
       <div className="space-y-4">
         {error && <Alert>{error}</Alert>}
         {result !== null && (
-          <Alert tone={result ? 'red' : 'green'}>{result ? `${result} booked appointment(s) fall in this leave — reschedule them from Appointments.` : 'Leave added. No appointments affected.'}</Alert>
+          <Alert tone={result ? 'red' : 'green'}>{result ? `${result} booked appointment(s) fall in this leave — move them to a substitute below, or reschedule from Appointments.` : 'Leave added. No appointments affected.'}</Alert>
         )}
         <ul className="space-y-1 text-sm">
           {therapist.upcoming_leaves.map((l) => (
             <li key={l.id} className="flex items-center justify-between rounded bg-slate-50 px-3 py-2">
               {l.start_date} → {l.end_date} {l.reason}
+              <button onClick={() => setCover({ from: l.start_date, to: l.end_date })} className="ml-auto mr-3 text-xs text-brand-700 hover:underline">
+                Substitute
+              </button>
               <button onClick={() => remove.mutate(l.id)} className="text-slate-400 hover:text-red-600" aria-label="Remove leave">
                 <Trash2 className="size-4" />
               </button>
             </li>
           ))}
         </ul>
+        {cover && <SubstitutePanel key={`${cover.from}-${cover.to}`} therapistId={therapist.id} from={cover.from} to={cover.to} />}
         <form
           className="grid gap-3 sm:grid-cols-2"
           onSubmit={(e) => {

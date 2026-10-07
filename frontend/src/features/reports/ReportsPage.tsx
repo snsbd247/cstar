@@ -55,7 +55,7 @@ const fmt = (v: string | number | null | undefined, type: Column['type']) => {
   }
 }
 
-/** Plan §২০: pick a report → filter → table + chart → export PDF / CSV. */
+/** Plan §২০: pick a report → filter → table + chart → export PDF / Excel (.xlsx) / CSV. */
 export default function ReportsPage() {
   const { user } = useAuth()
   const [params, setParams] = useSearchParams()
@@ -71,7 +71,7 @@ export default function ReportsPage() {
     queryFn: async () => (await api.get<{ data: Report }>(`/reports/${key}`, { params: query })).data.data,
     enabled: !!key,
   })
-  const exportUrl = (format: 'pdf' | 'csv') =>
+  const exportUrl = (format: 'pdf' | 'xlsx' | 'csv') =>
     apiUrl(`/reports/${key}?${new URLSearchParams(Object.entries({ ...query, format }).filter(([, v]) => v) as [string, string][])}`)
   const groups = useMemo(
     () => Object.entries((catalog ?? []).reduce<Record<string, CatalogItem[]>>((acc, c) => ({ ...acc, [c.group]: [...(acc[c.group] ?? []), c] }), {})),
@@ -80,7 +80,7 @@ export default function ReportsPage() {
 
   return (
     <>
-      <PageHeader title="Reports" description="Every report can be printed (PDF) or opened in Excel (CSV)." />
+      <PageHeader title="Reports" description="Every report can be printed (PDF) or downloaded for Excel." />
       <div className="grid gap-5 lg:grid-cols-[240px_1fr]">
         <Card className="h-fit p-2">
           {groups.map(([group, items]) => (
@@ -120,10 +120,13 @@ export default function ReportsPage() {
                     <FileDown className="size-4" /> PDF
                   </Button>
                 </a>
-                <a href={exportUrl('csv')}>
+                <a href={exportUrl('xlsx')}>
                   <Button variant="secondary">
-                    <Sheet className="size-4" /> Excel (CSV)
+                    <Sheet className="size-4" /> Excel
                   </Button>
+                </a>
+                <a href={exportUrl('csv')} className="self-center text-xs text-slate-500 hover:text-brand-700">
+                  CSV
                 </a>
               </div>
             )}

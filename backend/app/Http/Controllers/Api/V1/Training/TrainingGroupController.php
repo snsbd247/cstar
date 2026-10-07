@@ -26,9 +26,7 @@ class TrainingGroupController extends Controller
 
         $groups = TrainingGroup::with(['branch:id,name', 'leadTrainer:id,name', 'schedules'])
             ->withCount(['trainingEnrollments as students_count' => fn ($q) => $q->whereHas('enrollment', fn ($e) => $e->whereIn('status', EnrollmentStatus::open()))])
-            ->when($trainerOnly, fn ($q) => $q->where(fn ($q) => $q
-                ->where('lead_trainer_id', $user->trainer?->id ?? 0)
-                ->orWhereHas('trainingEnrollments', fn ($t) => $t->where('trainer_id', $user->trainer?->id ?? 0))))
+            ->when($trainerOnly, fn ($q) => $q->taughtBy($user->trainer?->id ?? 0))
             ->when(! $trainerOnly && $branchIds !== null, fn ($q) => $q->whereIn('branch_id', $branchIds))
             ->when($request->filled('status'), fn ($q) => $q->where('status', $request->input('status')))
             ->orderBy('name')->get();

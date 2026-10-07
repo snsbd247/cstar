@@ -35,6 +35,8 @@ export interface Assessment {
   parent_summary: string | null
   section_findings: Record<string, string>
   can_edit: boolean
+  can_amend?: boolean
+  updated_at?: string
   patient?: { id: number; name: string; patient_code: string }
   type?: AssessmentType
   therapist?: { id: number; name: string }

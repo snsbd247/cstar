@@ -2,10 +2,11 @@
 
 namespace App\Http\Resources;
 
+use App\Models\TrainingRecord;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-/** @mixin \App\Models\TrainingRecord */
+/** @mixin TrainingRecord */
 class TrainingRecordResource extends JsonResource
 {
     public function toArray(Request $request): array
@@ -27,6 +28,7 @@ class TrainingRecordResource extends JsonResource
             'next_plan' => $this->next_plan,
             'status' => $this->status,
             'finalized_at' => $this->finalized_at,
+            'can_amend' => $this->status === 'final' && $request->user()?->trainer?->id === $this->trainer_id,
             'patient' => $this->whenLoaded('patient', fn () => $this->patient->only(['id', 'name', 'patient_code'])),
             'trainer' => $this->whenLoaded('trainer', fn () => $this->trainer?->only(['id', 'name'])),
             'class' => $this->whenLoaded('session', fn () => $this->session->relationLoaded('trainingGroup') ? $this->session->trainingGroup->only(['id', 'name']) : null),

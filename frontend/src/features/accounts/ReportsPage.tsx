@@ -1,4 +1,4 @@
-import { FileDown } from 'lucide-react'
+import { FileDown, Sheet } from 'lucide-react'
 import { useState } from 'react'
 import { useSearchParams } from 'react-router'
 import { Button } from '../../components/ui/Button'
@@ -22,7 +22,7 @@ const tabs = [
   ['cash-flow', 'Cash Flow'],
 ] as const
 
-/** Accounts §১২ financial reports, each printable as PDF. */
+/** Accounts §১২ financial reports, each printable as PDF or downloadable for Excel. */
 export default function ReportsPage() {
   const [params, setParams] = useSearchParams()
   const tab = params.get('r') ?? 'income-statement'
@@ -66,11 +66,18 @@ export default function ReportsPage() {
         {['income-statement', 'ledger', 'cash-flow'].includes(tab) && <Input type="date" value={from} onChange={(e) => setFrom(e.target.value)} className="sm:w-44" aria-label="From" />}
         <Input type="date" value={to} max={todayISO()} onChange={(e) => setTo(e.target.value)} className="sm:w-44" aria-label={tab === 'day-book' ? 'Date' : 'To'} />
         {ready && (
-          <a href={reportPdfUrl(tab, query)} target="_blank" rel="noreferrer" className="sm:ml-auto">
-            <Button variant="secondary">
-              <FileDown className="size-4" /> PDF
-            </Button>
-          </a>
+          <span className="flex gap-2 sm:ml-auto">
+            <a href={reportPdfUrl(tab, query)} target="_blank" rel="noreferrer">
+              <Button variant="secondary">
+                <FileDown className="size-4" /> PDF
+              </Button>
+            </a>
+            <a href={reportPdfUrl(tab, query, 'xlsx')}>
+              <Button variant="secondary">
+                <Sheet className="size-4" /> Excel
+              </Button>
+            </a>
+          </span>
         )}
       </Card>
 

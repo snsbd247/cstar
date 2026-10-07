@@ -30,10 +30,7 @@ class TrainingOverviewController extends Controller
         abort_unless($trainer, 403, 'This account is not linked to a trainer profile.');
         $date = today();
 
-        $classes = TrainingGroup::with('schedules')->where('status', 'active')
-            ->where(fn ($q) => $q->where('lead_trainer_id', $trainer->id)
-                ->orWhereHas('trainingEnrollments', fn ($t) => $t->where('trainer_id', $trainer->id)))
-            ->get();
+        $classes = TrainingGroup::with('schedules')->where('status', 'active')->taughtBy($trainer->id)->get();
 
         $today = $classes->filter(fn (TrainingGroup $g) => $g->scheduleFor($date))->map(function (TrainingGroup $g) use ($date) {
             $students = $g->rosterOn($date)->count();

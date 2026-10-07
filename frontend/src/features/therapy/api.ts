@@ -43,6 +43,7 @@ export interface TherapySession {
   therapist_notes: string | null
   parent_summary: string | null
   status: 'draft' | 'final'
+  updated_at?: string
   patient?: { id: number; name: string; patient_code: string }
   therapist?: { id: number; name: string }
   service?: { id: number; name: string }
@@ -59,6 +60,7 @@ export interface TherapistRow {
   qualification: string | null
   experience_years: number | null
   status: 'active' | 'inactive'
+  is_supervisor?: boolean
   employee_code: string | null
   user_id: number | null
   therapist_type: string

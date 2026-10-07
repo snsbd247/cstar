@@ -145,6 +145,38 @@ class AssessmentTest extends TestCase
         $this->assertDatabaseHas('timeline_events', ['patient_id' => $this->sara->id, 'event_type' => 'assessment.shared', 'visibility' => 'parent']);
     }
 
+    public function test_a_final_assessment_is_amended_with_a_reason_and_the_old_text_is_kept(): void
+    {
+        $draft = $this->createAssessment();
+        $this->postJson("/api/v1/assessments/{$draft->id}/amendments", ['field' => 'summary', 'value' => 'x', 'reason' => 'Typing error'])
+            ->assertJsonValidationErrors('field');                                         // drafts are edited, not amended
+
+        $final = $this->createAssessment(['finalize' => true]);
+        $this->postJson("/api/v1/assessments/{$final->id}/share", ['shared' => true])->assertOk();
+        $url = "/api/v1/assessments/{$final->id}/amendments";
+
+        $this->postJson($url, ['field' => 'parent_summary', 'value' => 'Corrected note for parents.'])->assertJsonValidationErrors('reason');
+        $this->postJson($url, ['field' => 'status', 'value' => 'draft', 'reason' => 'Trying to reopen'])->assertJsonValidationErrors('field');
+        $this->postJson($url, ['field' => 'parent_summary', 'value' => 'Corrected note for parents.', 'reason' => 'Wrong word used'])->assertCreated()
+            ->assertJsonPath('data.old_value', 'Short note for parents.');
+        $this->postJson($url, ['field' => 'section_findings.expressive_language', 'value' => 'Two-word phrases', 'reason' => 'Mis-recorded'])->assertCreated();
+
+        $final->refresh();
+        $this->assertSame('Corrected note for parents.', $final->parent_summary);
+        $this->assertSame('Two-word phrases', $final->section_findings['expressive_language']);
+        $this->assertSame('final', $final->status);
+        // The family's timeline shows the corrected summary.
+        $this->assertSame('Corrected note for parents.', $this->sara->timelineEvents()->where('visibility', 'parent')->where('subject_id', $final->id)->value('description'));
+        $this->assertCount(2, $this->getJson($url)->assertOk()->json('data'));
+        $this->getJson("/api/v1/assessments/{$final->id}")->assertJsonPath('data.can_amend', true);
+
+        // Only the assessing therapist amends; reception cannot even read the history.
+        $other = $this->userWithRole(Role::Therapist, $this->branch);
+        $this->therapistFor($this->speech, $other, $this->branch);
+        $this->actingAs($other)->postJson($url, ['field' => 'summary', 'value' => 'x', 'reason' => 'Not mine'])->assertForbidden();
+        $this->actingAs($this->reception)->getJson($url)->assertForbidden();
+    }
+
     public function test_assessment_and_progress_report_pdfs_render(): void
     {
         $a = $this->createAssessment(['finalize' => true, 'parent_summary' => 'সারার কথা বলায় উন্নতি হচ্ছে।']);

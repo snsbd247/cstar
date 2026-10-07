@@ -49,4 +49,15 @@
 
 @if($a->parent_summary)<h2>For the family</h2><div class="box">{!! nl2br(e($a->parent_summary)) !!}</div>@endif
 
+@if(! empty($amendments))
+    <h2>Amendments</h2>
+    <p class="muted">This report was corrected after it was finalized. The text above is the corrected version.</p>
+    <table>
+        <tr><th>Date</th><th>Part</th><th>By</th><th>Reason</th></tr>
+        @foreach($amendments as $m)
+            <tr><td>{{ \Illuminate\Support\Carbon::parse($m['at'])->format('j M Y') }}</td><td>{{ str_replace(['section_findings.', '_'], ['', ' '], $m['field']) }}</td><td>{{ $m['by'] }}</td><td>{{ $m['reason'] }}</td></tr>
+        @endforeach
+    </table>
+@endif
+
 <div class="sign"><b>{{ $a->therapist->name }}</b><br><span class="muted">{{ $a->branch?->name }}</span></div>

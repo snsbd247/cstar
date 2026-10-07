@@ -3,6 +3,7 @@ import { RouteError } from '../components/ErrorBoundary'
 import { createBrowserRouter, type RouteObject } from 'react-router'
 import ChangePasswordPage from '../features/auth/ChangePasswordPage'
 import LoginPage from '../features/auth/LoginPage'
+import ForgotPasswordPage from '../features/auth/ForgotPasswordPage'
 import BranchesPage from '../features/branches/BranchesPage'
 import { RoomsPage, ServicesByBranchPage, StaffByBranchPage } from '../features/branches/BranchAdminPages'
 import { AdvancesPage, AssignmentsPage, EmployeeProfilesPage, LeavePage, SalaryStructuresPage } from '../features/staff/StaffAdminPages'
@@ -54,6 +55,7 @@ import OnlineRequestsPage from '../features/requests/OnlineRequestsPage'
 import { portalNav } from '../features/portal/nav'
 import { PortalBilling, PortalHome, PortalProfile, PortalProgress, PortalSchedule } from '../features/portal/PortalApp'
 import { therapistNav } from '../features/therapist/nav'
+import { ClinicalReviewPage } from '../features/therapist/ClinicalReviewPage'
 import { TherapistToday } from '../features/therapist/TherapistApp'
 import { trainerNav } from '../features/trainer/nav'
 import { TrainerToday } from '../features/trainer/TrainerApp'
@@ -183,6 +185,7 @@ const plannedAdminPages: RouteObject[] = [
 export const router = createBrowserRouter([{ errorElement: <RouteError />, children: [
   { path: '/', element: <HomeRedirect /> },
   { path: '/login', element: <LoginPage /> },
+  { path: '/forgot-password', element: <ForgotPasswordPage /> },
   {
     element: <RequireAuth roles={['super_admin', 'branch_admin', 'receptionist', 'trainer', 'therapist', 'accountant', 'parent']} />,
     children: [{ path: '/change-password', element: <ChangePasswordPage /> }],
@@ -234,6 +237,7 @@ export const router = createBrowserRouter([{ errorElement: <RouteError />, child
           { path: 'assessments', element: <TherapistAssessmentsPage /> },
           { path: 'assessments/new', element: <TherapistNewAssessmentPage /> },
           { path: 'assessments/:id', element: <TherapistAssessmentPage /> },
+          { path: 'review', element: <ClinicalReviewPage /> },
           { path: 'payslips', element: <MyPayslipsPage /> },
         ],
       },

@@ -46,7 +46,10 @@
 | R15 | Appointments → Appointment Requests: website-এর একটি অনুরোধ থেকে appointment বানান | অনুরোধটি "converted" হয় | | |
 | R16 | Assessments → Recommendations: একটি সুপারিশ থেকে "Enroll" | ফর্ম আগে থেকে ভরা থাকে | | |
 | R17 | Accounts → Cash Closing: দিনের শেষে নোট গুনে cash closing করুন (৳৫০ কম লিখে) | কম হলে কারণ বাধ্যতামূলক | | |
-| R18 | একজন শিশুর clinical তথ্য (diagnosis, therapist-এর internal note) দেখার চেষ্টা করুন | রিসেপশন clinical note দেখতে পান না | | |
+| R19 | Enrollments → Waiting List → Add to waiting list (একজন শিশু, Speech Therapy, High priority) → **Offer place** | তালিকায় ক্রম নম্বর দেখায়; Offer করলে অভিভাবক বাংলায় বার্তা পান; পরে enroll করলে তালিকা থেকে সরে যায় | | |
+| R20 | অভিভাবক portal থেকে বুক করা appointment (P6) Today's Appointments-এ খুঁজে **Confirm** করুন | ঘণ্টায় notification এসেছিল; confirm-এর পর অভিভাবক বার্তা পান | | |
+| R21 | Inventory → Stock Items → একটি জিনিসে **Stock in / out** → Used / issued | stock কমে; stock card-এ লাইন আসে; stock-এর বেশি দেওয়া যায় না | | |
+| R22 | Dashboard-এর উপরে **Check in**, দিনের শেষে **Check out** | সময় দেখায়; অফিস শুরুর পরে এলে "late" | | |
 
 ## ৩. থেরাপিস্ট (ফোন/ট্যাবে /therapist)
 
@@ -59,6 +62,11 @@
 | T5 | অন্য থেরাপিস্টের assessment বদলানোর চেষ্টা | সম্ভব নয় | | |
 | T6 | Patients → একজন শিশুর plan-এ লক্ষ্যের অগ্রগতি % বদলান | Plans & Goals ও progress report-এ নতুন % আসে | | |
 | T7 | Payslips খুলুন | শুধু নিজের payslip দেখায় | | |
+| T8 | যে শিশুর অভিভাবক P8 করেছেন, তার পরের session note খুলুন | ডান পাশে "Last session"-এর নিচে "Family reported" — করেছি/কিছুটা ও মন্তব্য | | |
+| T9 | Admin থেকে শিশুর profile → **Progress** tab | গত ৬ মাসের উপস্থিতি, session ও লক্ষ্যের score-এর chart | | |
+| T10 | App-এর উপরে Check in | হাজিরা HR sheet-এ আসে | | |
+| T11 | Finalize করা note-এ **Amend note** → "Summary for parents" ঠিক করুন, কারণ লিখুন | note-এ নতুন লেখা; Amendments-এ পুরনো লেখা ও কারণ; portal-এও নতুন সংক্ষেপ | | |
+| T12 | (Supervisor) Review tab → একটি note-এ "Needs changes" + মন্তব্য | লেখক থেরাপিস্ট notification পান; note-এর নিচে "Supervisor review" | | |
 
 ## ৪. ট্রেইনার (ফোনে /trainer)
 
@@ -67,6 +75,8 @@
 | G1 | Today → আজকের class-এর হাজিরা দিন (একজন late, একজন absent) | Training → Attendance (admin)-এ "Marked" দেখায় | | |
 | G2 | উপস্থিত শিশুদের training record লিখুন | Training Records-এ আসে; অভিভাবক portal-এ note দেখেন | | |
 | G3 | নিজের class ছাড়া অন্য class-এর শিশু খোঁজার চেষ্টা | দেখা যায় না | | |
+| G4 | App-এর উপরে Check in / Check out | সময় দেখায়; HR sheet-এ আসে | | |
+| G5 | অন্য class-এর substitute হলে (B10) Today খুলুন | সেই class দেখায়, হাজিরা দেওয়া যায়; তারিখ শেষে আর দেখায় না | | |
 
 ## ৫. অভিভাবক (ফোনে /portal — বাংলায়)
 
@@ -77,6 +87,13 @@
 | P3 | অগ্রগতি → উপস্থিতি, লক্ষ্য, therapist-এর note | শুধু অভিভাবকের জন্য লেখা অংশ দেখায়, internal note দেখায় না | | |
 | P4 | বিল → invoice ও রসিদের PDF | খোলে | | |
 | P5 | ঠিকানার শেষে অন্য শিশুর নম্বর বসিয়ে দেখার চেষ্টা | দেখা যায় না | | |
+| P6 | সময়সূচি → "খালি সময়ে সেশন বুক করুন" → দিন ও সময় বেছে বুক | "বুকিং পাঠানো হয়েছে"; রিসেপশন confirm করলে বার্তা আসে (R20) | | |
+| P7 | আসন্ন একটি appointment-এর পাশে **বাতিল** (২৪ ঘণ্টার কম আগে) | সতর্কবার্তা দেখায়; বাতিল হয়, রিসেপশন জানতে পারে | | |
+| P8 | হোম → বাসায় অনুশীলন → **করেছি** ও একটি মন্তব্য | বোতাম রঙিন হয়, গত ৭ দিনের চিহ্নে আজকের দাগ | | |
+| P9 | অগ্রগতি পাতার উপরের chart | উপস্থিতি/সেশন/লক্ষ্যের chart বাংলা মাসের নামে | | |
+| P10 | বিল → **অনলাইনে পরিশোধ করুন** (sandbox/পরীক্ষার account দিয়ে) | gateway থেকে ফিরে "… পরিশোধ সফল হয়েছে" ও রসিদ; বকেয়া কমে | | |
+| P12 | Login পাতায় "পাসওয়ার্ড ভুলে গেছেন?" → মোবাইল → SMS কোড → নতুন password | নতুন password দিয়ে লগইন হয়; একই কোড দ্বিতীয়বার চলে না | | |
+| P11 | SMS চালু থাকলে: পেমেন্ট বা appointment-এর পর অভিভাবকের ফোন | "C-STAR:" দিয়ে শুরু বাংলা SMS আসে | | |
 
 ## ৬. হিসাবরক্ষক (Accountant)
 
@@ -91,6 +108,9 @@
 | A7 | Profit & Loss, Cash Flow, Trial Balance-এর PDF | খোলে, সংখ্যা মেলে | | |
 | A8 | Accounts → Bank Accounts | প্রতিটি cash/bank/bKash-এর balance দেখায় | | |
 | A9 | Billing & Payments → Billing Dashboard | আজকের ও মাসের collection, বকেয়া, অগ্রিম | | |
+| A10 | Billing & Payments → Online Payments: P10-এর পেমেন্ট | "Paid", রসিদ নম্বর; Accounts-এ "Online Payments in Transit" খাতে ওঠে (SSLCommerz) বা bKash খাতে | | |
+| A11 | Staff → Staff Attendance: একজনের একটি দিন click করে "Absent" করুন | sheet-এ A দেখায়, মাসের গণনা বদলায়; ছুটির দিনগুলো Lv | | |
+| A12 | Inventory → Stock Items | stock-এর মোট মূল্য দেখায়; Low Stock তালিকা | | |
 
 ## ৭. ব্রাঞ্চ অ্যাডমিন
 
@@ -102,6 +122,11 @@
 | B4 | Users → Branch Access: একজন staff-কে আরেকটি branch দিন | শুধু নিজের branch দিতে পারেন | | |
 | B5 | Activity Logs → Login History | নিজের branch-এর staff-এর লগইন, ব্যর্থ চেষ্টা দেখায় | | |
 | B6 | Reports & Analytics → যেকোনো ৩টি report → PDF ও Excel | ডাউনলোড হয়, বাংলা নাম ঠিক থাকে | | |
+| B7 | Inventory: একটি জিনিস reorder level পর্যন্ত ব্যবহার করুন | ঘণ্টায় "Low stock" notification, Low Stock তালিকায় আসে | | |
+| B8 | অন্য branch-এর থেরাপিস্টের তথ্য/ছুটি বদলানোর চেষ্টা | সম্ভব নয় (শুধু নিজের branch) | | |
+| B9 | থেরাপিস্টের ছুটি দিন (বুক করা appointment-সহ) → Substitute → Preview → Move | ফাঁকা সহকর্মীর কাছে যায়, বাকিগুলোর কারণ দেখায়; অভিভাবক বার্তা পান | | |
+| B10 | Classes → class → Substitute trainer (আজ থেকে ২ দিন) | substitute ট্রেইনার notification পান, G5 | | |
+| B11 | Reports → একটি রিপোর্ট → **Excel**; Accounts → Balance Sheet → **Excel** | .xlsx খোলে, সংখ্যা যোগ করা যায়, বাংলা নাম ঠিক | | |
 
 ## ৮. সুপার অ্যাডমিন
 
@@ -117,6 +142,10 @@
 | S8 | Website / CMS → SEO: "Hide from search engines" চালু | site-এর robots.txt-এ "Disallow: /" | | |
 | S9 | Notifications → Templates: "Payment received" বার্তা বদলান | পরের পেমেন্টে অভিভাবক নতুন লেখা পান; ভুল {placeholder} দিলে save হয় না | | |
 | S10 | Users → Permissions | প্রতিটি role কী করতে পারে তার ছক | | |
+| S11 | Settings → SMS & WhatsApp: GreenWeb token → Check balance → নিজের নম্বরে Send test | balance দেখায়, SMS আসে; Notifications → SMS / WhatsApp Log-এ "Sent" | | |
+| S12 | Settings → Online Payment: bKash / SSLCommerz-এর তথ্য, Sandbox চালু রেখে Save | portal-এ gateway দেখায়; go-live-এর আগে Sandbox বন্ধ না করলে Settings → System-এ সতর্কবার্তা | | |
+| S13 | Settings → Staff Attendance: অফিস শুরুর সময় ও সাপ্তাহিক ছুটি | HR sheet-এ সেই দিন "–" দেখায়; দেরিতে check-in "late" | | |
+| S14 | Settings → Appointment: অনলাইন বুকিং বন্ধ করুন | portal-এ বুকিং বোতাম আর দেখায় না | | |
 
 ## ৯. নিরাপত্তা পরীক্ষা
 

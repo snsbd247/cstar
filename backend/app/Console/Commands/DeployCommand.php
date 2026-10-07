@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
+use App\Enums\Permission;
 use App\Enums\Role;
 use App\Models\Setting;
 use App\Models\User;
-use App\Services\GoLiveChecks;
 use Database\Seeders\ActivityTypeSeeder;
 use Database\Seeders\AssessmentTypeSeeder;
 use Database\Seeders\ChartOfAccountsSeeder;
@@ -29,7 +29,7 @@ class DeployCommand extends Command
 
     protected $description = 'Install or update C-STAR on the server (migrate, reference data, caches)';
 
-    private const EXTENSIONS = ['pdo_mysql', 'mbstring', 'openssl', 'tokenizer', 'xml', 'ctype', 'fileinfo', 'gd', 'zlib', 'curl', 'bcmath'];
+    private const EXTENSIONS = ['pdo_mysql', 'mbstring', 'openssl', 'tokenizer', 'xml', 'ctype', 'fileinfo', 'gd', 'zlib', 'curl', 'bcmath', 'zip'];
 
     public function handle(): int
     {
@@ -112,7 +112,7 @@ class DeployCommand extends Command
         $registrar = app(PermissionRegistrar::class);
         $registrar->forgetCachedPermissions();
         $existing = PermissionModel::pluck('name')->all();
-        $new = array_values(array_diff(\App\Enums\Permission::all(), $existing));
+        $new = array_values(array_diff(Permission::all(), $existing));
         foreach ($new as $name) {
             PermissionModel::findOrCreate($name, 'web');
         }

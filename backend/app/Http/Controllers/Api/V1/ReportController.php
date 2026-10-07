@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Services\AuditLogger;
 use App\Services\PdfService;
 use App\Services\ReportService;
+use App\Services\XlsxWriter;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -27,7 +28,7 @@ class ReportController extends Controller
             ->map(fn ($r, $key) => ['key' => $key, 'group' => $r[0], 'title' => $r[1], 'filters' => $r[3]])->values()]);
     }
 
-    /** GET /reports/{key}?from=&to=&branch_id=&service_id=&therapist_id=&format=pdf|csv */
+    /** GET /reports/{key}?from=&to=&branch_id=&service_id=&therapist_id=&format=pdf|xlsx|csv */
     public function show(Request $request, string $key, ReportService $reports): JsonResponse|Response
     {
         Gate::authorize(Permission::REPORTS_VIEW);
@@ -37,7 +38,7 @@ class ReportController extends Controller
             'from' => ['nullable', 'date'], 'to' => ['nullable', 'date', 'after_or_equal:from'],
             'branch_id' => ['nullable', 'integer', 'exists:branches,id'],
             'service_id' => ['nullable', 'integer'], 'therapist_id' => ['nullable', 'integer'],
-            'format' => ['nullable', 'in:pdf,csv'],
+            'format' => ['nullable', 'in:pdf,csv,xlsx'],
         ]);
 
         $branches = $request->user()->accessibleBranchIds();
@@ -57,9 +58,15 @@ class ReportController extends Controller
         AuditLogger::log('exported', null, new: ['report' => $key, 'format' => $data['format'], 'from' => $from->toDateString(), 'to' => $to->toDateString()]);
         $filename = "{$key}-{$from->format('Ymd')}-{$to->format('Ymd')}";
 
-        return $data['format'] === 'pdf'
-            ? app(PdfService::class)->response('pdf.report', ['report' => $report], $report['title'], "{$filename}.pdf")
-            : $this->csv($report, "{$filename}.csv");
+        return match ($data['format']) {
+            'pdf' => app(PdfService::class)->response('pdf.report', ['report' => $report], $report['title'], "{$filename}.pdf"),
+            'xlsx' => response(app(XlsxWriter::class)->build($report['columns'], $report['rows'], $report['totals'] ?: null,
+                [$report['title'], "{$from->format('j M Y')} – {$to->format('j M Y')}"], $report['title']), 200, [
+                    'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                    'Content-Disposition' => "attachment; filename=\"{$filename}.xlsx\"",
+                ]),
+            default => $this->csv($report, "{$filename}.csv"),
+        };
     }
 
     /** UTF-8 CSV with a BOM so Excel shows Bangla names correctly. */

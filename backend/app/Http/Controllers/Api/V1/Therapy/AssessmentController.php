@@ -11,6 +11,7 @@ use App\Models\AssessmentType;
 use App\Models\Patient;
 use App\Models\TherapySession;
 use App\Models\TrainingRecord;
+use App\Services\AmendmentService;
 use App\Services\AssessmentService;
 use App\Services\AuditLogger;
 use App\Services\PdfService;
@@ -118,7 +119,9 @@ class AssessmentController extends Controller
         $assessment->load(['patient.homeBranch', 'patient.guardians', ...self::WITH]);
         AuditLogger::log('exported', $assessment, new: ['format' => 'pdf']);
 
-        return $this->pdf->response('pdf.assessment', ['a' => $assessment], 'Assessment Report', "{$assessment->assessment_code}.pdf");
+        $amendments = app(AmendmentService::class)->history($assessment);
+
+        return $this->pdf->response('pdf.assessment', ['a' => $assessment, 'amendments' => $amendments], 'Assessment Report', "{$assessment->assessment_code}.pdf");
     }
 
     /** GET /patients/{id}/progress-report?from=&to= — plans, goals and session summary for a period. */

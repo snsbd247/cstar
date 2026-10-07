@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Storage;
 /** Clinical therapy staff. Not a trainer (TRAINER ≠ THERAPIST). */
 #[Fillable([
     'user_id', 'employee_id', 'primary_branch_id', 'employee_code', 'name', 'slug', 'designation', 'therapist_type',
-    'phone', 'email', 'qualification', 'experience_years', 'bio', 'photo_path', 'status', 'show_on_website', 'sort_order',
+    'phone', 'email', 'qualification', 'experience_years', 'bio', 'photo_path', 'status', 'is_supervisor', 'show_on_website', 'sort_order',
 ])]
 class Therapist extends Model
 {
@@ -28,6 +28,7 @@ class Therapist extends Model
         return [
             'therapist_type' => TherapistType::class,
             'show_on_website' => 'boolean',
+            'is_supervisor' => 'boolean',
         ];
     }
 

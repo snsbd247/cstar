@@ -46,6 +46,7 @@ export interface User {
 
 export interface AuthUser extends User {
   is_super_admin: boolean
+  is_clinical_supervisor?: boolean
   permissions: string[]
 }
 

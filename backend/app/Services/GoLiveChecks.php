@@ -6,6 +6,7 @@ use App\Models\Branch;
 use App\Models\JournalEntry;
 use App\Models\User;
 use App\Services\Messaging\MessagingSettings;
+use App\Services\OnlinePayment\OnlinePaymentSettings;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 
@@ -25,6 +26,7 @@ class GoLiveChecks
         $demoUsers = User::where('email', 'like', '%@cstar.test')->count();
         $center = $this->system->group('center');
         $messaging = app(MessagingSettings::class);
+        $payments = app(OnlinePaymentSettings::class);
 
         return [
             ['group' => 'server', 'label' => 'Debug mode is off (APP_DEBUG=false)', 'ok' => ! config('app.debug'), 'hint' => 'Error details must never be shown to visitors.'],
@@ -34,6 +36,8 @@ class GoLiveChecks
             ['group' => 'server', 'label' => 'Scheduler (cron) is running', 'ok' => $heartbeat && Carbon::parse($heartbeat)->gt(now()->subMinutes(5)), 'hint' => 'cPanel cron: * * * * * php artisan schedule:run'],
             ['group' => 'server', 'label' => 'A database backup exists from the last 2 days', 'ok' => $lastBackup && Carbon::parse($lastBackup['created_at'])->gt(now()->subDays(2)), 'hint' => 'Turn on the daily backup or press "Back up now".'],
             ['group' => 'server', 'label' => 'SMS goes out through GreenWeb (not test mode)', 'ok' => $messaging->flag('sms_enabled') && $messaging->get('sms_driver') === 'greenweb', 'hint' => 'Settings → SMS & WhatsApp: GreenWeb token, then send a test SMS.'],
+            // Online payment is optional, but a live gateway left in sandbox would mark unpaid money as received.
+            ['group' => 'server', 'label' => 'Online payment: no gateway left in sandbox (test) mode', 'ok' => ! collect(['bkash', 'sslcommerz'])->contains(fn ($g) => $payments->flag("{$g}_enabled") && $payments->flag("{$g}_sandbox")), 'hint' => 'Settings → Online Payment — untick "Sandbox" after the merchant account is approved, or turn the gateway off.'],
             ['group' => 'server', 'label' => 'Email sending is configured', 'ok' => ! in_array(config('mail.default'), ['log', 'array'], true), 'hint' => 'Set MAIL_* in .env (cPanel email account).'],
             ['group' => 'data', 'label' => 'No demo accounts (…@cstar.test)', 'ok' => $demoUsers === 0, 'hint' => "{$demoUsers} demo account(s) — deactivate before go-live."],
             ['group' => 'data', 'label' => 'Center information filled in (address and phone)', 'ok' => $center['address'] !== '' && $center['phone'] !== '', 'hint' => 'Settings → Center Information — printed on every PDF.'],

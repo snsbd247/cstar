@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Patient;
 use App\Models\PatientClinicalProfile;
 use Illuminate\Http\Request;
 
@@ -9,7 +10,7 @@ use Illuminate\Http\Request;
  * Patient profile page. Clinical data (clinical_profile, diagnoses) appears only when the
  * controller loaded it — which it does only for users allowed to see it.
  *
- * @mixin \App\Models\Patient
+ * @mixin Patient
  */
 class PatientDetailResource extends PatientResource
 {

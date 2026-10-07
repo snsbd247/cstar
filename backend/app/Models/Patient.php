@@ -185,7 +185,9 @@ class Patient extends Model
                     ->whereIn('status', $open)
                     ->whereHas('trainingEnrollment', fn ($t) => $t->where(fn ($w) => $w
                         ->where('trainer_id', $trainerId)
-                        ->orWhereHas('trainingGroup', fn ($g) => $g->where('lead_trainer_id', $trainerId)))));
+                        ->orWhereHas('trainingGroup', fn ($g) => $g->where('lead_trainer_id', $trainerId)
+                            // A substitute trainer sees the class's children while covering it (Sprint 22).
+                            ->orWhereHas('substitutes', fn ($s) => $s->where('trainer_id', $trainerId)->activeOn())))));
             }
 
             if ($roles->contains(Role::Therapist->value) && ($therapistId = $user->therapist?->id)) {
@@ -200,6 +202,12 @@ class Patient extends Model
                         ->whereDate('date', '>=', today()->subDays(14)))
                     // The assessing therapist keeps access to the child they assessed.
                     ->orWhereHas('assessments', fn ($a) => $a->where('therapist_id', $therapistId));
+
+                // A clinical supervisor reviews every therapy child of their branches (Sprint 22, Plan #২০).
+                if ($user->therapist?->is_supervisor) {
+                    $q->orWhereHas('enrollments', fn ($e) => $e->where('type', EnrollmentType::Therapy)->whereIn('status', $open)->whereIn('branch_id', $branchIds))
+                        ->orWhereHas('assessments', fn ($a) => $a->whereIn('branch_id', $branchIds));
+                }
             }
 
             if ($roles->contains(Role::Parent->value) && ($guardianId = $user->guardian?->id)) {

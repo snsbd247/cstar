@@ -73,4 +73,10 @@ class TherapySession extends Model
     {
         return $this->status === 'final';
     }
+
+    /** Supervisor reviews (Sprint 22). */
+    public function reviews(): MorphMany
+    {
+        return $this->morphMany(ClinicalReview::class, 'reviewable');
+    }
 }

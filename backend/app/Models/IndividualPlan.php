@@ -30,6 +30,11 @@ class IndividualPlan extends Model
         return $this->belongsTo(Enrollment::class);
     }
 
+    public function patient(): BelongsTo
+    {
+        return $this->belongsTo(Patient::class);
+    }
+
     public function goals(): HasMany
     {
         return $this->hasMany(PlanGoal::class)->orderBy('sort_order')->orderBy('id');

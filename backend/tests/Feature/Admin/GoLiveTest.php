@@ -11,7 +11,9 @@ use App\Models\JournalEntry;
 use App\Models\JournalLine;
 use App\Models\Patient;
 use App\Models\User;
+use App\Services\GoLiveChecks;
 use App\Services\GoLiveService;
+use App\Services\OnlinePayment\OnlinePaymentSettings;
 use Database\Seeders\ChartOfAccountsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -112,5 +114,17 @@ class GoLiveTest extends TestCase
     public function test_go_live_check_command_lists_open_items(): void
     {
         $this->artisan('cstar:go-live-check')->expectsOutputToContain('Opening balances entered')->assertExitCode(1);
+    }
+
+    public function test_a_live_gateway_left_in_sandbox_is_flagged(): void
+    {
+        $check = fn () => collect(app(GoLiveChecks::class)->all())->firstWhere('label', 'Online payment: no gateway left in sandbox (test) mode')['ok'];
+        $payments = app(OnlinePaymentSettings::class);
+
+        $this->assertTrue($check());                                     // online payment not used at all
+        $payments->update(['bkash_enabled' => '1', 'bkash_sandbox' => '1']);
+        $this->assertFalse($check());
+        $payments->update(['bkash_sandbox' => '0']);
+        $this->assertTrue($check());
     }
 }

@@ -17,6 +17,8 @@ use App\Http\Controllers\Api\V1\Billing\InvoiceController;
 use App\Http\Controllers\Api\V1\Billing\PackageController;
 use App\Http\Controllers\Api\V1\Billing\PaymentController;
 use App\Http\Controllers\Api\V1\BranchController;
+use App\Http\Controllers\Api\V1\ClinicalAmendmentController;
+use App\Http\Controllers\Api\V1\ClinicalReviewController;
 use App\Http\Controllers\Api\V1\Cms\CmsContentController;
 use App\Http\Controllers\Api\V1\Cms\WebsitePagesController;
 use App\Http\Controllers\Api\V1\Cms\WebsiteSetupController;
@@ -31,6 +33,7 @@ use App\Http\Controllers\Api\V1\MessagingController;
 use App\Http\Controllers\Api\V1\NotificationAdminController;
 use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\OnlinePaymentController;
+use App\Http\Controllers\Api\V1\PasswordResetController;
 use App\Http\Controllers\Api\V1\PatientController;
 use App\Http\Controllers\Api\V1\PatientDocumentController;
 use App\Http\Controllers\Api\V1\PatientRecordsController;
@@ -41,6 +44,7 @@ use App\Http\Controllers\Api\V1\RoleController;
 use App\Http\Controllers\Api\V1\SettingsController;
 use App\Http\Controllers\Api\V1\StaffAdminController;
 use App\Http\Controllers\Api\V1\StaffAttendanceController;
+use App\Http\Controllers\Api\V1\SubstituteController;
 use App\Http\Controllers\Api\V1\Therapy\AppointmentController;
 use App\Http\Controllers\Api\V1\Therapy\AssessmentController;
 use App\Http\Controllers\Api\V1\Therapy\TherapistController;
@@ -59,6 +63,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
     Route::post('auth/login', [AuthController::class, 'login'])->middleware('throttle:login');
+    Route::post('auth/forgot', [PasswordResetController::class, 'request'])->middleware('throttle:3,15');
+    Route::post('auth/reset', [PasswordResetController::class, 'reset'])->middleware('throttle:10,15');
 
     Route::middleware(['auth:sanctum', 'active', 'throttle:api'])->group(function () {
         Route::post('auth/logout', [AuthController::class, 'logout']);
@@ -185,6 +191,11 @@ Route::prefix('v1')->group(function () {
         Route::put('therapists/{therapist}/schedule', [TherapistController::class, 'updateSchedule']);
         Route::post('therapists/{therapist}/leaves', [TherapistController::class, 'storeLeave']);
         Route::delete('therapist-leaves/{leave}', [TherapistController::class, 'destroyLeave']);
+        Route::get('therapists/{therapist}/substitute', [SubstituteController::class, 'therapistOptions']);
+        Route::post('therapists/{therapist}/substitute', [SubstituteController::class, 'assignTherapist']);
+        Route::get('classes/{class}/substitutes', [SubstituteController::class, 'classSubstitutes']);
+        Route::post('classes/{class}/substitutes', [SubstituteController::class, 'addClassSubstitute']);
+        Route::delete('class-substitutes/{substitute}', [SubstituteController::class, 'removeClassSubstitute']);
 
         Route::get('availability', [AppointmentController::class, 'availability']);
         Route::get('appointments', [AppointmentController::class, 'index']);
@@ -195,7 +206,13 @@ Route::prefix('v1')->group(function () {
             ->whereIn('action', ['confirm', 'check-in', 'cancel', 'no-show']);
         Route::get('appointments/{appointment}/session', [TherapySessionController::class, 'show']);
         Route::post('appointments/{appointment}/session', [TherapySessionController::class, 'store']);
+        Route::match(['get', 'post'], 'appointments/{appointment}/session/amendments', [ClinicalAmendmentController::class, 'session']);
+        Route::match(['get', 'post'], 'assessments/{assessment}/amendments', [ClinicalAmendmentController::class, 'assessment']);
+        Route::match(['get', 'post'], 'training-records/{trainingRecord}/amendments', [ClinicalAmendmentController::class, 'trainingRecord']);
         Route::get('therapy-sessions', [TherapySessionController::class, 'index']);
+        Route::get('clinical-reviews', [ClinicalReviewController::class, 'index']);
+        Route::post('clinical-reviews', [ClinicalReviewController::class, 'store']);
+        Route::get('clinical-reviews/{type}/{id}', [ClinicalReviewController::class, 'forRecord'])->whereNumber('id');
         Route::get('therapist/today', [TherapySessionController::class, 'today']);
         Route::get('therapist/patients', [TherapySessionController::class, 'myPatients']);
         Route::get('enrollments/{enrollment}/slots', [TherapySessionController::class, 'slots']);
