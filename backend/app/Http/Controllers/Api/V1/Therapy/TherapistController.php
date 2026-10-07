@@ -67,6 +67,7 @@ class TherapistController extends Controller
     public function update(Request $request, Therapist $therapist): JsonResponse
     {
         Gate::authorize(Permission::THERAPISTS_MANAGE);
+        $this->assertManages($request, $therapist);
         $data = $this->validated($request, $therapist);
 
         DB::transaction(function () use ($therapist, $data) {
@@ -81,6 +82,7 @@ class TherapistController extends Controller
     public function updateSchedule(Request $request, Therapist $therapist): JsonResponse
     {
         Gate::authorize(Permission::THERAPISTS_MANAGE);
+        $this->assertManages($request, $therapist);
         $data = $request->validate([
             'schedules' => ['present', 'array', 'max:21'],
             'schedules.*.branch_id' => ['required', 'integer', 'exists:branches,id'],
@@ -104,6 +106,7 @@ class TherapistController extends Controller
     public function storeLeave(Request $request, Therapist $therapist): JsonResponse
     {
         Gate::authorize(Permission::THERAPISTS_MANAGE);
+        $this->assertManages($request, $therapist);
         $data = $request->validate([
             'start_date' => ['required', 'date'],
             'end_date' => ['required', 'date', 'after_or_equal:start_date'],
@@ -118,12 +121,21 @@ class TherapistController extends Controller
         return response()->json(['data' => ['id' => $leave->id, 'appointments_to_reschedule' => $affected]], 201);
     }
 
-    public function destroyLeave(TherapistLeave $leave): JsonResponse
+    public function destroyLeave(Request $request, TherapistLeave $leave): JsonResponse
     {
         Gate::authorize(Permission::THERAPISTS_MANAGE);
+        $this->assertManages($request, $leave->therapist);
         $leave->delete();
 
         return response()->json(null, 204);
+    }
+
+    /** A branch admin manages therapists whose main branch, or a branch they work at, is theirs. */
+    private function assertManages(Request $request, Therapist $therapist): void
+    {
+        $branches = $request->user()->accessibleBranchIds();
+        abort_unless($branches === null || in_array((int) $therapist->primary_branch_id, array_map(intval(...), $branches), true)
+            || $therapist->schedules()->whereIn('branch_id', $branches)->exists(), 403);
     }
 
     private function validated(Request $request, ?Therapist $therapist = null): array

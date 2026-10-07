@@ -6,6 +6,7 @@ use App\Enums\Role;
 use App\Enums\UserStatus;
 use App\Models\Branch;
 use App\Models\Patient;
+use App\Services\SiteSettings;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Route;
 use Tests\TestCase;
@@ -27,6 +28,20 @@ class SecurityHardeningTest extends TestCase
             ->values()->all();
 
         $this->assertSame(self::PUBLIC_API, $open, 'API routes reachable without signing in: '.implode(', ', $open));
+    }
+
+    public function test_website_contact_details_cannot_break_out_of_the_structured_data_script(): void
+    {
+        app(SiteSettings::class)->update(['address' => '</script><script>alert(1)</script>']);
+
+        $this->get('/')->assertOk()->assertDontSee('<script>alert(1)', false);
+    }
+
+    public function test_accountant_can_load_services_for_the_package_form(): void
+    {
+        $branch = Branch::factory()->create();
+        $this->actingAs($this->userWithRole(Role::Accountant, $branch))->getJson('/api/v1/lookups/bookable-services')->assertOk();
+        $this->actingAs($this->userWithRole(Role::Trainer, $branch))->getJson('/api/v1/lookups/bookable-services')->assertForbidden();
     }
 
     public function test_signed_out_requests_get_401_and_no_data(): void

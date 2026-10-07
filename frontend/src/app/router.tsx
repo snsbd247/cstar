@@ -1,4 +1,5 @@
 import { APP_BASE } from '../api/client'
+import { RouteError } from '../components/ErrorBoundary'
 import { createBrowserRouter, type RouteObject } from 'react-router'
 import ChangePasswordPage from '../features/auth/ChangePasswordPage'
 import LoginPage from '../features/auth/LoginPage'
@@ -179,7 +180,7 @@ const plannedAdminPages: RouteObject[] = [
   ).values(),
 ]
 
-export const router = createBrowserRouter([
+export const router = createBrowserRouter([{ errorElement: <RouteError />, children: [
   { path: '/', element: <HomeRedirect /> },
   { path: '/login', element: <LoginPage /> },
   {
@@ -255,4 +256,4 @@ export const router = createBrowserRouter([
     ],
   },
   { path: '*', element: <NotFound /> },
-], { basename: APP_BASE || undefined })
+] }], { basename: APP_BASE || undefined })

@@ -3,8 +3,8 @@ import { api } from '../../api/client'
 import type { Paginated } from '../../types'
 import type { AttendanceStatus, AttendanceSummary, IndividualPlan, RosterDay, TrainingClass, TrainingRecord } from './types'
 
-export function useClasses() {
-  return useQuery({ queryKey: ['classes'], queryFn: async () => (await api.get<{ data: TrainingClass[] }>('/classes')).data.data })
+export function useClasses(enabled = true) {
+  return useQuery({ queryKey: ['classes'], queryFn: async () => (await api.get<{ data: TrainingClass[] }>('/classes')).data.data, enabled })
 }
 
 export function useClass(id: number | undefined) {

@@ -47,9 +47,10 @@ class LookupController extends Controller
     }
 
     /** Services that can be booked as appointments (therapy, assessment, consultation — never training). */
-    public function bookableServices(): JsonResponse
+    public function bookableServices(Request $request): JsonResponse
     {
-        Gate::authorize(Permission::APPOINTMENTS_VIEW);
+        // Appointment booking and the package form (accountants set up packages too).
+        abort_unless($request->user()->can(Permission::APPOINTMENTS_VIEW) || $request->user()->can(Permission::PACKAGES_MANAGE), 403);
 
         return response()->json(['data' => Service::where('is_active', true)->where('category', '!=', 'training')
             ->orderBy('sort_order')->get(['id', 'name', 'category', 'default_duration_min', 'default_price'])]);

@@ -7,6 +7,7 @@ import { useAuth } from '../contexts/useAuth'
 import { PatientQuickSearch } from '../features/patients/components/PatientQuickSearch'
 import { cn } from '../utils/cn'
 import { activeNavLink, adminNav, navLinks, type NavItem } from './adminNav'
+import { PageErrorBoundary } from '../components/ErrorBoundary'
 
 const FILTER_PARAMS = ['status', 'type', 'department', 'source', 'view', 'focus']
 
@@ -52,7 +53,9 @@ export default function AdminLayout() {
       </div>
 
       <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-        <Outlet key={pageKey} />
+        <PageErrorBoundary>
+          <Outlet key={pageKey} />
+        </PageErrorBoundary>
       </main>
     </div>
   )

@@ -4,6 +4,7 @@ import { Logo } from '../components/shared/Logo'
 import { NotificationBell } from '../components/shared/NotificationBell'
 import { useAuth } from '../contexts/useAuth'
 import { cn } from '../utils/cn'
+import { PageErrorBoundary } from '../components/ErrorBoundary'
 
 export interface BottomNavItem {
   label: string
@@ -67,7 +68,9 @@ export function MobileAppLayout({ title, nav, bangla, payslipsTo }: { title: str
       </header>
 
       <main className="mx-auto max-w-5xl px-4 py-5">
-        <Outlet />
+        <PageErrorBoundary>
+          <Outlet />
+        </PageErrorBoundary>
       </main>
 
       <nav className="fixed inset-x-0 bottom-0 z-30 grid border-t border-slate-200 bg-white pb-[env(safe-area-inset-bottom)] sm:hidden" style={{ gridTemplateColumns: `repeat(${nav.length}, minmax(0, 1fr))` }}>
