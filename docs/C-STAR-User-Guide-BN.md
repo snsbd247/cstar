@@ -95,7 +95,8 @@
 - *Settings* — কেন্দ্রের তথ্য, Patient ID, appointment-এর নিয়ম, PDF, নিরাপত্তা (idle timeout, password), **Backup** (সপ্তাহে একবার download করে বাইরে রাখুন), **System** (go-live checklist), **Go-live** (opening balance, শিশুদের import)।
 - *Users → Roles / Permissions* — কোন ভূমিকা কী করতে পারে।
 - *Website / CMS* — website-এর লেখা, ছবি, সেবা, FAQ, notice, home page-এর অংশ, SEO।
-- *Notifications → Templates* — অভিভাবকের কাছে যাওয়া বাংলা বার্তার লেখা।
+- *Notifications → Templates* — অভিভাবকের কাছে যাওয়া বাংলা বার্তার লেখা (portal, email ও SMS-এ একই লেখা যায়)।
+- *Settings → SMS & WhatsApp* — GreenWeb-এর মাধ্যমে SMS চালু/বন্ধ, কোন বার্তা SMS-এ যাবে, balance, পরীক্ষার SMS; *Notifications → SMS / WhatsApp Log* — কোন SMS গেছে, কোনটি ব্যর্থ (**Send again**)।
 
 ---
 

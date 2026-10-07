@@ -1,13 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { CheckCheck, RotateCcw, Search } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router'
+import { useNavigate, useSearchParams } from 'react-router'
 import { api, errorMessage, validationErrors } from '../../api/client'
 import { Button } from '../../components/ui/Button'
 import { Alert, Badge, Card, PageHeader } from '../../components/ui/Card'
 import { Field, Input, Select, Textarea } from '../../components/ui/Field'
 import { Pager } from '../../components/ui/Pager'
 import { Spinner } from '../../components/ui/Spinner'
+import { UrlTabs } from '../../components/ui/Tabs'
 import { useAuth } from '../../contexts/useAuth'
 import { cn } from '../../utils/cn'
 
@@ -182,6 +183,8 @@ interface LogRow {
 
 /** Notifications → Notification Logs: every automatic message and announcement sent, and whether it was read. */
 export function NotificationLogsPage() {
+  const [viewParams] = useSearchParams()
+  const logView = viewParams.get('view') ?? 'app'
   const [search, setSearch] = useState('')
   const [q, setQ] = useState('')
   const [audience, setAudience] = useState('')
@@ -203,7 +206,10 @@ export function NotificationLogsPage() {
 
   return (
     <>
-      <PageHeader title="Notification Logs" description="In-app messages sent to parents and staff. Email copies go to people who have an address (Notification Settings)." />
+      <PageHeader title="Notification Logs" description="In-app messages sent to parents and staff. Email copies go to people who have an address; SMS / WhatsApp copies are listed separately." />
+      <UrlTabs tabs={[['app', 'In-app'], ['text', 'SMS / WhatsApp']]} param="view" fallback="app" />
+      {logView === 'text' ? <TextMessageLog /> : (
+      <>
       <Card className="mb-4 grid gap-2 p-3 sm:grid-cols-2 lg:grid-cols-4">
         <div className="relative">
           <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
@@ -248,6 +254,107 @@ export function NotificationLogsPage() {
                   </p>
                   <p>{when(n.created_at)}</p>
                   <p>{n.read_at ? `read ${when(n.read_at)}` : 'not read yet'}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+        <Pager meta={data?.meta} onPage={setPage} />
+      </Card>
+      </>
+      )}
+    </>
+  )
+}
+
+interface TextRow {
+  id: number
+  channel: 'sms' | 'whatsapp'
+  driver: string
+  to: string
+  body: string
+  segments: number
+  kind: string | null
+  user: string | null
+  status: 'queued' | 'sent' | 'failed'
+  error: string | null
+  created_at: string
+  sent_at: string | null
+}
+
+/** Notifications → Logs → SMS / WhatsApp: every text message, delivery result, and "Send again" for failures. */
+export function TextMessageLog() {
+  const qc = useQueryClient()
+  const [channel, setChannel] = useState('')
+  const [status, setStatus] = useState('')
+  const [search, setSearch] = useState('')
+  const [q, setQ] = useState('')
+  const [page, setPage] = useState(1)
+
+  useEffect(() => {
+    const t = setTimeout(() => (setQ(search.trim()), setPage(1)), 300)
+    return () => clearTimeout(t)
+  }, [search])
+
+  const { data, isLoading } = useQuery({
+    queryKey: ['messaging-log', channel, status, q, page],
+    queryFn: async () =>
+      (await api.get<{ data: TextRow[]; meta: Meta; month: { sent: number; segments: number; failed: number } }>('/messaging/log', { params: { channel: channel || undefined, status: status || undefined, q: q || undefined, page } })).data,
+  })
+  const resend = useMutation({ mutationFn: (id: number) => api.post(`/messaging/log/${id}/resend`), onSuccess: () => qc.invalidateQueries({ queryKey: ['messaging-log'] }) })
+
+  return (
+    <>
+      {data && (
+        <p className="mb-3 text-sm text-slate-600">
+          This month: <b>{data.month.sent}</b> sent · <b>{data.month.segments}</b> SMS parts · <b className={data.month.failed ? 'text-red-700' : ''}>{data.month.failed}</b> failed
+        </p>
+      )}
+      <Card className="mb-4 grid gap-2 p-3 sm:grid-cols-3">
+        <div className="relative">
+          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
+          <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Mobile or name" className="pl-9" aria-label="Search" />
+        </div>
+        <Select value={channel} onChange={(e) => (setChannel(e.target.value), setPage(1))} aria-label="Channel">
+          <option value="">SMS and WhatsApp</option>
+          <option value="sms">SMS</option>
+          <option value="whatsapp">WhatsApp</option>
+        </Select>
+        <Select value={status} onChange={(e) => (setStatus(e.target.value), setPage(1))} aria-label="Status">
+          <option value="">Any result</option>
+          <option value="sent">Sent</option>
+          <option value="failed">Failed</option>
+        </Select>
+      </Card>
+      <Card className="overflow-hidden">
+        {isLoading ? (
+          <Spinner className="m-5 text-brand-600" />
+        ) : !data?.data.length ? (
+          <p className="p-5 text-sm text-slate-500">No SMS or WhatsApp messages yet. Turn them on in Settings → SMS & WhatsApp.</p>
+        ) : (
+          <ul className="divide-y divide-slate-100">
+            {data.data.map((m) => (
+              <li key={m.id} className="grid gap-1 px-4 py-3 text-sm sm:grid-cols-[1fr_230px]">
+                <div>
+                  <p className="font-bn text-slate-800">{m.body}</p>
+                  <p className="text-xs text-slate-400">
+                    {m.kind} · {m.segments} part(s) · {m.driver === 'log' ? 'test mode' : m.driver}
+                  </p>
+                  {m.error && <p className="text-xs text-red-700">{m.error}</p>}
+                </div>
+                <div className="text-xs text-slate-500 sm:text-right">
+                  <p className="text-sm text-slate-800">
+                    {m.user ?? m.to} <Badge tone={m.status === 'sent' ? 'green' : m.status === 'failed' ? 'red' : 'gray'}>{m.status}</Badge>
+                  </p>
+                  <p>
+                    {m.channel === 'sms' ? 'SMS' : 'WhatsApp'} · {m.to}
+                  </p>
+                  <p>{when(m.created_at)}</p>
+                  {m.status === 'failed' && (
+                    <button onClick={() => resend.mutate(m.id)} disabled={resend.isPending} className="mt-1 text-brand-700 hover:underline">
+                      Send again
+                    </button>
+                  )}
                 </div>
               </li>
             ))}

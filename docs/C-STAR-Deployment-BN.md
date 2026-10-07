@@ -81,8 +81,9 @@ Super Admin হিসেবে **Settings → Go-live** খুলে ধাপ�
 6. **Opening balances** — go-live দিনের cash box, ব্যাংক, bKash/Nagad, ঋণ ইত্যাদি (সিদ্ধান্ত A9)
 7. *Fixed Assets* — সরঞ্জাম; *Vendors* — সরবরাহকারীর কাছে আগের দেনা (opening balance)
 8. **শিশুদের import** — template ডাউনলোড → Excel-এ পূরণ → "CSV UTF-8" হিসেবে save → *Check file* → সমস্যা ঠিক করে আবার → *Import*; তারপর প্রত্যেককে তাদের প্রোগ্রামে enroll
-9. *Website / CMS* — আসল ছবি, সেবা, টিম, FAQ; go-live দিনে *SEO → "Hide from search engines"* বন্ধ করুন
-10. *Settings → System* — checklist-এর সব ✔ হলে go-live
+9. *Settings → SMS & WhatsApp* — Gateway: **GreenWeb BulkSMS**, GreenWeb portal থেকে API token বসিয়ে **Save** → **Check balance** → নিজের নম্বরে **Send test** → "Send SMS" চালু। কোন বার্তা SMS-এ যাবে তা টিক দিন (প্রতিটি SMS-এর খরচ আছে — বাংলায় ৭০ অক্ষরে ১টি SMS)। *Notifications → SMS / WhatsApp Log*-এ প্রতিটি SMS ও ব্যর্থ হলে কারণ দেখায়।
+10. *Website / CMS* — আসল ছবি, সেবা, টিম, FAQ; go-live দিনে *SEO → "Hide from search engines"* বন্ধ করুন
+11. *Settings → System* — checklist-এর সব ✔ হলে go-live
 
 Terminal থেকেও একই checklist: `php artisan cstar:go-live-check`
 
@@ -111,6 +112,7 @@ Terminal থেকেও একই checklist: `php artisan cstar:go-live-check`
 | Staff app খোলে না ("Frontend not built") | `public_html/spa/index.html` আছে কিনা |
 | Reminder/backup হচ্ছে না | Cron job ঠিক আছে কিনা; *Settings → System*-এ "Scheduler last ran" |
 | Email যায় না | `MAIL_*` তথ্য; cPanel email account-এর password |
+| SMS যায় না | *Notifications → SMS / WhatsApp Log*-এ "failed"-এর কারণ (token ভুল, balance শেষ); *Settings → SMS & WhatsApp* → Check balance; ঠিক হলে log থেকে **Send again**। Gateway "Test mode"-এ থাকলে কিছুই যায় না। |
 | ভুল কিছু হলে আগের অবস্থায় ফেরা | আগের zip আবার extract করে `php artisan cstar:deploy`; database ভুল হলে update-এর আগের backup restore |
 
 **কখনো করবেন না:** `.env` বা `storage/` public_html-এ রাখা · `APP_DEBUG=true` live server-এ · `php artisan migrate:fresh` (সব তথ্য মুছে যায়) · demo seeder চালানো।

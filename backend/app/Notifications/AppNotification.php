@@ -2,6 +2,8 @@
 
 namespace App\Notifications;
 
+use App\Models\User;
+use App\Notifications\Channels\TextMessageChannel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -31,12 +33,21 @@ class AppNotification extends Notification implements ShouldQueue
      */
     public function viaConnections(): array
     {
-        return ['database' => 'sync', 'mail' => config('queue.default')];
+        return ['database' => 'sync', 'mail' => config('queue.default'), TextMessageChannel::class => config('queue.default')];
     }
 
     public function via(object $notifiable): array
     {
-        return $this->email && filled($notifiable->email ?? null) ? ['database', 'mail'] : ['database'];
+        $channels = ['database'];
+        if ($this->email && filled($notifiable->email ?? null)) {
+            $channels[] = 'mail';
+        }
+        // SMS / WhatsApp copy for the kinds chosen in Settings → SMS & WhatsApp (Sprint 18).
+        if ($notifiable instanceof User && TextMessageChannel::wanted($notifiable, $this->kind)) {
+            $channels[] = TextMessageChannel::class;
+        }
+
+        return $channels;
     }
 
     public function toArray(object $notifiable): array

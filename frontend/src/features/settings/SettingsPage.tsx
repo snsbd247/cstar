@@ -13,6 +13,7 @@ import { BillingSettingsForm } from '../billing/PackagesPage'
 import { useBranches } from '../branches/api'
 import { NotificationSettingsCard } from '../notifications/NotificationsPage'
 import { GoLiveTab } from './GoLiveTab'
+import { MessagingTab } from './MessagingTab'
 
 type Groups = Record<string, Record<string, string>>
 type FieldDef = { key: string; label: string; type?: 'text' | 'number' | 'bool' | 'color' | 'textarea' | 'select'; hint?: string; options?: [string, string][] }
@@ -26,6 +27,7 @@ const tabs = [
   ['billing', 'Billing'],
   ['accounts', 'Accounts'],
   ['notification', 'Notification'],
+  ['messaging', 'SMS & WhatsApp'],
   ['language', 'Language'],
   ['pdf', 'PDF'],
   ['security', 'Security'],
@@ -146,6 +148,8 @@ export default function SettingsPage() {
         <div className="max-w-xl">
           <NotificationSettingsCard />
         </div>
+      ) : tab === 'messaging' ? (
+        <MessagingTab />
       ) : tab === 'go-live' ? (
         <GoLiveTab />
       ) : tab === 'language' ? (
