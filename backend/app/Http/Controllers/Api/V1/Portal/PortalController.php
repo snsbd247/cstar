@@ -12,6 +12,7 @@ use App\Models\Appointment;
 use App\Models\AppointmentRequest;
 use App\Models\Assessment;
 use App\Models\Enrollment;
+use App\Models\HomePracticeLog;
 use App\Models\Invoice;
 use App\Models\Patient;
 use App\Models\PatientPackage;
@@ -25,6 +26,8 @@ use App\Services\AttendanceService;
 use App\Services\IdGenerator;
 use App\Services\PaymentService;
 use App\Services\PdfService;
+use App\Services\ProgressChartService;
+use App\Services\SystemSettings;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -56,7 +59,7 @@ class PortalController extends Controller
             ->where(fn ($q) => $q->whereDate('date', '>', today())->orWhere(fn ($w) => $w->whereDate('date', today())->where('start_time', '>=', now()->format('H:i:s'))))
             ->orderBy('date')->orderBy('start_time')->first();
 
-        $lastSession = TherapySession::with('service')->where('patient_id', $patient->id)->where('status', 'final')->latest('date')->first();
+        $lastSession = TherapySession::with(['service', 'practiceLogs' => fn ($q) => $q->where('date', '>=', today()->subDays(6))])->where('patient_id', $patient->id)->where('status', 'final')->latest('date')->first();
         $lastRecord = TrainingRecord::where('patient_id', $patient->id)->where('status', 'final')->whereNotNull('parent_note')->latest('date')->first();
 
         return response()->json(['data' => [
@@ -67,7 +70,7 @@ class PortalController extends Controller
             'new_reports' => Assessment::where('patient_id', $patient->id)->where('status', 'final')->where('shared_with_parent', true)
                 ->where('updated_at', '>=', now()->subDays(30))->count(),
             'latest_note' => collect([
-                $lastSession ? ['date' => $lastSession->date->toDateString(), 'from' => $lastSession->service->name, 'text' => $lastSession->parent_summary, 'home_practice' => $lastSession->home_practice] : null,
+                $lastSession ? ['date' => $lastSession->date->toDateString(), 'from' => $lastSession->service->name, 'text' => $lastSession->parent_summary, 'home_practice' => $lastSession->home_practice, 'session_id' => $lastSession->id, 'practice' => $this->practice($lastSession)] : null,
                 $lastRecord ? ['date' => $lastRecord->date->toDateString(), 'from' => 'Regular Training', 'text' => $lastRecord->parent_note, 'home_practice' => null] : null,
             ])->filter()->sortByDesc('date')->first(),
             'updates' => $patient->timelineEvents()->where('visibility', 'parent')->latest('occurred_at')->limit(8)->get()
@@ -99,7 +102,7 @@ class PortalController extends Controller
                     'weekday' => $s->weekday, 'start_time' => substr($s->start_time, 0, 5), 'end_time' => substr($s->end_time, 0, 5),
                 ]),
             ] : null,
-            'requests_enabled' => app(\App\Services\SystemSettings::class)->flag('appointment', 'portal_requests_enabled'),
+            'requests_enabled' => app(SystemSettings::class)->flag('appointment', 'portal_requests_enabled'),
             'services' => Service::where('is_active', true)->where('is_bookable_online', true)->orderBy('sort_order')->get(['id', 'name', 'name_bn']),
         ]]);
     }
@@ -122,11 +125,11 @@ class PortalController extends Controller
             'plans' => fn ($q) => $q->where('status', 'active'), 'plans.goals'])
             ->where('patient_id', $patient->id)->whereIn('status', EnrollmentStatus::current())->get();
 
-        $sessions = TherapySession::with(['service', 'therapist'])->where('patient_id', $patient->id)->where('status', 'final')
+        $sessions = TherapySession::with(['service', 'therapist', 'practiceLogs' => fn ($q) => $q->where('date', '>=', today()->subDays(6))])->where('patient_id', $patient->id)->where('status', 'final')
             ->latest('date')->limit(20)->get()
             ->map(fn ($s) => [
                 'kind' => 'therapy', 'date' => $s->date->toDateString(), 'title' => $s->service->name, 'by' => $s->therapist->name,
-                'text' => $s->parent_summary, 'home_practice' => $s->home_practice,
+                'text' => $s->parent_summary, 'home_practice' => $s->home_practice, 'session_id' => $s->id, 'practice' => $this->practice($s),
             ]);
         $records = TrainingRecord::with('trainer')->where('patient_id', $patient->id)->where('status', 'final')
             ->latest('date')->limit(20)->get()
@@ -155,6 +158,44 @@ class PortalController extends Controller
                     'by' => $a->therapist->name, 'summary' => $a->parent_summary,
                 ]),
         ]]);
+    }
+
+    /** POST /portal/children/{patient}/home-practice/{session} — "করেছি / কিছুটা / পারিনি" for a day (Sprint 20). */
+    public function logPractice(Request $request, Patient $patient, TherapySession $session): JsonResponse
+    {
+        $this->authorizeChild($request, $patient);
+        abort_unless($session->patient_id === $patient->id && $session->status === 'final' && filled($session->home_practice), 404);
+        $data = $request->validate([
+            'status' => ['required', Rule::in(HomePracticeLog::STATUSES)],
+            'comment' => ['nullable', 'string', 'max:1000'],
+            'date' => ['nullable', 'date', 'before_or_equal:today', 'after_or_equal:'.today()->subDays(6)->toDateString()],
+        ]);
+        $log = HomePracticeLog::updateOrCreate(
+            ['therapy_session_id' => $session->id, 'date' => $data['date'] ?? today()->toDateString()],
+            ['patient_id' => $patient->id, 'status' => $data['status'], 'comment' => $data['comment'] ?? null, 'user_id' => $request->user()->id],
+        );
+
+        return response()->json(['data' => $this->practice($session->load(['practiceLogs' => fn ($q) => $q->where('date', '>=', today()->subDays(6))]))], $log->wasRecentlyCreated ? 201 : 200);
+    }
+
+    /** The last 7 days of a family's home-practice feedback on one session. */
+    private function practice(TherapySession $session): array
+    {
+        $logs = $session->practiceLogs->sortBy('date');
+        $today = $logs->first(fn ($l) => $l->date->isToday());
+
+        return [
+            'today' => $today ? ['status' => $today->status, 'comment' => $today->comment] : null,
+            'week' => $logs->map(fn ($l) => ['date' => $l->date->toDateString(), 'status' => $l->status])->values(),
+        ];
+    }
+
+    /** GET /portal/children/{patient}/progress-chart — the same monthly charts staff see (Sprint 20). */
+    public function progressChart(Request $request, Patient $patient, ProgressChartService $charts): JsonResponse
+    {
+        $this->authorizeChild($request, $patient);
+
+        return response()->json(['data' => $charts->for($patient)]);
     }
 
     /** GET /portal/children/{patient}/billing */
@@ -188,7 +229,7 @@ class PortalController extends Controller
     public function requestAppointment(Request $request, Patient $patient, IdGenerator $ids): JsonResponse
     {
         $this->authorizeChild($request, $patient);
-        abort_unless(app(\App\Services\SystemSettings::class)->flag('appointment', 'portal_requests_enabled'), 403, 'অনলাইনে appointment-এর অনুরোধ এখন বন্ধ আছে। অনুগ্রহ করে center-এ ফোন করুন।');
+        abort_unless(app(SystemSettings::class)->flag('appointment', 'portal_requests_enabled'), 403, 'অনলাইনে appointment-এর অনুরোধ এখন বন্ধ আছে। অনুগ্রহ করে center-এ ফোন করুন।');
         $data = $request->validate([
             'service_id' => ['nullable', 'integer', Rule::exists('services', 'id')->where('is_active', true)],
             'preferred_date' => ['nullable', 'date', 'after_or_equal:today', 'before:+90 days'],

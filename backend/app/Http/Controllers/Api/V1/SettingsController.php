@@ -38,6 +38,8 @@ class SettingsController extends Controller
     {
         Gate::authorize(Permission::SETTINGS_MANAGE);
         abort_unless(isset(SystemSettings::GROUPS[$group]), 404);
+        // Keys the form did not send keep their current value (settings added later never break an older form).
+        $request->merge(array_diff_key($settings->group($group), $request->all()));
         $data = $request->validate(SystemSettings::rules($group));
 
         $before = $settings->group($group);

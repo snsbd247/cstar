@@ -103,7 +103,7 @@ class TherapyAdminController extends Controller
         Gate::authorize(Permission::HOME_PROGRAMS_VIEW);
         $q = trim((string) $request->input('q'));
 
-        $page = TherapySession::with(['patient:id,name,patient_code', 'therapist:id,name', 'service:id,name'])
+        $page = TherapySession::with(['patient:id,name,patient_code', 'therapist:id,name', 'service:id,name', 'practiceLogs'])
             ->whereHas('patient', fn ($p) => $p->visibleTo($request->user()))
             ->where('status', 'final')->whereNotNull('home_practice')->where('home_practice', '!=', '')
             ->when($request->filled('therapist_id'), fn ($s) => $s->where('therapist_id', $request->integer('therapist_id')))
@@ -114,6 +114,8 @@ class TherapyAdminController extends Controller
             'data' => collect($page->items())->map(fn (TherapySession $s) => [
                 'id' => $s->id, 'date' => $s->date->toDateString(), 'patient' => $s->patient->only(['id', 'name', 'patient_code']),
                 'therapist' => $s->therapist?->name, 'service' => $s->service?->name, 'home_practice' => $s->home_practice,
+                // Sprint 20: what the family reported from home
+                'practice_feedback' => $s->practiceLogs->sortByDesc('date')->values()->map(fn ($l) => ['date' => $l->date->toDateString(), 'status' => $l->status, 'comment' => $l->comment]),
             ]),
             'meta' => ['current_page' => $page->currentPage(), 'last_page' => $page->lastPage(), 'total' => $page->total()],
         ]);

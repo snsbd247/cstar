@@ -14,7 +14,8 @@ import { useAuth } from '../../contexts/useAuth'
 import { cn } from '../../utils/cn'
 import { todayISO } from '../../utils/format'
 import { progressReportUrl } from '../assessments/api'
-import { statusStyle, useTherapists, type AppointmentStatus } from './api'
+import { statusStyle, useTherapists, type AppointmentStatus, type PracticeLog } from './api'
+import { PracticeFeedbackSummary } from './components/PracticeFeedbackSummary'
 
 type Meta = { current_page: number; last_page: number; total: number }
 
@@ -227,7 +228,7 @@ export function HomeProgramsPage() {
     queryKey: ['home-programs', therapistId, q, page],
     queryFn: async () =>
       (
-        await api.get<{ data: { id: number; date: string; patient: { id: number; name: string; patient_code: string }; therapist: string | null; service: string | null; home_practice: string }[]; meta: Meta }>(
+        await api.get<{ data: { id: number; date: string; patient: { id: number; name: string; patient_code: string }; therapist: string | null; service: string | null; home_practice: string; practice_feedback: PracticeLog[] }[]; meta: Meta }>(
           '/therapy/home-programs',
           { params: { therapist_id: therapistId || undefined, q: q || undefined, page } },
         )
@@ -269,6 +270,7 @@ export function HomeProgramsPage() {
                   </span>
                 </div>
                 <p className="mt-1 whitespace-pre-line text-sm text-slate-700">{s.home_practice}</p>
+                <PracticeFeedbackSummary logs={s.practice_feedback} />
               </li>
             ))}
           </ul>

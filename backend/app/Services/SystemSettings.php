@@ -44,6 +44,12 @@ class SystemSettings
             'portal_booking_max_open' => '2',      // unconfirmed portal bookings per child at a time
             'portal_cancel_enabled' => '1',       // parents may cancel upcoming appointments (late-cancel rule applies)
         ],
+        'staff_attendance' => [               // Sprint 20
+            'self_check_in' => '1',               // staff check themselves in / out from the dashboard
+            'office_start' => '09:00',
+            'late_after_minutes' => '15',
+            'weekly_off' => '5',                  // Carbon weekday (5 = Friday) or 'none'
+        ],
         'pdf' => [
             'paper_size' => 'A4',
             'brand_color' => '#047857',
@@ -93,6 +99,12 @@ class SystemSettings
                 'portal_booking_days' => ['required', 'integer', 'between:1,60'],
                 'portal_booking_notice_hours' => ['required', 'integer', 'between:0,72'],
                 'portal_booking_max_open' => ['required', 'integer', 'between:1,10'],
+            ],
+            'staff_attendance' => [
+                'self_check_in' => $bool,
+                'office_start' => ['required', 'date_format:H:i'],
+                'late_after_minutes' => ['required', 'integer', 'between:0,180'],
+                'weekly_off' => ['required', Rule::in(['0', '1', '2', '3', '4', '5', '6', 'none'])],
             ],
             'pdf' => [
                 'paper_size' => ['required', Rule::in(['A4', 'Letter', 'Legal'])],

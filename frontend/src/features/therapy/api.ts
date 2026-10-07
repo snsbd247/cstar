@@ -127,7 +127,7 @@ export function useAppointmentMutations() {
 export interface SessionBundle {
   appointment: Appointment
   session: TherapySession | null
-  previous: { date: string; next_session_plan: string | null; home_practice: string | null } | null
+  previous: { date: string; next_session_plan: string | null; home_practice: string | null; practice_feedback?: PracticeLog[] } | null
   can_write: boolean
 }
 
@@ -199,4 +199,11 @@ export function useTherapyActivityTypes() {
     queryFn: async () => (await api.get<{ data: { id: number; name: string }[] }>('/lookups/activity-types', { params: { for: 'therapy' } })).data.data,
     staleTime: Infinity,
   })
+}
+
+/** Sprint 20: one day of the family's home-practice feedback from the portal. */
+export interface PracticeLog {
+  date: string
+  status: 'done' | 'partly' | 'not_done'
+  comment: string | null
 }

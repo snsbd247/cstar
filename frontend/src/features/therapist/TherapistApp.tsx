@@ -7,6 +7,7 @@ import { useAuth } from '../../contexts/useAuth'
 import { longDate } from '../../utils/format'
 import { useAppointmentMutations, useTherapistToday, type Appointment } from '../therapy/api'
 import { StatusPill } from '../therapy/components/AppointmentActions'
+import { CheckInCard } from '../staff/StaffAttendance'
 
 /** Plan §১৪/§৩৭: Login → Today's appointments → Patient → Session note → Save. */
 export function TherapistToday() {
@@ -20,6 +21,7 @@ export function TherapistToday() {
         <p className="text-sm text-slate-500">{today}</p>
         <h1 className="text-xl font-semibold text-slate-900">Good day, {data?.therapist.name ?? user?.name}</h1>
       </div>
+      <CheckInCard />
       {error && <Alert>This login is not linked to a therapist profile yet. Ask the branch admin.</Alert>}
       {isLoading && <Spinner className="text-brand-600" />}
 

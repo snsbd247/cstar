@@ -1,3 +1,4 @@
+import type { Practice } from './HomePractice'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 import { api, apiUrl } from '../../api/client'
@@ -117,7 +118,7 @@ export const usePortalHome = (childId?: number) =>
     attendance: AttendanceSummary | null
     due: number
     new_reports: number
-    latest_note: { date: string; from: string; text: string | null; home_practice: string | null } | null
+    latest_note: { date: string; from: string; text: string | null; home_practice: string | null; session_id?: number; practice?: Practice } | null
     updates: { title: string; description: string | null; at: string; type: string }[]
   }>(childId, 'home')
 
@@ -141,7 +142,7 @@ export const usePortalAttendance = (childId: number | undefined, month: string, 
 export const usePortalProgress = (childId?: number) =>
   usePortal<{
     programmes: { type: string; label: string; plans: { title: string; review_date: string | null; goals: { domain: string | null; title: string; target: string | null; progress_percent: number; status: string }[] }[] }[]
-    notes: { kind: 'therapy' | 'training'; date: string; title: string; by: string | null; text: string | null; home_practice: string | null; performance?: number | null }[]
+    notes: { kind: 'therapy' | 'training'; date: string; title: string; by: string | null; text: string | null; home_practice: string | null; performance?: number | null; session_id?: number; practice?: Practice }[]
     reports: { id: number; title: string; title_bn: string | null; date: string; by: string; summary: string | null }[]
   }>(childId, 'progress')
 

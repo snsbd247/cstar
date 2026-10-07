@@ -84,6 +84,7 @@ enum Role: string
                 Permission::PAYMENTS_VIEW, Permission::PAYMENTS_CREATE, Permission::DISCOUNTS_APPLY,
                 Permission::REPORTS_VIEW,
                 Permission::ACCOUNTS_CASH_CLOSING, Permission::ACCOUNTS_EXPENSE_CREATE,
+                Permission::INVENTORY_VIEW, Permission::INVENTORY_MANAGE,
             ],
             self::Trainer => [
                 Permission::PATIENTS_VIEW, Permission::PATIENTS_VIEW_CLINICAL,
@@ -108,6 +109,7 @@ enum Role: string
                 Permission::PAYMENTS_VIEW, Permission::PAYMENTS_CREATE, Permission::DISCOUNTS_APPLY,
                 Permission::REPORTS_VIEW, Permission::REPORTS_FINANCIAL,
                 ...Permission::accounts(),
+                Permission::INVENTORY_VIEW, Permission::INVENTORY_MANAGE,
             ],
             self::Parent => [Permission::PORTAL_ACCESS],
         };

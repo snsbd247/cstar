@@ -10,6 +10,7 @@ import { usePlans } from '../../training/api'
 import { PlanPanel } from '../../training/components/PlanPanel'
 import { useAppointmentSession, useSaveSession, useTherapyActivityTypes, type SessionBundle } from '../api'
 import { StatusPill } from './AppointmentActions'
+import { PracticeFeedbackSummary } from './PracticeFeedbackSummary'
 
 const fields = [
   ['goals_worked', 'Goals worked on'],
@@ -92,6 +93,7 @@ function NoteBody({ data, onDone }: { data: SessionBundle; onDone?: () => void }
                 {previous.home_practice}
               </p>
             )}
+            {previous.home_practice && <PracticeFeedbackSummary logs={previous.practice_feedback ?? []} />}
           </Card>
         )}
         {a.enrollment_id && <PlanPanel enrollmentId={a.enrollment_id} canEdit={can_write} title="Therapy plan" />}

@@ -32,6 +32,8 @@ import {
   type PortalAppointment,
 } from './api'
 import { OnlinePayCard, OnlineResult } from './OnlinePay'
+import { ProgressCharts } from '../patients/components/ProgressCharts'
+import { PracticeFeedback } from './HomePractice'
 import { BookingCard, CancelAppointment } from './PortalBooking'
 
 /** Plan §১৫: one child at a time; a switcher appears only for families with more than one child. */
@@ -156,6 +158,9 @@ function HomeBody({ child }: { child: Child }) {
             <p className="mt-2 rounded-lg bg-brand-50 p-2 text-sm text-brand-900">
               <b>বাসায় অনুশীলন:</b> {data.latest_note.home_practice}
             </p>
+          )}
+          {data.latest_note.home_practice && data.latest_note.session_id && data.latest_note.practice && (
+            <PracticeFeedback childId={child.id} sessionId={data.latest_note.session_id} practice={data.latest_note.practice} />
           )}
         </Card>
       )}
@@ -329,6 +334,17 @@ export function PortalProgress() {
   )
 }
 
+const chartWordsBn = {
+  attendance: 'ক্লাসে উপস্থিতি',
+  performance: 'ক্লাসের পারফরম্যান্স (১–৫)',
+  noRecords: 'এখনো কিছু লেখা হয়নি।',
+  sessions: 'থেরাপি সেশন',
+  goals: 'লক্ষ্যের স্কোর (মাসিক গড়, ১–৫)',
+  empty: 'গত ছয় মাসে এখনো কোনো উপস্থিতি বা সেশনের তথ্য নেই।',
+  progress: 'অগ্রগতি',
+  month: (ym: string) => bnDate(`${ym}-01`, { month: 'short' }),
+}
+
 const goalStatusBn: Record<string, string> = { not_started: 'শুরু হয়নি', in_progress: 'চলছে', achieved: 'অর্জিত', on_hold: 'স্থগিত' }
 
 function ProgressBody({ child }: { child: Child }) {
@@ -337,6 +353,7 @@ function ProgressBody({ child }: { child: Child }) {
 
   return (
     <>
+      <ProgressCharts url={`/portal/children/${child.id}/progress-chart`} words={chartWordsBn} />
       {child.has_training && <AttendanceCard childId={child.id} />}
 
       {data.programmes.flatMap((p) => p.plans.map((plan) => ({ p, plan }))).map(({ p, plan }) => (
@@ -402,6 +419,7 @@ function ProgressBody({ child }: { child: Child }) {
               </p>
               {n.text && <p className="text-sm text-slate-800">{n.text}</p>}
               {n.home_practice && <p className="mt-1 text-sm text-brand-800">বাসায় অনুশীলন: {n.home_practice}</p>}
+              {i === data.notes.findIndex((x) => x.practice) && n.session_id && n.practice && <PracticeFeedback childId={child.id} sessionId={n.session_id} practice={n.practice} />}
             </li>
           ))}
           {data.notes.length === 0 && <li className="text-sm text-slate-500">এখনো কোনো নোট নেই।</li>}

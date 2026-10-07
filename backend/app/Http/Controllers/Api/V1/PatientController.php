@@ -11,6 +11,7 @@ use App\Http\Resources\TimelineEventResource;
 use App\Models\Patient;
 use App\Services\AuditLogger;
 use App\Services\PatientService;
+use App\Services\ProgressChartService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -109,6 +110,14 @@ class PatientController extends Controller
         $this->patients->storePhoto($patient, $request->file('photo'));
 
         return response()->json(['message' => 'Photo updated.']);
+    }
+
+    /** GET /patients/{patient}/progress-chart — six months of attendance, performance, sessions and goal scores (Sprint 20). */
+    public function progressChart(Patient $patient, ProgressChartService $charts): JsonResponse
+    {
+        Gate::authorize('view', $patient);
+
+        return response()->json(['data' => $charts->for($patient)]);
     }
 
     public function timeline(Request $request, Patient $patient): AnonymousResourceCollection

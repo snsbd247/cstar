@@ -87,6 +87,7 @@ class EnrollmentService
             $this->load($enrollment);
             $this->timeline->record($patient, 'enrollment.created', "Enrolled: {$enrollment->summary()}", $enrollment,
                 branchId: $enrollment->branch_id, visibility: 'parent');
+            app(WaitingListService::class)->enrolled($enrollment);
 
             return $enrollment;
         });
@@ -124,6 +125,9 @@ class EnrollmentService
             }
 
             $this->load($enrollment);
+            if ($ending) {
+                app(WaitingListService::class)->placeFreed($enrollment);
+            }
             $this->timeline->record($enrollment->patient, "enrollment.{$action}",
                 ucfirst(str_replace('_', ' ', $to->value)).": {$enrollment->summary()}", $enrollment,
                 description: $data['end_note'] ?? null, branchId: $enrollment->branch_id, visibility: 'parent');
@@ -169,6 +173,9 @@ class EnrollmentService
             $enrollment->assignments()->create([...$changes, 'from_date' => $date, 'reason' => $data['reason'] ?? 'Transferred', 'created_by' => $actor->id]);
 
             $this->load($enrollment);
+            if ($enrollment->isTraining() && $previous['training_group_id'] !== $changes['training_group_id']) {
+                app(WaitingListService::class)->placeFreed($enrollment, $previous['training_group_id']);
+            }
             $this->timeline->record($enrollment->patient, 'enrollment.transferred', "Transferred: {$enrollment->summary()}", $enrollment,
                 description: $data['reason'] ?? null, branchId: $enrollment->branch_id, visibility: 'parent');
 

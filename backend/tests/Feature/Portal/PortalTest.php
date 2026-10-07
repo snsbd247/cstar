@@ -79,6 +79,45 @@ class PortalTest extends TestCase
         ]);
     }
 
+    public function test_family_reports_home_practice_and_therapist_sees_it(): void
+    {
+        $session = $this->therapySession('final');
+        $draft = $this->therapySession('draft');
+        $this->actingAs($this->parent);
+
+        $this->postJson("/api/v1/portal/children/{$this->ayan->id}/home-practice/{$session->id}", ['status' => 'partly', 'comment' => 'He got tired'])->assertCreated()
+            ->assertJsonPath('data.today.status', 'partly');
+        $this->postJson("/api/v1/portal/children/{$this->ayan->id}/home-practice/{$session->id}", ['status' => 'done'])->assertOk()
+            ->assertJsonPath('data.today.status', 'done')->assertJsonCount(1, 'data.week');
+        $this->postJson("/api/v1/portal/children/{$this->ayan->id}/home-practice/{$session->id}", ['status' => 'done', 'date' => today()->subDays(2)->toDateString(), 'comment' => 'Named all 5'])->assertCreated();
+        $this->postJson("/api/v1/portal/children/{$this->ayan->id}/home-practice/{$session->id}", ['status' => 'done', 'date' => today()->subDays(10)->toDateString()])->assertJsonValidationErrors('date');
+        $this->postJson("/api/v1/portal/children/{$this->ayan->id}/home-practice/{$draft->id}", ['status' => 'done'])->assertNotFound();
+        $this->postJson("/api/v1/portal/children/{$this->stranger->id}/home-practice/{$session->id}", ['status' => 'done'])->assertNotFound();
+
+        $this->getJson("/api/v1/portal/children/{$this->ayan->id}/home")->assertJsonPath('data.latest_note.session_id', $session->id)
+            ->assertJsonPath('data.latest_note.practice.today.status', 'done')->assertJsonCount(2, 'data.latest_note.practice.week');
+
+        $admin = $this->userWithRole(Role::BranchAdmin, $this->branch);
+        $feedback = $this->actingAs($admin)->getJson('/api/v1/therapy/home-programs')->assertOk()->json('data.0.practice_feedback');
+        $this->assertSame(['done', 'done'], array_column($feedback, 'status'));
+        $this->assertSame('Named all 5', $feedback[1]['comment']);
+    }
+
+    public function test_progress_chart_for_family_and_staff(): void
+    {
+        $this->therapySession('final');
+        $this->therapySession('draft');
+
+        $chart = $this->actingAs($this->parent)->getJson("/api/v1/portal/children/{$this->ayan->id}/progress-chart")->assertOk()->json('data');
+        $this->assertCount(6, $chart['months']);
+        $this->assertSame(1, array_sum($chart['therapy_sessions']));
+        $this->assertSame([null, null, null, null, null, null], $chart['attendance_rate']);
+        $this->getJson("/api/v1/portal/children/{$this->stranger->id}/progress-chart")->assertNotFound();
+
+        $this->actingAs($this->userWithRole(Role::BranchAdmin, $this->branch))->getJson("/api/v1/patients/{$this->ayan->id}/progress-chart")->assertOk()
+            ->assertJsonCount(6, 'data.therapy_sessions');
+    }
+
     public function test_parent_sees_only_children_with_portal_access(): void
     {
         $this->actingAs($this->parent)->getJson('/api/v1/portal/children')

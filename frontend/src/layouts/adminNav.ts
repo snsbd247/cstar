@@ -1,6 +1,7 @@
 import {
   BarChart3,
   Bell,
+  Boxes,
   Building2,
   CalendarCheck,
   ClipboardList,
@@ -144,6 +145,7 @@ export const adminNav: NavSection[] = [
       { label: 'Completed', to: '/app/enrollments?status=completed', permissions: P.enrollments },
       { label: 'Discontinued', to: '/app/enrollments?status=discontinued', permissions: P.enrollments },
       { label: 'Transfer History', to: '/app/enrollments/transfers', permissions: P.enrollments },
+      { label: 'Waiting List', to: '/app/enrollments/waiting-list', permissions: P.enrollments },
     ],
   },
   {
@@ -209,8 +211,17 @@ export const adminNav: NavSection[] = [
       { label: 'Employee Profiles', to: '/app/staff/profiles', permissions: P.payroll },
       { label: 'Salary Structures', to: '/app/payroll/structures', permissions: P.payroll },
       { label: 'Leave / Absence', to: '/app/staff/leave', permissions: ['therapists.view', ...P.payroll] },
+      { label: 'Staff Attendance', to: '/app/staff/attendance', permissions: P.payroll },
       { label: 'Staff Assignments', to: '/app/staff/assignments', permissions: P.enrollments },
       { label: 'My Payslips', to: '/app/my-payslips' },
+    ],
+  },
+  {
+    label: 'Inventory',
+    icon: Boxes,
+    items: [
+      { label: 'Stock Items', to: '/app/inventory', permissions: ['inventory.view'] },
+      { label: 'Low Stock', to: '/app/inventory?low=1', permissions: ['inventory.view'] },
     ],
   },
   {
@@ -309,6 +320,7 @@ export const adminNav: NavSection[] = [
       { label: 'Branch Settings', to: '/app/settings?tab=branch', permissions: P.settings },
       { label: 'Patient ID Settings', to: '/app/settings?tab=patient-id', permissions: P.settings },
       { label: 'Appointment Settings', to: '/app/settings?tab=appointment', permissions: P.settings },
+      { label: 'Staff Attendance Settings', to: '/app/settings?tab=staff-attendance', permissions: P.settings },
       { label: 'Billing Settings', to: '/app/settings?tab=billing', permissions: P.settings },
       { label: 'Accounts Settings', to: '/app/settings?tab=accounts', permissions: P.settings },
       { label: 'Notification Settings', to: '/app/settings?tab=notification', permissions: P.settings },

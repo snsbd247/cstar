@@ -6,6 +6,7 @@ import { Spinner } from '../../components/ui/Spinner'
 import { useAuth } from '../../contexts/useAuth'
 import { longDate } from '../../utils/format'
 import { useTrainerToday } from '../training/api'
+import { CheckInCard } from '../staff/StaffAttendance'
 
 /** Plan §১০/§৩৭: Login → Today's classes → Attendance → Student → Training record → Save. */
 export function TrainerToday() {
@@ -20,6 +21,7 @@ export function TrainerToday() {
         <h1 className="text-xl font-semibold text-slate-900">Good day, {data?.trainer.name ?? user?.name}</h1>
       </div>
 
+      <CheckInCard />
       {error && <Alert>This login is not linked to a trainer profile yet. Ask the branch admin.</Alert>}
       {isLoading && <Spinner className="text-brand-600" />}
 

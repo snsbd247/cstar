@@ -12,6 +12,7 @@ use App\Models\Appointment;
 use App\Models\Enrollment;
 use App\Models\TherapySession;
 use App\Services\AppointmentService;
+use App\Services\SystemSettings;
 use App\Services\TherapySessionService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -30,13 +31,14 @@ class TherapySessionController extends Controller
         Gate::authorize('viewSession', $appointment);
         $appointment->load(['patient', 'service', 'therapist', 'branch', 'session.activities', 'session.goalScores']);
 
-        $previous = TherapySession::where('patient_id', $appointment->patient_id)->where('service_id', $appointment->service_id)
+        $previous = TherapySession::with('practiceLogs')->where('patient_id', $appointment->patient_id)->where('service_id', $appointment->service_id)
             ->where('status', 'final')->where('appointment_id', '!=', $appointment->id)->latest('date')->first();
 
         return response()->json(['data' => [
             'appointment' => new AppointmentResource($appointment),
             'session' => $appointment->session ? new TherapySessionResource($appointment->session) : null,
-            'previous' => $previous ? ['date' => $previous->date->toDateString(), 'next_session_plan' => $previous->next_session_plan, 'home_practice' => $previous->home_practice] : null,
+            'previous' => $previous ? ['date' => $previous->date->toDateString(), 'next_session_plan' => $previous->next_session_plan, 'home_practice' => $previous->home_practice,
+                'practice_feedback' => $previous->practiceLogs->sortByDesc('date')->values()->map(fn ($l) => ['date' => $l->date->toDateString(), 'status' => $l->status, 'comment' => $l->comment])] : null,
             'can_write' => $request->user()->can('writeSession', $appointment),
         ]]);
     }
@@ -171,7 +173,7 @@ class TherapySessionController extends Controller
     public function generate(Request $request, Enrollment $enrollment, AppointmentService $appointments): JsonResponse
     {
         Gate::authorize('update', $enrollment);
-        $weeks = $request->validate(['weeks' => ['nullable', 'integer', 'between:1,12']])['weeks'] ?? app(\App\Services\SystemSettings::class)->int('appointment', 'recurring_weeks');
+        $weeks = $request->validate(['weeks' => ['nullable', 'integer', 'between:1,12']])['weeks'] ?? app(SystemSettings::class)->int('appointment', 'recurring_weeks');
 
         return response()->json(['data' => $appointments->generateRecurring($enrollment, $request->user(), $weeks)]);
     }

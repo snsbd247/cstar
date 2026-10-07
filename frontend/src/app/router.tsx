@@ -7,6 +7,8 @@ import { RoomsPage, ServicesByBranchPage, StaffByBranchPage } from '../features/
 import { AdvancesPage, AssignmentsPage, EmployeeProfilesPage, LeavePage, SalaryStructuresPage } from '../features/staff/StaffAdminPages'
 import { BankAccountsPage, BillsPage } from '../features/accounts/AccountListsPages'
 import AdminDashboard from '../features/dashboard/AdminDashboard'
+import StaffAttendancePage from '../features/staff/StaffAttendance'
+import InventoryPage from '../features/inventory/InventoryPage'
 import PatientFormPage from '../features/patients/PatientFormPage'
 import PatientProfilePage from '../features/patients/PatientProfilePage'
 import PatientsPage from '../features/patients/PatientsPage'
@@ -56,6 +58,7 @@ import { trainerNav } from '../features/trainer/nav'
 import { TrainerToday } from '../features/trainer/TrainerApp'
 import ActivityLogsPage from '../features/activity/ActivityLogsPage'
 import EnrollmentsPage, { TransfersPage } from '../features/enrollments/EnrollmentsPage'
+import WaitingListPage from '../features/enrollments/WaitingListPage'
 import SettingsPage from '../features/settings/SettingsPage'
 import RolesPage from '../features/users/RolesPage'
 import UsersPage from '../features/users/UsersPage'
@@ -140,6 +143,8 @@ const adminPages: RouteObject[] = [
   { path: 'staff/profiles', element: <RequirePermission permission={['accounts.payroll.manage', 'accounts.payroll.approve']}><EmployeeProfilesPage /></RequirePermission> },
   { path: 'payroll/structures', element: <RequirePermission permission={['accounts.payroll.manage', 'accounts.payroll.approve']}><SalaryStructuresPage /></RequirePermission> },
   { path: 'payroll/advances', element: <RequirePermission permission={['accounts.payroll.manage', 'accounts.payroll.approve']}><AdvancesPage /></RequirePermission> },
+  { path: 'inventory', element: <RequirePermission permission="inventory.view"><InventoryPage /></RequirePermission> },
+  { path: 'staff/attendance', element: <RequirePermission permission={['accounts.payroll.manage', 'accounts.payroll.approve']}><StaffAttendancePage /></RequirePermission> },
   { path: 'staff/leave', element: <RequirePermission permission={['accounts.payroll.manage', 'accounts.payroll.approve', 'therapists.view']}><LeavePage /></RequirePermission> },
   { path: 'staff/assignments', element: <RequirePermission permission="enrollments.view"><AssignmentsPage /></RequirePermission> },
   { path: 'rooms', element: <RequirePermission permission={['branches.view', 'branches.manage']}><RoomsPage /></RequirePermission> },
@@ -157,6 +162,7 @@ const adminPages: RouteObject[] = [
   { path: 'consents', element: <RequirePermission permission="patients.view"><ConsentsPage /></RequirePermission> },
   { path: 'timeline', element: <RequirePermission permission="patients.view"><TimelinePage /></RequirePermission> },
   { path: 'enrollments', element: <RequirePermission permission="enrollments.view"><EnrollmentsPage /></RequirePermission> },
+  { path: 'enrollments/waiting-list', element: <RequirePermission permission="enrollments.view"><WaitingListPage /></RequirePermission> },
   { path: 'enrollments/transfers', element: <RequirePermission permission="enrollments.view"><TransfersPage /></RequirePermission> },
   { path: 'settings', element: <RequirePermission permission="settings.manage"><SettingsPage /></RequirePermission> },
   { path: 'logs', element: <RequirePermission permission="audit_logs.view"><ActivityLogsPage /></RequirePermission> },

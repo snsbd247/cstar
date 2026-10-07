@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
+import { CheckInCard } from '../staff/StaffAttendance'
 import {
   Activity,
   ArrowRight,
@@ -58,6 +59,7 @@ export default function AdminDashboard() {
   return (
     <>
       <PageHeader title={`Welcome, ${user?.name}`} description={`${user?.primary_role_label}${branches ? ` · ${branches}` : ''}`} />
+      <CheckInCard />
 
       {!!data?.actions.length && (
         <Card className="mb-4 p-4">

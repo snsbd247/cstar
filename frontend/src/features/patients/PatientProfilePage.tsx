@@ -19,6 +19,7 @@ import { EnrollmentsTab } from './components/EnrollmentsTab'
 import { GuardiansTab } from './components/GuardiansTab'
 import { OverviewTab } from './components/OverviewTab'
 import { TimelineTab } from './components/TimelineTab'
+import { ProgressCharts } from './components/ProgressCharts'
 import { TherapyTab } from './components/TherapyTab'
 import { TrainingTab } from './components/TrainingTab'
 import { BookAppointmentModal } from '../therapy/components/BookAppointmentModal'
@@ -28,6 +29,7 @@ const tabs = [
   ['enrollments', 'Enrollments'],
   ['training', 'Training'],
   ['therapy', 'Therapy'],
+  ['progress', 'Progress'],
   ['assessments', 'Assessments'],
   ['billing', 'Billing'],
   ['guardians', 'Guardians'],
@@ -154,6 +156,7 @@ export default function PatientProfilePage() {
         {tab === 'enrollments' && <EnrollmentsTab patient={patient} onNew={() => setEnrolling(true)} />}
         {tab === 'training' && <TrainingTab patient={patient} />}
         {tab === 'therapy' && <TherapyTab patient={patient} />}
+        {tab === 'progress' && <ProgressCharts url={`/patients/${patient.id}/progress-chart`} />}
         {tab === 'assessments' && <AssessmentsTab patient={patient} onEnroll={(r) => setEnrolling(r)} />}
         {tab === 'billing' && <BillingTab patient={patient} onPay={() => setPaying(true)} />}
         {tab === 'guardians' && <GuardiansTab patient={patient} />}

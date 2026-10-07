@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 /** Clinical note of one therapy appointment (THERAPY SESSION ≠ TRAINING SESSION). Locked once final. */
@@ -35,6 +36,12 @@ class TherapySession extends Model
     public function appointment(): BelongsTo
     {
         return $this->belongsTo(Appointment::class);
+    }
+
+    /** Sprint 20: the family's day-by-day feedback on the home practice. */
+    public function practiceLogs(): HasMany
+    {
+        return $this->hasMany(HomePracticeLog::class);
     }
 
     public function patient(): BelongsTo

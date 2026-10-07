@@ -25,6 +25,7 @@ use App\Http\Controllers\Api\V1\EnquiryInboxController;
 use App\Http\Controllers\Api\V1\EnrollmentController;
 use App\Http\Controllers\Api\V1\GoLiveController;
 use App\Http\Controllers\Api\V1\GuardianController;
+use App\Http\Controllers\Api\V1\InventoryController;
 use App\Http\Controllers\Api\V1\LookupController;
 use App\Http\Controllers\Api\V1\MessagingController;
 use App\Http\Controllers\Api\V1\NotificationAdminController;
@@ -39,6 +40,7 @@ use App\Http\Controllers\Api\V1\ReportController as OperationalReportController;
 use App\Http\Controllers\Api\V1\RoleController;
 use App\Http\Controllers\Api\V1\SettingsController;
 use App\Http\Controllers\Api\V1\StaffAdminController;
+use App\Http\Controllers\Api\V1\StaffAttendanceController;
 use App\Http\Controllers\Api\V1\Therapy\AppointmentController;
 use App\Http\Controllers\Api\V1\Therapy\AssessmentController;
 use App\Http\Controllers\Api\V1\Therapy\TherapistController;
@@ -52,6 +54,7 @@ use App\Http\Controllers\Api\V1\Training\TrainingGroupController;
 use App\Http\Controllers\Api\V1\Training\TrainingOverviewController;
 use App\Http\Controllers\Api\V1\Training\TrainingRecordController;
 use App\Http\Controllers\Api\V1\UserController;
+use App\Http\Controllers\Api\V1\WaitingListController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
@@ -75,6 +78,7 @@ Route::prefix('v1')->group(function () {
         Route::get('patients/{patient}/photo', [PatientController::class, 'photo'])->name('patients.photo');
         Route::post('patients/{patient}/photo', [PatientController::class, 'uploadPhoto']);
         Route::get('patients/{patient}/timeline', [PatientController::class, 'timeline']);
+        Route::get('patients/{patient}/progress-chart', [PatientController::class, 'progressChart']);
 
         Route::get('guardians/lookup', [GuardianController::class, 'lookup']);
         Route::post('guardians/{guardian}/portal-account', [GuardianController::class, 'createPortalAccount']);
@@ -90,6 +94,9 @@ Route::prefix('v1')->group(function () {
         // Enrollments: one patient, many enrollments (training and/or therapy)
         Route::get('enrollments', [EnrollmentController::class, 'index']);
         Route::get('enrollment-transfers', [EnrollmentController::class, 'transfers']);
+        Route::get('waiting-list', [WaitingListController::class, 'index']);
+        Route::post('waiting-list', [WaitingListController::class, 'store']);
+        Route::put('waiting-list/{entry}', [WaitingListController::class, 'update']);
         Route::get('records/guardians', [PatientRecordsController::class, 'guardians']);
         Route::get('records/documents', [PatientRecordsController::class, 'documents']);
         Route::get('records/consents', [PatientRecordsController::class, 'consents']);
@@ -327,6 +334,15 @@ Route::prefix('v1')->group(function () {
         Route::put('payroll/items/{item}', [PayrollController::class, 'updateItem']);
         Route::get('payroll/payslips/{item}/pdf', [PayrollController::class, 'payslip']);
         Route::get('me/payslips', [PayrollController::class, 'myPayslips']);
+        Route::get('inventory', [InventoryController::class, 'index']);
+        Route::post('inventory', [InventoryController::class, 'store']);
+        Route::put('inventory/{item}', [InventoryController::class, 'update']);
+        Route::get('inventory/{item}/movements', [InventoryController::class, 'movements']);
+        Route::post('inventory/{item}/movements', [InventoryController::class, 'move']);
+        Route::get('me/attendance', [StaffAttendanceController::class, 'mine']);
+        Route::post('me/attendance/{action}', [StaffAttendanceController::class, 'punch'])->middleware('throttle:20,60');
+        Route::get('hr/attendance', [StaffAttendanceController::class, 'sheet']);
+        Route::put('hr/attendance', [StaffAttendanceController::class, 'save']);
 
         // Parent portal (Plan §১৫) — only the parent's own children, only family-facing fields
         Route::prefix('portal')->group(function () {
@@ -342,6 +358,8 @@ Route::prefix('v1')->group(function () {
             Route::get('children/{patient}/schedule', [PortalController::class, 'schedule']);
             Route::get('children/{patient}/attendance', [PortalController::class, 'attendance']);
             Route::get('children/{patient}/progress', [PortalController::class, 'progress']);
+            Route::get('children/{patient}/progress-chart', [PortalController::class, 'progressChart']);
+            Route::post('children/{patient}/home-practice/{session}', [PortalController::class, 'logPractice'])->middleware('throttle:30,60');
             Route::get('children/{patient}/billing', [PortalController::class, 'billing']);
             Route::get('children/{patient}/progress-report', [PortalController::class, 'progressReport']);
             Route::post('children/{patient}/appointment-requests', [PortalController::class, 'requestAppointment'])->middleware('throttle:10,60');
