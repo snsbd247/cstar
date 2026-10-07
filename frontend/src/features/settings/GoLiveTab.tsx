@@ -122,7 +122,9 @@ function OpeningForm({ data, onSaved }: { data: OpeningData; onSaved: (d: Openin
                   <label htmlFor={`ob_${a.id}`} className="text-slate-700">
                     {a.name} <span className="text-xs text-slate-400">{a.code}</span>
                   </label>
-                  <Input id={`ob_${a.id}`} type="number" min={0} step="0.01" className="w-40 text-right" value={amounts[a.id] ?? ''} placeholder="0" onChange={(e) => setAmounts({ ...amounts, [a.id]: e.target.value })} />
+                  <div className="w-40 shrink-0">
+                    <Input id={`ob_${a.id}`} type="number" min={0} step="0.01" className="text-right" value={amounts[a.id] ?? ''} placeholder="0" onChange={(e) => setAmounts({ ...amounts, [a.id]: e.target.value })} />
+                  </div>
                 </li>
               ))}
           </ul>
