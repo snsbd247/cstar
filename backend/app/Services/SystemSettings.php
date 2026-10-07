@@ -38,6 +38,11 @@ class SystemSettings
             'late_cancel_hours' => '24',          // decision D3
             'recurring_weeks' => '4',             // weekly therapy slots booked this far ahead
             'portal_requests_enabled' => '1',     // parents may ask for an appointment from the portal
+            'portal_booking_enabled' => '1',      // Sprint 20: therapy families pick a free slot themselves (pending until confirmed)
+            'portal_booking_days' => '14',         // how far ahead
+            'portal_booking_notice_hours' => '12', // not closer than this to the start
+            'portal_booking_max_open' => '2',      // unconfirmed portal bookings per child at a time
+            'portal_cancel_enabled' => '1',       // parents may cancel upcoming appointments (late-cancel rule applies)
         ],
         'pdf' => [
             'paper_size' => 'A4',
@@ -84,6 +89,10 @@ class SystemSettings
                 'late_cancel_hours' => ['required', 'integer', 'between:0,168'],
                 'recurring_weeks' => ['required', 'integer', 'between:1,12'],
                 'portal_requests_enabled' => $bool,
+                'portal_booking_enabled' => $bool, 'portal_cancel_enabled' => $bool,
+                'portal_booking_days' => ['required', 'integer', 'between:1,60'],
+                'portal_booking_notice_hours' => ['required', 'integer', 'between:0,72'],
+                'portal_booking_max_open' => ['required', 'integer', 'between:1,10'],
             ],
             'pdf' => [
                 'paper_size' => ['required', Rule::in(['A4', 'Letter', 'Legal'])],

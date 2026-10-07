@@ -146,7 +146,7 @@ export function ReceivePaymentModal({ patient, onClose }: { patient: { id: numbe
           </div>
 
           <div role="radiogroup" aria-label="Method" className="grid grid-cols-5 gap-1.5">
-            {(Object.keys(methodLabel) as PaymentMethod[]).map((m) => (
+            {(Object.keys(methodLabel) as PaymentMethod[]).filter((m) => m !== 'online').map((m) => (
               <button
                 key={m}
                 type="button"

@@ -42,6 +42,7 @@ import InvoiceDetailPage from '../features/billing/InvoiceDetailPage'
 import InvoicesPage from '../features/billing/InvoicesPage'
 import PackagesPage from '../features/billing/PackagesPage'
 import PaymentsPage from '../features/billing/PaymentsPage'
+import OnlinePaymentsPage from '../features/billing/OnlinePaymentsPage'
 import { AllocationsPage, BillingDashboardPage, DiscountsPage, PackageUsagePage, ReceiptsPage } from '../features/billing/BillingAdminPages'
 import { TherapistAssessmentPage, TherapistAssessmentsPage, TherapistNewAssessmentPage } from '../features/therapist/TherapistAssessments'
 import { TherapistPatientPage, TherapistPatientsPage, TherapistSchedulePage, TherapistSessionPage, TherapistSessionsPage } from '../features/therapist/TherapistPages'
@@ -130,6 +131,7 @@ const adminPages: RouteObject[] = [
   { path: 'assessments/templates', element: <RequirePermission permission="assessments.view"><AssessmentTypesPage templates /></RequirePermission> },
   { path: 'assessments/recommendations', element: <RequirePermission permission="assessments.view"><RecommendationsPage /></RequirePermission> },
   { path: 'billing', element: <RequirePermission permission={['invoices.view', 'payments.view']}><BillingDashboardPage /></RequirePermission> },
+  { path: 'billing/online', element: <RequirePermission permission="payments.view"><OnlinePaymentsPage /></RequirePermission> },
   { path: 'billing/receipts', element: <RequirePermission permission="payments.view"><ReceiptsPage /></RequirePermission> },
   { path: 'billing/refunds', element: <RequirePermission permission="payments.view"><ReceiptsPage refunds /></RequirePermission> },
   { path: 'billing/allocations', element: <RequirePermission permission="payments.view"><AllocationsPage /></RequirePermission> },

@@ -17,7 +17,13 @@ class Payment extends Model
 {
     use Auditable;
 
+    /** Methods staff can choose when taking money. */
     public const METHODS = ['cash', 'bkash', 'nagad', 'bank', 'card'];
+
+    /** Paid by the family through SSLCommerz (card / bKash / Nagad / Rocket) — settles to the bank later (Sprint 19). */
+    public const ONLINE = 'online';
+
+    public const ALL_METHODS = [...self::METHODS, self::ONLINE];
 
     protected function casts(): array
     {

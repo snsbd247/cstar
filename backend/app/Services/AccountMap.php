@@ -54,6 +54,8 @@ class AccountMap
             'bkash' => $this->system('mfs_bkash'),
             'nagad' => $this->system('mfs_nagad'),
             'bank', 'card' => $this->system('bank_main'),
+            // SSLCommerz pays out to the bank a few days later, less its fee — matched in Bank Reconciliation.
+            'online' => $this->system('online_clearing'),
             default => throw new RuntimeException("Unknown payment method '{$method}'."),
         };
     }

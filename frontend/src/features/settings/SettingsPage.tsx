@@ -12,6 +12,7 @@ import { ApprovalLimitCard } from '../accounts/AccountsPage'
 import { BillingSettingsForm } from '../billing/PackagesPage'
 import { useBranches } from '../branches/api'
 import { NotificationSettingsCard } from '../notifications/NotificationsPage'
+import { OnlinePaymentSettingsTab } from '../billing/OnlinePaymentsPage'
 import { GoLiveTab } from './GoLiveTab'
 import { MessagingTab } from './MessagingTab'
 
@@ -28,6 +29,7 @@ const tabs = [
   ['accounts', 'Accounts'],
   ['notification', 'Notification'],
   ['messaging', 'SMS & WhatsApp'],
+  ['online-payment', 'Online Payment'],
   ['language', 'Language'],
   ['pdf', 'PDF'],
   ['security', 'Security'],
@@ -148,6 +150,8 @@ export default function SettingsPage() {
         <div className="max-w-xl">
           <NotificationSettingsCard />
         </div>
+      ) : tab === 'online-payment' ? (
+        <OnlinePaymentSettingsTab />
       ) : tab === 'messaging' ? (
         <MessagingTab />
       ) : tab === 'go-live' ? (

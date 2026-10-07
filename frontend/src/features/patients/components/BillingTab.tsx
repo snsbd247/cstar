@@ -168,7 +168,7 @@ function RefundModal({ patientId, advance, branches, onClose }: { patientId: num
           </Field>
           <Field label="Paid back by" htmlFor="rf_method">
             <Select id="rf_method" value={method} onChange={(e) => setMethod(e.target.value as PaymentMethod)}>
-              {(Object.keys(methodLabel) as PaymentMethod[]).map((m) => (
+              {(Object.keys(methodLabel) as PaymentMethod[]).filter((m) => m !== 'online').map((m) => (
                 <option key={m} value={m}>
                   {methodLabel[m]}
                 </option>

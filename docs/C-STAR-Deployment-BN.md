@@ -82,8 +82,9 @@ Super Admin হিসেবে **Settings → Go-live** খুলে ধাপ�
 7. *Fixed Assets* — সরঞ্জাম; *Vendors* — সরবরাহকারীর কাছে আগের দেনা (opening balance)
 8. **শিশুদের import** — template ডাউনলোড → Excel-এ পূরণ → "CSV UTF-8" হিসেবে save → *Check file* → সমস্যা ঠিক করে আবার → *Import*; তারপর প্রত্যেককে তাদের প্রোগ্রামে enroll
 9. *Settings → SMS & WhatsApp* — Gateway: **GreenWeb BulkSMS**, GreenWeb portal থেকে API token বসিয়ে **Save** → **Check balance** → নিজের নম্বরে **Send test** → "Send SMS" চালু। কোন বার্তা SMS-এ যাবে তা টিক দিন (প্রতিটি SMS-এর খরচ আছে — বাংলায় ৭০ অক্ষরে ১টি SMS)। *Notifications → SMS / WhatsApp Log*-এ প্রতিটি SMS ও ব্যর্থ হলে কারণ দেখায়।
-10. *Website / CMS* — আসল ছবি, সেবা, টিম, FAQ; go-live দিনে *SEO → "Hide from search engines"* বন্ধ করুন
-11. *Settings → System* — checklist-এর সব ✔ হলে go-live
+10. *Settings → Online Payment* — bKash (app key, secret, username, password) ও/বা SSLCommerz (store ID, password) বসান; merchant account অনুমোদনের আগে **Sandbox** চালু রেখে নিজে একটি পরীক্ষামূলক পেমেন্ট করুন, তারপর Sandbox বন্ধ। Gateway-এর ড্যাশবোর্ডে কোনো URL চাইলে: IPN `https://<domain>/pay/sslcommerz/ipn`। অনলাইনে পাওয়া টাকা *Billing & Payments → Online Payments*-এ; SSLCommerz-এর টাকা ব্যাংকে এলে *Bank Reconciliation*-এ "Online Payments in Transit"-এর সাথে মেলান (তাদের fee "Bank charge" হিসেবে)।
+11. *Website / CMS* — আসল ছবি, সেবা, টিম, FAQ; go-live দিনে *SEO → "Hide from search engines"* বন্ধ করুন
+12. *Settings → System* — checklist-এর সব ✔ হলে go-live
 
 Terminal থেকেও একই checklist: `php artisan cstar:go-live-check`
 
@@ -112,6 +113,7 @@ Terminal থেকেও একই checklist: `php artisan cstar:go-live-check`
 | Staff app খোলে না ("Frontend not built") | `public_html/spa/index.html` আছে কিনা |
 | Reminder/backup হচ্ছে না | Cron job ঠিক আছে কিনা; *Settings → System*-এ "Scheduler last ran" |
 | Email যায় না | `MAIL_*` তথ্য; cPanel email account-এর password |
+| অনলাইন পেমেন্ট "Needs checking" | টাকার পরিমাণ মেলেনি বা gateway ঝুঁকিপূর্ণ বলেছে — gateway-এর merchant panel-এ লেনদেনটি দেখুন; ঠিক থাকলে *Online Payments* → **Check again**, নইলে gateway-এর মাধ্যমে ফেরত। অভিভাবক টাকা দিয়েছেন অথচ "Not finished" দেখালে **Check again**। |
 | SMS যায় না | *Notifications → SMS / WhatsApp Log*-এ "failed"-এর কারণ (token ভুল, balance শেষ); *Settings → SMS & WhatsApp* → Check balance; ঠিক হলে log থেকে **Send again**। Gateway "Test mode"-এ থাকলে কিছুই যায় না। |
 | ভুল কিছু হলে আগের অবস্থায় ফেরা | আগের zip আবার extract করে `php artisan cstar:deploy`; database ভুল হলে update-এর আগের backup restore |
 

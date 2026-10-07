@@ -177,11 +177,11 @@ class PaymentController extends Controller
             'own_only' => $ownOnly,
             'total' => round($payments->sum($sign), 2),
             'count' => $payments->where('type', 'payment')->count(),
-            'by_method' => collect(Payment::METHODS)->mapWithKeys(fn ($m) => [$m => round($payments->where('method', $m)->sum($sign), 2)]),
+            'by_method' => collect(Payment::ALL_METHODS)->mapWithKeys(fn ($m) => [$m => round($payments->where('method', $m)->sum($sign), 2)]),
             'by_user' => $payments->groupBy('received_by')->map(fn ($list) => [
                 'user' => $list->first()->receiver?->only(['id', 'name']),
                 'total' => round($list->sum($sign), 2),
-                'by_method' => collect(Payment::METHODS)->mapWithKeys(fn ($m) => [$m => round($list->where('method', $m)->sum($sign), 2)]),
+                'by_method' => collect(Payment::ALL_METHODS)->mapWithKeys(fn ($m) => [$m => round($list->where('method', $m)->sum($sign), 2)]),
             ])->values(),
         ]]);
     }

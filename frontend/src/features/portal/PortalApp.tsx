@@ -31,6 +31,8 @@ import {
   type Child,
   type PortalAppointment,
 } from './api'
+import { OnlinePayCard, OnlineResult } from './OnlinePay'
+import { BookingCard, CancelAppointment } from './PortalBooking'
 
 /** Plan §১৫: one child at a time; a switcher appears only for families with more than one child. */
 function ChildFrame({ children }: { children: (child: Child) => ReactNode }) {
@@ -77,7 +79,7 @@ function Stat({ icon: Icon, label, value, tone, to }: { icon: typeof House; labe
   return to ? <Link to={to}>{body}</Link> : body
 }
 
-function AppointmentLine({ a }: { a: PortalAppointment }) {
+function AppointmentLine({ a, action }: { a: PortalAppointment; action?: ReactNode }) {
   return (
     <div className="flex items-center justify-between gap-2 py-2.5">
       <div>
@@ -87,9 +89,12 @@ function AppointmentLine({ a }: { a: PortalAppointment }) {
           {a.therapist && ` · ${a.therapist}`}
         </p>
       </div>
-      <Badge tone={a.status === 'confirmed' ? 'green' : a.status === 'completed' ? 'blue' : ['cancelled', 'no_show'].includes(a.status) ? 'red' : 'amber'}>
-        {appointmentStatusBn[a.status] ?? a.status}
-      </Badge>
+      <div className="flex flex-col items-end gap-1">
+        <Badge tone={a.status === 'confirmed' ? 'green' : a.status === 'completed' ? 'blue' : ['cancelled', 'no_show'].includes(a.status) ? 'red' : 'amber'}>
+          {appointmentStatusBn[a.status] ?? a.status}
+        </Badge>
+        {action}
+      </div>
     </div>
   )
 }
@@ -207,6 +212,8 @@ function ScheduleBody({ child }: { child: Child }) {
         </Card>
       )}
 
+      <BookingCard childId={child.id} />
+
       <Card className="p-4">
         <div className="flex items-center justify-between">
           <h2 className="font-semibold text-slate-900">আসন্ন অ্যাপয়েন্টমেন্ট</h2>
@@ -219,7 +226,7 @@ function ScheduleBody({ child }: { child: Child }) {
         {asking && <RequestForm childId={child.id} services={data.services} onDone={() => setAsking(false)} />}
         <div className="divide-y divide-slate-100">
           {data.upcoming.map((a) => (
-            <AppointmentLine key={a.id} a={a} />
+            <AppointmentLine key={a.id} a={a} action={<CancelAppointment childId={child.id} appointment={a} />} />
           ))}
           {data.upcoming.length === 0 && <p className="py-3 text-sm text-slate-500">এখন কোনো অ্যাপয়েন্টমেন্ট নির্ধারিত নেই।</p>}
         </div>
@@ -489,7 +496,8 @@ function BillingBody({ child }: { child: Child }) {
         <Stat icon={Wallet} label="মোট বকেয়া" value={bnTaka(data.due)} tone={data.due > 0 ? 'text-red-600' : 'text-brand-700'} />
         <Stat icon={Receipt} label="অগ্রিম জমা" value={bnTaka(data.advance)} />
       </div>
-      {data.due > 0 && <p className="text-sm text-slate-600">বকেয়া পরিশোধ করতে রিসেপশনে নগদ, বিকাশ, নগদ (মোবাইল) বা কার্ডে দিন। রসিদ এখানেই পাবেন।</p>}
+      <OnlineResult />
+      <OnlinePayCard childId={child.id} due={data.due} />
 
       {data.packages.length > 0 && (
         <Card className="p-4">

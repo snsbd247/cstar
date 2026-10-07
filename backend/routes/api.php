@@ -29,9 +29,11 @@ use App\Http\Controllers\Api\V1\LookupController;
 use App\Http\Controllers\Api\V1\MessagingController;
 use App\Http\Controllers\Api\V1\NotificationAdminController;
 use App\Http\Controllers\Api\V1\NotificationController;
+use App\Http\Controllers\Api\V1\OnlinePaymentController;
 use App\Http\Controllers\Api\V1\PatientController;
 use App\Http\Controllers\Api\V1\PatientDocumentController;
 use App\Http\Controllers\Api\V1\PatientRecordsController;
+use App\Http\Controllers\Api\V1\Portal\PortalBookingController;
 use App\Http\Controllers\Api\V1\Portal\PortalController;
 use App\Http\Controllers\Api\V1\ReportController as OperationalReportController;
 use App\Http\Controllers\Api\V1\RoleController;
@@ -220,6 +222,10 @@ Route::prefix('v1')->group(function () {
         Route::get('billing/dues', [PaymentController::class, 'dues']);
         Route::get('billing/collection', [PaymentController::class, 'collection']);
         Route::get('billing/dashboard', [BillingAdminController::class, 'dashboard']);
+        Route::get('online-payments', [OnlinePaymentController::class, 'index']);
+        Route::post('online-payments/{onlinePayment}/recheck', [OnlinePaymentController::class, 'recheck'])->middleware('throttle:20,60');
+        Route::get('online-payment-settings', [OnlinePaymentController::class, 'settings']);
+        Route::put('online-payment-settings', [OnlinePaymentController::class, 'updateSettings']);
         Route::get('billing/payment-list', [BillingAdminController::class, 'payments']);
         Route::get('billing/allocations', [BillingAdminController::class, 'allocations']);
         Route::get('billing/discounts', [BillingAdminController::class, 'discounts']);
@@ -325,6 +331,13 @@ Route::prefix('v1')->group(function () {
         // Parent portal (Plan §১৫) — only the parent's own children, only family-facing fields
         Route::prefix('portal')->group(function () {
             Route::get('children', [PortalController::class, 'children']);
+            Route::get('children/{patient}/booking', [PortalBookingController::class, 'options']);
+            Route::get('children/{patient}/booking/slots', [PortalBookingController::class, 'slots']);
+            Route::post('children/{patient}/booking', [PortalBookingController::class, 'book'])->middleware('throttle:10,60');
+            Route::post('children/{patient}/appointments/{appointment}/cancel', [PortalBookingController::class, 'cancel'])->middleware('throttle:10,60');
+            Route::get('children/{patient}/online-payment', [OnlinePaymentController::class, 'options']);
+            Route::post('children/{patient}/online-payment', [OnlinePaymentController::class, 'start'])->middleware('throttle:10,10');
+            Route::get('online-payments/{tranId}', [OnlinePaymentController::class, 'status']);
             Route::get('children/{patient}/home', [PortalController::class, 'home']);
             Route::get('children/{patient}/schedule', [PortalController::class, 'schedule']);
             Route::get('children/{patient}/attendance', [PortalController::class, 'attendance']);

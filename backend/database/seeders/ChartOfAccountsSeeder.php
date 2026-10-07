@@ -26,6 +26,7 @@ class ChartOfAccountsSeeder extends Seeder
         ['1140', 'Mobile Financial Services', 'মোবাইল ব্যাংকিং', '1100', true, null, null],
         ['1141', 'bKash Merchant', 'বিকাশ মার্চেন্ট', '1140', false, 'mfs_bkash', 'mfs'],
         ['1142', 'Nagad Merchant', 'নগদ মার্চেন্ট', '1140', false, 'mfs_nagad', 'mfs'],
+        ['1150', 'Online Payments in Transit (SSLCommerz)', 'অনলাইন পেমেন্ট (ব্যাংকে আসার পথে)', '1100', false, 'online_clearing', 'bank'],
         ['1200', 'Accounts Receivable — Patients', 'রোগীর কাছে পাওনা', '1000', false, 'receivable', 'receivable'],
         ['1300', 'Staff Advances', 'কর্মীদের অগ্রিম', '1000', false, 'staff_advances', null],
         ['1400', 'Prepaid Expenses & Deposits', 'অগ্রিম খরচ ও জামানত', '1000', false, null, null],

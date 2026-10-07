@@ -3,7 +3,7 @@ import { api, apiUrl } from '../../api/client'
 import type { Paginated } from '../../types'
 
 export type InvoiceStatus = 'draft' | 'issued' | 'partially_paid' | 'paid' | 'void'
-export type PaymentMethod = 'cash' | 'bkash' | 'nagad' | 'bank' | 'card'
+export type PaymentMethod = 'cash' | 'bkash' | 'nagad' | 'bank' | 'card' | 'online'
 export type ItemType = 'admission' | 'assessment' | 'training_fee' | 'therapy_session' | 'package' | 'consultation' | 'other' | 'opening_balance'
 
 export interface InvoiceItem {
@@ -100,7 +100,7 @@ export interface BillingAccount {
   packages: PatientPackageRow[]
 }
 
-export const methodLabel: Record<PaymentMethod, string> = { cash: 'Cash', bkash: 'bKash', nagad: 'Nagad', bank: 'Bank', card: 'Card' }
+export const methodLabel: Record<PaymentMethod, string> = { cash: 'Cash', bkash: 'bKash', nagad: 'Nagad', bank: 'Bank', card: 'Card', online: 'Online' }
 export const itemTypeLabel: Record<ItemType, string> = {
   admission: 'Admission fee',
   assessment: 'Assessment',

@@ -42,6 +42,7 @@
 - **বিল (Invoice):** Billing tab → **Invoice** (অথবা *Billing & Payments → Invoices* → **New invoice**) → **Issue**। ছাড় দিলে কারণ লিখতে হয়; রিসেপশন সর্বোচ্চ ১০% ছাড় দিতে পারেন, বেশি হলে branch admin / হিসাবরক্ষক।
 - **Package বিক্রি:** Billing tab → **Sell package**। টাকা ফেরত (শুধু অগ্রিম থেকে): **Refund**। Session হলে তবেই package থেকে কাটে।
 - কার কাছে কত বাকি: *Billing & Payments → Due / Outstanding*।
+- অভিভাবক portal থেকে অনলাইনে দিলে রসিদ নিজে থেকেই হয় — *Billing & Payments → Online Payments*-এ দেখুন। "Needs checking" থাকলে হিসাবরক্ষককে জানান।
 
 ### দিনের শেষে
 *Accounts → Cash Closing* → system দেখায় আজ কত নিয়েছেন → হাতের নোট গুনে লিখুন → কম/বেশি হলে কারণ → close করুন। তারপর cash branch admin / হিসাবরক্ষককে বুঝিয়ে দিন — তাঁরা system-এ **Receive cash** চাপবেন।
@@ -103,7 +104,7 @@
 ## ৭. অভিভাবকদের যা বলবেন (portal)
 
 1. ফোনে `https://<center-এর ঠিকানা>/login` খুলুন → মোবাইল নম্বর ও রিসেপশন থেকে দেওয়া password → নতুন password দিন।
-2. **হোম:** সন্তানের প্রোগ্রাম, পরের appointment, উপস্থিতি, বকেয়া। **সময়সূচি:** appointment ও অনুরোধ পাঠানো। **অগ্রগতি:** উপস্থিতি, লক্ষ্য, থেরাপিস্ট/ট্রেইনারের নোট, রিপোর্ট PDF। **বিল:** বিল ও রসিদ।
+2. **হোম:** সন্তানের প্রোগ্রাম, পরের appointment, উপস্থিতি, বকেয়া। **সময়সূচি:** appointment ও অনুরোধ পাঠানো। **অগ্রগতি:** উপস্থিতি, লক্ষ্য, থেরাপিস্ট/ট্রেইনারের নোট, রিপোর্ট PDF। **বিল:** বিল ও রসিদ; **অনলাইনে পরিশোধ করুন** — বিকাশ বা কার্ড/নগদ/রকেট দিয়ে বকেয়া পরিশোধ, রসিদ সাথে সাথে।
 3. Portal চালু করতে: শিশুর profile → **Guardians** tab → অভিভাবক → **Create portal login** (password দিন ও অভিভাবককে জানান); "May see this child in the parent portal" চালু আছে কিনা দেখুন।
 
 ## ৮. সাহায্য

@@ -51,7 +51,7 @@ class BillingAdminController extends Controller
                 'advances_held' => round((float) $advanceBalance, 2),
                 'discounts_month' => round((float) (clone $invoices)->whereBetween('issue_date', [$monthStart, $today])->sum('discount_total'), 2),
             ],
-            'by_method' => collect(Payment::METHODS)->mapWithKeys(fn ($m) => [$m => round($month->where('method', $m)->sum($sign), 2)]),
+            'by_method' => collect(Payment::ALL_METHODS)->mapWithKeys(fn ($m) => [$m => round($month->where('method', $m)->sum($sign), 2)]),
             'top_dues' => $dueRows->groupBy('patient_id')->map(fn ($rows) => [
                 'patient' => $rows->first()->patient->only(['id', 'name', 'patient_code']), 'due' => round((float) $rows->sum('due_total'), 2), 'invoices' => $rows->count(),
             ])->sortByDesc('due')->take(6)->values(),

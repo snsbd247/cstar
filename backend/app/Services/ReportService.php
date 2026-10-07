@@ -358,7 +358,7 @@ class ReportService
 
     private function collection(array $f): array
     {
-        $methods = Payment::METHODS;
+        $methods = Payment::ALL_METHODS;
         $rows = $this->inBranches(Payment::query())->where('status', 'completed')->whereBetween('paid_at', [$this->from, $this->to])->get()
             ->groupBy(fn ($p) => $p->paid_at->toDateString())->sortKeys()
             ->map(function ($list, $date) use ($methods) {
@@ -371,7 +371,7 @@ class ReportService
                 return $row;
             })->values();
         $columns = [$this->col('date', 'Date', 'date'), $this->col('cash', 'Cash', 'money'), $this->col('bkash', 'bKash', 'money'), $this->col('nagad', 'Nagad', 'money'),
-            $this->col('bank', 'Bank', 'money'), $this->col('card', 'Card', 'money'), $this->col('total', 'Total', 'money')];
+            $this->col('bank', 'Bank', 'money'), $this->col('card', 'Card', 'money'), $this->col('online', 'Online', 'money'), $this->col('total', 'Total', 'money')];
 
         return ['columns' => $columns, 'rows' => $rows, 'totals' => $this->totals($rows, $columns, 'date'),
             'chart' => ['type' => 'bar', 'x' => 'date', 'series' => [['key' => 'total', 'label' => 'Collected']]]];

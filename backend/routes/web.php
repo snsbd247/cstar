@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\V1\OnlinePaymentController;
 use App\Http\Controllers\SpaController;
 use App\Http\Controllers\Website\EnquiryController;
 use App\Http\Controllers\Website\WebsiteController;
@@ -29,6 +30,15 @@ Route::controller(EnquiryController::class)->group(function () {
     Route::get('/appointment/thank-you', 'appointmentThanks')->name('appointment.thanks');
     Route::get('/contact', 'contactForm')->name('contact');
     Route::post('/contact', 'storeContact')->middleware('throttle:website-forms')->name('contact.store');
+});
+
+// Online payment returns (Sprint 19) — public; every result is checked with the gateway server-to-server.
+Route::controller(OnlinePaymentController::class)->prefix('pay')->group(function () {
+    Route::post('/sslcommerz/ipn', 'sslcommerzIpn')->name('pay.sslcommerz.ipn');
+    Route::post('/sslcommerz/{result}', 'sslcommerzReturn')->whereIn('result', ['success', 'fail', 'cancel'])->name('pay.sslcommerz');
+    Route::get('/bkash/callback', 'bkashCallback')->name('pay.bkash');
+    Route::get('/test/{tranId}', 'testPage')->name('pay.test');
+    Route::post('/test/{tranId}', 'testDecide')->name('pay.test.decide');
 });
 
 // React staff & parent apps. The production build lives in public/spa (see frontend/vite.config.ts);

@@ -103,7 +103,7 @@ function CloseMyCash({ branchId }: { branchId: number }) {
         <Input type="date" max={todayISO()} value={date} onChange={(e) => setDate(e.target.value)} className="w-40" aria-label="Date" />
       </div>
       <div className="grid grid-cols-3 gap-2 text-center text-sm">
-        {(Object.keys(methodLabel) as PaymentMethod[]).map((m) => (
+        {(Object.keys(methodLabel) as PaymentMethod[]).filter((m) => m !== 'online').map((m) => (
           <div key={m} className="rounded-lg bg-slate-50 p-2">
             <p className="text-xs text-slate-500">{methodLabel[m]}</p>
             <p className="font-semibold text-slate-900">{taka(exp.by_method[m] ?? 0)}</p>

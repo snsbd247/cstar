@@ -21,6 +21,8 @@ $app = Application::configure(basePath: dirname(__DIR__))
         $middleware->statefulApi();
         // Session timeout from Settings → Security must be known before the session starts.
         $middleware->prepend(ApplySecuritySettings::class);
+        // Payment gateways post back from their own sites (no CSRF token); those routes verify with the gateway.
+        $middleware->validateCsrfTokens(except: ['pay/sslcommerz/*', 'pay/test/*']);
 
         $middleware->alias([
             'active' => EnsureUserIsActive::class,
